@@ -333,7 +333,7 @@
       '</section>',
       '<section class="panels hf-mini" id="hf-mini">',
       '<div class="p"><h3>用量 · 费用</h3><div class="hf-use" id="hfUse"></div></div>',
-      '<div class="p"><h3>工具调用</h3><div class="feed" id="hfActs"></div><div class="cap">每完成一步就多一行</div></div>',
+      '<div class="p"><h3>工具调用</h3><div class="feed" id="hfActs"></div></div>',
       '<div class="p"><h3>事件速率</h3><canvas id="mRate"></canvas></div>',
       '<div class="p"><h3>工具分布</h3><canvas id="mMix"></canvas></div>',
       '</section>'
