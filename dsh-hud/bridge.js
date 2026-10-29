@@ -470,7 +470,7 @@
     if ($('mMix')) {
       const cnt2 = {};
       for (const t2 of (H.tools || [])) { const k2 = humanVerb(t2.name); cnt2[k2] = (cnt2[k2] || 0) + 1; }
-      const tops = Object.entries(cnt2).sort((a2, b2) => b2[1] - a2[1]).slice(0, 6);
+      const tops = Object.entries(cnt2).sort((a2, b2) => b2[1] - a2[1]).slice(0, 5);
       const mx2 = Math.max(1, ...tops.map(e => e[1]));
       $('mMix').innerHTML = tops.map(e =>
         '<div class="arow"><b>' + esc(e[0]) + '</b><i><span style="width:' + Math.max(2, Math.round(e[1] / mx2 * 100)) + '%"></span></i><em>x' + e[1] + '</em></div>'
