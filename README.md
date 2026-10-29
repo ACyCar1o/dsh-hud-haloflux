@@ -9,7 +9,7 @@
 最终作为 **Lively Wallpaper** 的桌面壁纸常驻。
 
 > ⚠️ HALOFLUX 采用 **PolyForm Noncommercial** 许可：**仅限个人非商业使用**，详见 [NOTICE.md](NOTICE.md)。
-> 画布右下角保留署名 `HALOFLUX by Ryder191`。
+> 署名默认不在画面上显示（`bridge.js` 的 `SHOW_CREDIT = true` 可重新打开）；完整版权信息见 `NOTICE.md` / `LICENSE`。
 
 ![待命 → 爆发](docs/screenshots/demo.gif)
 

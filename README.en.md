@@ -10,7 +10,7 @@ The local music player (QQ Music / Spotify…) and the **ChatGPT desktop app** s
 same frame, then the whole page is mounted as a **Lively Wallpaper** desktop wallpaper.
 
 > ⚠️ HALOFLUX is licensed under **PolyForm Noncommercial** — **personal, non-commercial use only**.
-> Details in [NOTICE.md](NOTICE.md). The `HALOFLUX by Ryder191` credit stays at the bottom-right.
+> Details in [NOTICE.md](NOTICE.md). The on-screen credit is hidden by default; set `SHOW_CREDIT = true` in `bridge.js` to show it again.
 
 ![Demo: idle → burst](docs/screenshots/demo.gif)
 

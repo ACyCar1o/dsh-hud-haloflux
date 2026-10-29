@@ -367,6 +367,7 @@
       '.hf-use div{font-size:9.5px;line-height:1.45;color:#b9bec7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
       '.hf-use b{color:#fff;font-weight:700}',
       '#hf-main .feed,#hf-mini .feed{justify-content:flex-start !important}',
+      '.ov.status .sm{display:none !important}',
       '.rate-head{display:flex;align-items:baseline;gap:5px;margin-bottom:2px}',
       '.rate-head b{font:800 11px/1 \"JetBrains Mono\",Consolas,monospace;color:#fff}',
       '.rate-head span{font:600 9px/1 \"JetBrains Mono\",Consolas,monospace;color:#9aa0aa}',
