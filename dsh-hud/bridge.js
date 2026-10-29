@@ -360,6 +360,7 @@
       '#hfActs .bad{color:#ff7d8a}',
       '.hf-use div{font-size:9.5px;line-height:1.45;color:#b9bec7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
       '.hf-use b{color:#fff;font-weight:700}',
+      '#hf-main .feed,#hf-mini .feed{justify-content:flex-start !important}',
       '#hf-mini canvas{display:block;width:100%;flex:1;min-height:0}',
       '#mChatBody{justify-content:flex-start !important}'
     ].join('\n');
@@ -419,7 +420,7 @@
       for (const t2 of (H.tools || [])) { const v = humanVerb(t2.name); cnt[v] = (cnt[v] || 0) + 1; }
       const top = Object.entries(cnt).sort((x2, y2) => y2[1] - x2[1]).slice(0, 6);
       const mx = Math.max(1, ...top.map(e => e[1]));
-      m.x.font = '600 10.5px "JetBrains Mono",Consolas,monospace';
+      m.x.font = '600 10.5px "JetBrains Mono","MiSans","HarmonyOS Sans SC","Microsoft YaHei",sans-serif';
       top.forEach((e, i) => {
         const y = 2 + i * ((m.h - 3) / Math.max(1, top.length));
         m.x.fillStyle = '#d7dae0'; m.x.fillText(e[0], 2, y + 6);
@@ -600,7 +601,7 @@
   /* wallpaper mode: force DPR 1 ??a 4K screen at DPR2 allocates 7680?4320 buffers (??30 MB each) */
   if (WALL) {
     try {
-      Object.defineProperty(window, 'devicePixelRatio', { get: () => 0.65, configurable: true });
+      Object.defineProperty(window, 'devicePixelRatio', { get: () => 0.95, configurable: true });
       setTimeout(() => { try { resizeAll(); } catch (e) {} }, 400);
     } catch (e) {}
   }
