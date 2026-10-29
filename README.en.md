@@ -44,6 +44,8 @@ One stack everywhere: **JetBrains Mono (digits/Latin) → MiSans → HarmonyOS S
 
 Rule: one size and weight per tier; verbs and values always bold+white; secondary info always muted.
 
+All text (chart labels, counters, event-rate value) is rendered as **DOM**; canvas only draws the bars/heat graphics, so fonts can never drift between the panels and the charts.
+
 ## Quick start
 
 ```powershell

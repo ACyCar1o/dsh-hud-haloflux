@@ -334,8 +334,8 @@
       '<section class="panels hf-mini" id="hf-mini">',
       '<div class="p"><h3>用量 · 费用</h3><div class="hf-use" id="hfUse"></div></div>',
       '<div class="p"><h3>工具调用</h3><div class="feed" id="hfActs"></div></div>',
-      '<div class="p"><h3>事件速率</h3><canvas id="mRate"></canvas></div>',
-      '<div class="p"><h3>工具分布</h3><canvas id="mMix"></canvas></div>',
+      '<div class="p"><h3>事件速率</h3><div class="rate-head"><b id="mRateVal">0</b><span>evt/min</span></div><canvas id="mRate"></canvas></div>',
+      '<div class="p"><h3>工具分布</h3><div class="feed" id="mMix"></div>',
       '</section>'
     ].join('');
     sec.replaceWith(wrap);
@@ -363,6 +363,15 @@
       '.hf-use div{font-size:9.5px;line-height:1.45;color:#b9bec7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
       '.hf-use b{color:#fff;font-weight:700}',
       '#hf-main .feed,#hf-mini .feed{justify-content:flex-start !important}',
+      '.rate-head{display:flex;align-items:baseline;gap:5px;margin-bottom:2px}',
+      '.rate-head b{font:800 11px/1 \"JetBrains Mono\",Consolas,monospace;color:#fff}',
+      '.rate-head span{font:600 9px/1 \"JetBrains Mono\",Consolas,monospace;color:#9aa0aa}',
+      '#mMix{gap:2px}',
+      '#mMix .arow{display:flex;align-items:center;gap:6px;font-size:9.5px;line-height:1.5}',
+      '#mMix .arow b{font-weight:700;color:#fff;width:4.1em;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+      '#mMix .arow i{flex:1;height:5px;background:rgba(255,255,255,.08);display:block;min-width:0}',
+      '#mMix .arow i span{display:block;height:100%;background:rgba(235,238,244,.85)}',
+      '#mMix .arow em{font-style:normal;font-family:\"JetBrains Mono\",Consolas,monospace;font-weight:700;color:#b9bec7;width:2.6em;text-align:right;flex:none}',
       '#hf-mini canvas{display:block;width:100%;flex:1;min-height:0}',
       '#mChatBody{justify-content:flex-start !important}'
     ].join('\n');
@@ -394,41 +403,10 @@
       const pts = H.samples.slice(-300);
       const mx = Math.max(10, ...pts.map(p => p.v));
       const bw = r.w / Math.max(1, pts.length);
-      const top = 15;
       pts.forEach((p, i) => {
-        const bh = (p.v / mx) * (r.h - top);
+        const bh = (p.v / mx) * (r.h - 2);
         r.x.fillStyle = 'rgba(235,238,244,.88)';
         r.x.fillRect(i * bw, r.h - bh, Math.max(1, bw * 0.8), bh);
-      });
-      const val = String(pts.length ? pts[pts.length - 1].v : 0);
-      r.x.font = '800 11px "JetBrains Mono",Consolas,monospace';
-      const unit = ' evt/min';
-      const wVal = r.x.measureText(val).width;
-      r.x.font = '600 9px "JetBrains Mono",Consolas,monospace';
-      const wUnit = r.x.measureText(unit).width;
-      r.x.fillStyle = 'rgba(10,11,13,.9)';
-      r.x.fillRect(0, 0, wVal + wUnit + 6, 14);
-      r.x.fillStyle = '#e6e8ec';
-      r.x.font = '800 11px "JetBrains Mono",Consolas,monospace';
-      r.x.fillText(val, 2, 2);
-      r.x.fillStyle = '#9aa0aa';
-      r.x.font = '600 9px "JetBrains Mono",Consolas,monospace';
-      r.x.fillText(unit, 2 + wVal, 4);
-    }
-
-    const m = canvasCtx('mMix');
-    if (m) {
-      const cnt = {};
-      for (const t2 of (H.tools || [])) { const v = humanVerb(t2.name); cnt[v] = (cnt[v] || 0) + 1; }
-      const top = Object.entries(cnt).sort((x2, y2) => y2[1] - x2[1]).slice(0, 6);
-      const mx = Math.max(1, ...top.map(e => e[1]));
-      m.x.font = '700 9.5px \"JetBrains Mono\",\"MiSans\",\"HarmonyOS Sans SC\",\"Microsoft YaHei\",sans-serif';
-      top.forEach((e, i) => {
-        const y = 2 + i * ((m.h - 3) / Math.max(1, top.length));
-        m.x.fillStyle = '#d7dae0'; m.x.fillText(e[0], 2, y + 6);
-        m.x.fillStyle = 'rgba(235,238,244,.82)';
-        m.x.fillRect(62, y + 1, Math.max(2, (m.w - 104) * (e[1] / mx)), Math.min(6, (m.h - 3) / Math.max(1, top.length) - 2));
-        m.x.fillStyle = '#b9bec7'; m.x.font = '700 9.5px "JetBrains Mono",Consolas,monospace'; m.x.fillText('x' + e[1], m.w - 26, y + 6);
       });
     }
   }
@@ -481,6 +459,21 @@
       wl.push('<div>第 ' + (top.turn || 0) + ' 轮 · ' + (top.steps || 0) + ' 步</div>');
       wl.push('<div>速率 ' + (st.rate || 0) + '/分 · ' + (top.status === 'tool' ? '干活' : top.status === 'thinking' ? '思考' : '空闲') + '</div>');
       $('hfWork').innerHTML = wl.join('');
+    }
+
+    // 事件速率数值 + 工具分布（DOM 渲染，字体与面板完全一致）
+    if ($('mRateVal')) {
+      const pts = H.samples;
+      $('mRateVal').textContent = pts.length ? pts[pts.length - 1].v : 0;
+    }
+    if ($('mMix')) {
+      const cnt2 = {};
+      for (const t2 of (H.tools || [])) { const k2 = humanVerb(t2.name); cnt2[k2] = (cnt2[k2] || 0) + 1; }
+      const tops = Object.entries(cnt2).sort((a2, b2) => b2[1] - a2[1]).slice(0, 6);
+      const mx2 = Math.max(1, ...tops.map(e => e[1]));
+      $('mMix').innerHTML = tops.map(e =>
+        '<div class="arow"><b>' + esc(e[0]) + '</b><i><span style="width:' + Math.max(2, Math.round(e[1] / mx2 * 100)) + '%"></span></i><em>x' + e[1] + '</em></div>'
+      ).join('') || '<div class="arow"><b>暂无</b></div>';
     }
 
     // bottom status + callout
