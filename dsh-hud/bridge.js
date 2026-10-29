@@ -434,7 +434,7 @@
     if ($('hfProgSub2')) $('hfProgSub2').textContent = '会话：' + (top.title ? short(top.title, 14) : '—');
 
     // 最近动作
-    const acts = (st.feed || []).slice().reverse().slice(0, 6);
+    const acts = (st.feed || []).slice().reverse().slice(0, 5);
     if ($('hfActs')) $('hfActs').innerHTML = acts.map(f => {
       const tm = f.t ? new Date(f.t).toTimeString().slice(0, 5) : '';
       return '<div class="' + (f.ok === false ? 'bad' : '') + '"><i>' + tm + '</i><b>' + humanVerb(f.name) + '</b>' + esc(humanObj(f.name, f.args)) + '</div>';
@@ -470,7 +470,7 @@
     if ($('mMix')) {
       const cnt2 = {};
       for (const t2 of (H.tools || [])) { const k2 = humanVerb(t2.name); cnt2[k2] = (cnt2[k2] || 0) + 1; }
-      const tops = Object.entries(cnt2).sort((a2, b2) => b2[1] - a2[1]).slice(0, 5);
+      const tops = Object.entries(cnt2).sort((a2, b2) => b2[1] - a2[1]).slice(0, 4);
       const mx2 = Math.max(1, ...tops.map(e => e[1]));
       $('mMix').innerHTML = tops.map(e =>
         '<div class="arow"><b>' + esc(e[0]) + '</b><i><span style="width:' + Math.max(2, Math.round(e[1] / mx2 * 100)) + '%"></span></i><em>x' + e[1] + '</em></div>'
