@@ -335,11 +335,11 @@
       '<div class="p"><h3>事件速率</h3><div class="rate-head"><b id="mRateVal">0</b><span>evt/min</span></div><canvas id="mRate"></canvas></div>',
       '</section>',
       '<section class="panels hf-mini" id="hf-mini">',
-      '<div class="p"><h3>ChatGPT</h3><div class="feed" id="mChatBody"></div></div>',
+      '<div class="p"><h3>用量 · 费用</h3><div class="hf-use" id="hfUse"></div></div>',
       '<div class="p"><h3>工具分布</h3><div class="feed" id="mMix"></div></div>',
       '<div class="p"><h3>会话工作台</h3><div class="feed" id="hfWork"></div></div>',
       '<div class="p"><h3>今日之最</h3><div class="hf-use" id="hfFun"></div></div>',
-      '<div class="p"><h3>用量 · 费用</h3><div class="hf-use" id="hfUse"></div></div>',
+      '<div class="p"><h3>ChatGPT</h3><div class="feed" id="mChatBody"></div></div>',
       '</section>'
     ].join('');
     sec.replaceWith(wrap);
@@ -349,7 +349,7 @@
       '#dsh-ext,#dsh-usage{display:none !important}',
       '#hf-bottom{display:block;padding:8px 12px 12px}',
       '#hf-main{display:grid;grid-template-columns:1.35fr 1.05fr 1.8fr 1.15fr !important;gap:8px;padding:0 !important}',
-      '#hf-mini{display:grid;grid-template-columns:1.15fr 1.3fr 1.05fr 1.05fr 1.45fr !important;gap:8px;padding:0 !important;margin-top:8px}',
+      '#hf-mini{display:grid;grid-template-columns:1.45fr 1.25fr 1.05fr 1.05fr 1.2fr !important;gap:8px;padding:0 !important;margin-top:8px}',
       '#hf-bottom .p{background:var(--panel,#0e0f12);border:1px solid var(--line,#25282e);height:clamp(100px,11vh,136px);padding:7px 10px 6px;overflow:hidden;display:flex;flex-direction:column}',
       '#hf-mini .p{height:clamp(100px,11vh,136px) !important;padding:7px 10px 6px !important}',
       '#hf-bottom .p h3{font-size:10px !important;letter-spacing:.08em !important;margin:0 0 4px !important;color:#e8eaee !important}',
