@@ -224,8 +224,9 @@
   renderSlot = function (s) {
     const band = RO - R, h = s.hpx;
     const c = document.createElement('canvas');
-    c.width = Math.ceil(band * RING_SC); c.height = Math.ceil((h + 2) * RING_SC);
-    const x = c.getContext('2d'); x.scale(RING_SC, RING_SC); x.textBaseline = 'top';
+    const SC = RING_SC * 1.9;
+    c.width = Math.ceil(band * SC); c.height = Math.ceil((h + 2) * SC);
+    const x = c.getContext('2d'); x.scale(SC, SC); x.textBaseline = 'top';
     const card = HF_CARDS[slotSeq % HF_CARDS.length]; slotSeq++;
     const tint = card.c || [232, 234, 240];
     const cw = Math.max(10, band - 4), ch = Math.max(8, h);
@@ -237,12 +238,12 @@
 
     if (kind === 1) {
       // C1: real latency bars (last 8 calls), pink when failed
-      const log = (H.tools || []).slice(-16);
+      const log = (H.tools || []).slice(-24);
       const mx = Math.max(1, ...log.map(t2 => t2.ms || 0));
       log.forEach((t2, i) => {
         const rh = ch / Math.max(1, log.length);
         const w = (cw - 2) * ((t2.ms || 0) / mx);
-        x.fillStyle = t2.ok ? rgba(tint, 0.5) : 'rgba(240,166,198,.75)';
+        x.fillStyle = t2.ok ? rgba(tint, 0.42) : 'rgba(240,166,198,.7)';
         x.fillRect(1, 0.5 + i * rh, Math.max(0.8, w), Math.max(0.8, rh - 0.4));
       });
     } else if (kind === 2) {
@@ -263,15 +264,15 @@
       const u = window.__USAGE;
       let num = '—', lab = 'TOKENS';
       if (u && u.today) { num = u.today.tokens >= 1e6 ? (u.today.tokens / 1e6).toFixed(0) + 'M' : fmtTok(u.today.tokens); }
-      x.font = `800 5px ${FONT}`; x.fillStyle = rgba(tint, .92); x.fillText(num, 1, 1);
-      if (ch > 22) { x.font = `500 3.6px ${FONT}`; x.fillStyle = rgba(tint, .6); x.fillText(lab, 1, 8.4); }
+      x.font = `800 8.4px ${FONT}`; x.fillStyle = rgba(tint, 1); x.fillText(num, 1, 1);
+      if (ch > 22) { x.font = `600 5.6px ${FONT}`; x.fillStyle = rgba(tint, .85); x.fillText(lab, 1, 12); }
     } else {
       // A: action card, wider band + bigger type
-      x.font = `800 4.8px ${FONT}`; x.fillStyle = rgba(tint, .92);
-      x.fillText(String(card.k).slice(0, Math.max(6, Math.floor(cw / 3.2))), 1, 1);
+      x.font = `800 10.5px ${FONT}`; x.fillStyle = rgba(tint, 1);
+      x.fillText(String(card.k).slice(0, Math.max(2, Math.floor(cw / 13))), 1, 1);
       if (ch > 20) {
-        x.font = `500 4px ${FONT}`; x.fillStyle = rgba(tint, .7);
-        x.fillText(String(card.v).slice(0, Math.max(8, Math.floor(cw / 2.2))), 1, 8);
+        x.font = `600 7px ${FONT}`; x.fillStyle = rgba(tint, .92);
+        x.fillText(String(card.v).slice(0, Math.max(4, Math.floor(cw / 10))), 1, 12);
       }
       x.fillStyle = rgba(tint, .9); x.fillRect(cw - 3, 1.2, 2, 2);
     }
@@ -364,6 +365,7 @@
     ].join('\n');
     document.head.appendChild(css);
     PANELS_READY = true;
+    setTimeout(() => { try { setParam('ringWidth', 1.72, true); } catch (e) {} }, 800);
     try { drawAdv = () => {}; drawDiff = () => {}; drawVal = () => {}; drawIdx = () => {}; } catch (e) {}
     setInterval(drawMini, 700);
   }
@@ -371,13 +373,14 @@
   function canvasCtx(id) {
     const c = document.getElementById(id);
     if (!c) return null;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = 2.5;   // fixed supersampling: the wallpaper forces devicePixelRatio 0.65
     const w = Math.max(10, c.clientWidth), h = Math.max(10, c.clientHeight);
     if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) {
       c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
     }
     const x = c.getContext('2d');
     x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    x.textBaseline = 'top';
     x.clearRect(0, 0, w, h);
     return { x, w, h };
   }
@@ -388,27 +391,41 @@
       const pts = H.samples.slice(-300);
       const mx = Math.max(10, ...pts.map(p => p.v));
       const bw = r.w / Math.max(1, pts.length);
+      const top = 15;
       pts.forEach((p, i) => {
-        const bh = (p.v / mx) * (r.h - 4);
-        r.x.fillStyle = 'rgba(235,238,244,.8)';
+        const bh = (p.v / mx) * (r.h - top);
+        r.x.fillStyle = 'rgba(235,238,244,.88)';
         r.x.fillRect(i * bw, r.h - bh, Math.max(1, bw * 0.8), bh);
       });
-      r.x.fillStyle = '#6b6f78'; r.x.font = '800 8px Consolas,monospace';
-      r.x.fillText((pts.length ? pts[pts.length - 1].v : 0) + '/min', 2, 8);
+      const val = String(pts.length ? pts[pts.length - 1].v : 0);
+      r.x.font = '800 11px "JetBrains Mono",Consolas,monospace';
+      const unit = ' evt/min';
+      const wVal = r.x.measureText(val).width;
+      r.x.font = '600 9px "JetBrains Mono",Consolas,monospace';
+      const wUnit = r.x.measureText(unit).width;
+      r.x.fillStyle = 'rgba(10,11,13,.9)';
+      r.x.fillRect(0, 0, wVal + wUnit + 6, 14);
+      r.x.fillStyle = '#e6e8ec';
+      r.x.font = '800 11px "JetBrains Mono",Consolas,monospace';
+      r.x.fillText(val, 2, 2);
+      r.x.fillStyle = '#9aa0aa';
+      r.x.font = '600 9px "JetBrains Mono",Consolas,monospace';
+      r.x.fillText(unit, 2 + wVal, 4);
     }
+
     const m = canvasCtx('mMix');
     if (m) {
       const cnt = {};
       for (const t2 of (H.tools || [])) { const v = humanVerb(t2.name); cnt[v] = (cnt[v] || 0) + 1; }
       const top = Object.entries(cnt).sort((x2, y2) => y2[1] - x2[1]).slice(0, 6);
       const mx = Math.max(1, ...top.map(e => e[1]));
-      m.x.font = '9px Consolas,monospace';
+      m.x.font = '600 10.5px "JetBrains Mono",Consolas,monospace';
       top.forEach((e, i) => {
         const y = 2 + i * ((m.h - 3) / Math.max(1, top.length));
-        m.x.fillStyle = '#8d939c'; m.x.fillText(e[0], 2, y + 6);
-        m.x.fillStyle = 'rgba(235,238,244,.75)';
-        m.x.fillRect(44, y + 1, Math.max(2, (m.w - 50) * (e[1] / mx)), Math.min(6, (m.h - 3) / Math.max(1, top.length) - 2));
-        m.x.fillStyle = '#6b6f78'; m.x.fillText('x' + e[1], m.w - 24, y + 6);
+        m.x.fillStyle = '#d7dae0'; m.x.fillText(e[0], 2, y + 6);
+        m.x.fillStyle = 'rgba(235,238,244,.82)';
+        m.x.fillRect(62, y + 1, Math.max(2, (m.w - 104) * (e[1] / mx)), Math.min(6, (m.h - 3) / Math.max(1, top.length) - 2));
+        m.x.fillStyle = '#b9bec7'; m.x.fillText('x' + e[1], m.w - 26, y + 6);
       });
     }
   }
