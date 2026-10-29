@@ -29,16 +29,19 @@
   if (brandH) brandH.textContent = 'DEEPSEEK HARNESS';
   const brandP = document.querySelector('.brand p');
   if (brandP) brandP.textContent = '大肥鱼 · 实时会话可视化';
-  const creditEl = document.createElement('div');
-  creditEl.id = 'hf-credit';
-  creditEl.textContent = 'HALOFLUX by Ryder191 · PolyForm Noncommercial · 个人非商业使用';
-  const statusBox = document.querySelector('.ov.status');
-  (statusBox || document.body).appendChild(creditEl);
-  const creditCss = document.createElement('style');
-  creditCss.textContent = '#hf-credit{' +
-    'font:9px/1.6 ui-monospace,Consolas,monospace;letter-spacing:.08em;color:#6b6f78;' +
-    'text-align:right;margin-top:10px;pointer-events:none;white-space:nowrap}';
-  document.head.appendChild(creditCss);
+  // 署名/许可：仓库的 README.md / NOTICE.md / LICENSE 已完整保留；
+  // 壁纸上默认不显示（个人本地使用），需要时把 SHOW_CREDIT 改成 true。
+  const SHOW_CREDIT = false;
+  if (SHOW_CREDIT) {
+    const creditEl = document.createElement('div');
+    creditEl.id = 'hf-credit';
+    creditEl.textContent = 'HALOFLUX by Ryder191 \u00b7 PolyForm Noncommercial \u00b7 \u4e2a\u4eba\u975e\u5546\u4e1a\u4f7f\u7528';
+    const statusBox = document.querySelector('.ov.status');
+    (statusBox || document.body).appendChild(creditEl);
+    const creditCss = document.createElement('style');
+    creditCss.textContent = '#hf-credit{font:9px/1.6 ui-monospace,Consolas,monospace;letter-spacing:.08em;color:#6b6f78;text-align:right;margin-top:10px;pointer-events:none;white-space:nowrap}';
+    document.head.appendChild(creditCss);
+  }
 
   // ---- typeface: MiSans for CJK, JetBrains Mono for latin/numbers ----
   const fontCss = document.createElement('style');
