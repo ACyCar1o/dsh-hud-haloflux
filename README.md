@@ -11,9 +11,9 @@
 > ⚠️ HALOFLUX 采用 **PolyForm Noncommercial** 许可：**仅限个人非商业使用**，详见 [NOTICE.md](NOTICE.md)。
 > 署名默认不在画面上显示（`bridge.js` 的 `SHOW_CREDIT = true` 可重新打开）；完整版权信息见 `NOTICE.md` / `LICENSE`。
 
-![待命 → 爆发](docs/screenshots/demo.gif)
+![工具运行时的联动](docs/screenshots/demo.gif)
 
-*空闲时慢速待命；一跑工具就光束爆发、环带加速、面板数字滚动。*
+*工具连续运行时：光束持续爆发、环带加速、面板数字滚动；空闲 4 秒后自动降为慢速待命。*
 
 ## 特性
 
@@ -27,6 +27,10 @@
 - **壁纸化**：Lively / Wallpaper Engine 专用工程，断线自动重试
 
 ![面板](docs/screenshots/panels.png)
+
+![圆环数据带](docs/screenshots/ring.png)
+
+![本地播放器](docs/screenshots/player.png)
 
 
 ## 字体规范

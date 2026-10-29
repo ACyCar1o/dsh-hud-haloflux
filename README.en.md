@@ -12,7 +12,7 @@ same frame, then the whole page is mounted as a **Lively Wallpaper** desktop wal
 > ⚠️ HALOFLUX is licensed under **PolyForm Noncommercial** — **personal, non-commercial use only**.
 > Details in [NOTICE.md](NOTICE.md). The on-screen credit is hidden by default; set `SHOW_CREDIT = true` in `bridge.js` to show it again.
 
-![Demo: idle → burst](docs/screenshots/demo.gif)
+![Live while tools run](docs/screenshots/demo.gif)
 
 ## Features
 
@@ -25,6 +25,10 @@ same frame, then the whole page is mounted as a **Lively Wallpaper** desktop wal
 - **Wallpaper-ready** — Lively / Wallpaper Engine project with auto-reconnect when the service restarts
 
 ![Panels](docs/screenshots/panels.png)
+
+![Ring data band](docs/screenshots/ring.png)
+
+![Local player](docs/screenshots/player.png)
 
 
 ## Typography
