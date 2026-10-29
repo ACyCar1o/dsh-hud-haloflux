@@ -201,7 +201,8 @@
   };
 
   /* ---------- 5. freeze the ring + beat clock when idle ---------- */
-  let AC = 0;                      // 0 = standby, 1 = working
+  let AC = 0;                      // smoothed activity: 0 = standby, 1 = working
+  let AC_TARGET = 0;               // raw activity straight from the data stream
   updateBeat = function (dt) {
     sinceBeat += dt;
     if (AC < 0.12) { env = Math.exp(-sinceBeat * 4.5); return; }   // no beats at all while idle
@@ -517,7 +518,7 @@
     const ext = Date.now() < extBusyUntil ? 0.85 : 0;   // external AI working → keep the ring alive
     const t = clamp(Math.max(short / 2, running, ext), 0, 1);
     const errs = clamp(tot.errors || 0, 0, 40);
-    AC = t;
+    AC_TARGET = t;
     target = {
       tempo: 0.40 + 2.10 * t,
       ringSpeed: 3.0 * t,
@@ -569,7 +570,9 @@
         const cur = C[k];
         const slow = k === 'tempo' || k === 'ringSpeed' || k === 'ringPause';
         const tgt = HEAVY.has(k) ? target[k] * quality * LOAD : target[k];
-        const next = cur + (tgt - cur) * (slow ? 0.06 : 0.14);
+        const tau = slow ? 0.42 : 0.20;                    // seconds to reach ~63% of the gap
+        const kk = 1 - Math.exp(-0.12 / tau);              // the loop runs every 120 ms
+        const next = cur + (tgt - cur) * kk;
         if (Math.abs(next - cur) > 0.003) setParam(k, next, true);
       }
     } catch (e) {}
@@ -610,7 +613,7 @@
     let nextSlot = 0;
     window.requestAnimationFrame = (cb) => {
       const now = performance.now();
-      const ms = document.hidden ? 500 : (AC >= 0.12 ? 33 : 125);
+      const ms = document.hidden ? 500 : Math.round(32 + 96 * Math.pow(1 - AC, 1.6));
       const wait = Math.max(0, nextSlot - now);
       nextSlot = Math.max(now, nextSlot) + ms;
       return setTimeout(() => origRAF(cb), wait);
@@ -632,7 +635,12 @@
       else if (fpsEMA > 56 && quality < 1) quality = Math.min(1, quality + 0.05);
     }
     if (WALL) quality = Math.min(quality, 0.6);
-    const speed = AC >= 0.12 ? 1 : 0.10;
+    // activity envelope: fast attack (~0.12 s), gentle release (~0.85 s) -> no hard on/off
+    const kUp = 1 - Math.exp(-dt / 0.12);
+    const kDn = 1 - Math.exp(-dt / 0.85);
+    AC += (AC_TARGET - AC) * (AC_TARGET > AC ? kUp : kDn);
+    const ease = AC * AC * (3 - 2 * AC);                    // smoothstep 0..1
+    const speed = 0.10 + 0.90 * ease;                       // was: 0.10 -> 1.00 in one frame
     fakeT += dt * 1000 * speed;
     prevFrame(fakeT);
   };
