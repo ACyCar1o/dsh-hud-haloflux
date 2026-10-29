@@ -1,0 +1,7 @@
+dsh-hud/shots/
+dsh-hud/.external.json
+dsh-hud/.media.json
+*.bak
+node_modules/
+.DS_Store
+Thumbs.db
