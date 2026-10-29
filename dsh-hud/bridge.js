@@ -217,11 +217,31 @@
       ringRot = rot.from + (rot.to - rot.from) * rot.ease(Math.min(1, rot.t / rot.dur));
     } else {
       rot.hold -= dt;
-      // standby: keep a slow drift so the disc reads as "on, waiting"; active: normal speed
+      // drift with velocity smoothing, so leaving a tween does not snap from 0 to full speed
       const active = clamp((C.ringSpeed || 0) / 3, 0, 1);
-      ringRot += (0.02 * active + 0.12 * (1 - active)) * dt;
+      const targetVel = 0.02 * active + 0.10 * (1 - active);
+      ringVel += (targetVel - ringVel) * (1 - Math.exp(-dt / 0.5));
+      ringRot += ringVel * dt;
     }
   };
+
+  // gentler rotation presets: longer, always ease-in-out, activity scales them softly
+  if (typeof ringMove === 'function') {
+    ringMove = function () {
+      const r = Math.random();
+      let d, dur;
+      if (r < 0.22) { d = rr(0.45, 0.85); dur = rr(1.6, 2.4); }        // long, calm sweep
+      else if (r < 0.64) { d = rr(0.10, 0.26); dur = rr(0.9, 1.5); }   // small nudge
+      else { d = rr(0.04, 0.12); dur = rr(0.8, 1.3); }                  // tiny drift
+      if (Math.random() < 0.08) d = -d * 0.5;
+      d *= Math.min(1.5, 0.6 + 0.4 * ((C.ringSpeed || 0) / 3));
+      Object.assign(rot, {
+        from: ringRot, to: ringRot + d, t: 0, dur,
+        ease: easeIO,
+        hold: rr(0.25, 0.9) * Math.max(0.6, C.ringPause || 1)
+      });
+    };
+  }
 
   /* ---------- 5b. ring data cards: real content instead of decorative blocks ---------- */
   let HF_CARDS = [{ k: 'STANDBY', v: 'no session activity' }];
@@ -613,7 +633,7 @@
     let nextSlot = 0;
     window.requestAnimationFrame = (cb) => {
       const now = performance.now();
-      const ms = document.hidden ? 500 : Math.round(32 + 96 * Math.pow(1 - AC, 1.6));
+      const ms = document.hidden ? 500 : Math.round(32 + 40 * Math.pow(1 - AC, 1.6));
       const wait = Math.max(0, nextSlot - now);
       nextSlot = Math.max(now, nextSlot) + ms;
       return setTimeout(() => origRAF(cb), wait);
