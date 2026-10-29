@@ -264,14 +264,14 @@
       const u = window.__USAGE;
       let num = '—', lab = 'TOKENS';
       if (u && u.today) { num = u.today.tokens >= 1e6 ? (u.today.tokens / 1e6).toFixed(0) + 'M' : fmtTok(u.today.tokens); }
-      x.font = `800 8.4px ${FONT}`; x.fillStyle = rgba(tint, 1); x.fillText(num, 1, 1);
-      if (ch > 22) { x.font = `600 5.6px ${FONT}`; x.fillStyle = rgba(tint, .85); x.fillText(lab, 1, 12); }
+      x.font = `800 9px ${FONT}`; x.fillStyle = rgba(tint, 1); x.fillText(num, 1, 1);
+      if (ch > 22) { x.font = `500 5.5px ${FONT}`; x.fillStyle = rgba(tint, .85); x.fillText(lab, 1, 12); }
     } else {
       // A: action card, wider band + bigger type
-      x.font = `800 10.5px ${FONT}`; x.fillStyle = rgba(tint, 1);
+      x.font = `800 9px ${FONT}`; x.fillStyle = rgba(tint, 1);
       x.fillText(String(card.k).slice(0, Math.max(2, Math.floor(cw / 13))), 1, 1);
       if (ch > 20) {
-        x.font = `600 7px ${FONT}`; x.fillStyle = rgba(tint, .92);
+        x.font = `500 6px ${FONT}`; x.fillStyle = rgba(tint, .9);
         x.fillText(String(card.v).slice(0, Math.max(4, Math.floor(cw / 10))), 1, 12);
       }
       x.fillStyle = rgba(tint, .9); x.fillRect(cw - 3, 1.2, 2, 2);
@@ -355,7 +355,9 @@
       '#hf-main .p:first-child{position:relative}',
       '.hf-nowtxt{font-size:16px;font-weight:800;color:#fff;margin:0 0 1px}',
       '.hf-big{font-size:16px;font-weight:800;color:#fff;margin:2px 0}',
-      '#hfActs div,#hfWork div{font-size:9.5px;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#b9bec7}',
+      '#hfActs div,#hfWork div,#mChatBody div{font-size:9.5px;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#b9bec7}',
+      '#hfActs i{color:#8d939c;font-style:normal;margin-right:4px}',
+      '#mChatBody b{color:#fff}',,
       '#hfActs b{color:#e8eaee;font-weight:700;margin:0 4px}',
       '#hfActs .bad{color:#ff7d8a}',
       '.hf-use div{font-size:9.5px;line-height:1.45;color:#b9bec7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
@@ -420,13 +422,13 @@
       for (const t2 of (H.tools || [])) { const v = humanVerb(t2.name); cnt[v] = (cnt[v] || 0) + 1; }
       const top = Object.entries(cnt).sort((x2, y2) => y2[1] - x2[1]).slice(0, 6);
       const mx = Math.max(1, ...top.map(e => e[1]));
-      m.x.font = '600 10.5px "JetBrains Mono","MiSans","HarmonyOS Sans SC","Microsoft YaHei",sans-serif';
+      m.x.font = '700 9.5px \"JetBrains Mono\",\"MiSans\",\"HarmonyOS Sans SC\",\"Microsoft YaHei\",sans-serif';
       top.forEach((e, i) => {
         const y = 2 + i * ((m.h - 3) / Math.max(1, top.length));
         m.x.fillStyle = '#d7dae0'; m.x.fillText(e[0], 2, y + 6);
         m.x.fillStyle = 'rgba(235,238,244,.82)';
         m.x.fillRect(62, y + 1, Math.max(2, (m.w - 104) * (e[1] / mx)), Math.min(6, (m.h - 3) / Math.max(1, top.length) - 2));
-        m.x.fillStyle = '#b9bec7'; m.x.fillText('x' + e[1], m.w - 26, y + 6);
+        m.x.fillStyle = '#b9bec7'; m.x.font = '700 9.5px "JetBrains Mono",Consolas,monospace'; m.x.fillText('x' + e[1], m.w - 26, y + 6);
       });
     }
   }
@@ -456,7 +458,7 @@
     const acts = (st.feed || []).slice().reverse().slice(0, 6);
     if ($('hfActs')) $('hfActs').innerHTML = acts.map(f => {
       const tm = f.t ? new Date(f.t).toTimeString().slice(0, 5) : '';
-      return '<div class="' + (f.ok === false ? 'bad' : '') + '">' + tm + '<b>' + humanVerb(f.name) + '</b>' + esc(humanObj(f.name, f.args)) + '</div>';
+      return '<div class="' + (f.ok === false ? 'bad' : '') + '"><i>' + tm + '</i><b>' + humanVerb(f.name) + '</b>' + esc(humanObj(f.name, f.args)) + '</div>';
     }).join('') || '<div>暂无动作</div>';
 
     // 今日之最

@@ -26,6 +26,24 @@ same frame, then the whole page is mounted as a **Lively Wallpaper** desktop wal
 
 ![Panels](docs/screenshots/panels.png)
 
+
+## Typography
+
+One stack everywhere: **JetBrains Mono (digits/Latin) → MiSans → HarmonyOS Sans SC → Microsoft YaHei**.
+
+| Tier | Usage | Size | Weight | Color |
+|---|---|---|---|---|
+| Display | current-task verb, progress headline | 16px | 800 | `#ffffff` |
+| Panel title | panel headers | 10px (mini 8.5px) | 800 | `#e8eaee` / `#9aa0aa` |
+| Body | list rows, descriptions | 9.5px | 400 | `#b9bec7` |
+| Emphasis | verbs, key values | 9.5px | 700 | `#ffffff` |
+| Muted | timestamps, units, hints | 9.5px | 400 | `#8d939c` |
+| Chart labels | tool distribution, ring cards | 9.5px | 700 | `#e8eaee` |
+| Numerals | event rate, counters | 9.5–11px mono | 700 | `#ffffff` |
+| Ring | data cards on the band (band-limited) | 9px / 6px | 800 / 500 | white 100% / 90% |
+
+Rule: one size and weight per tier; verbs and values always bold+white; secondary info always muted.
+
 ## Quick start
 
 ```powershell
