@@ -57,7 +57,24 @@ winget install --id rocksdanister.LivelyWallpaper
 3. 后台启动 `dsh-hud\start.ps1`
 4. 打印 Lively 配置步骤
 
-## 四、多显示器 / 换屏幕
+
+## 四、自动选屏（无需手动 setwp）
+
+`start.ps1` 启动服务后会调用 `fix-wallpaper-screen.ps1`：
+
+- 从 `WallpaperLayout.json` 读取每块屏在 Lively 里的真实编号（`LivelyScreen.Index`）
+- 目标屏 **spacedesk 虚拟屏（iPad）优先，否则主屏**
+- 只在目标屏设置壁纸，其它屏自动清掉
+
+换电脑、插拔显示器、改显示设置后都无需手动干预；想强制指定：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File dsh-hud\fix-wallpaper-screen.ps1 -Prefer primary
+```
+
+日志：`dsh-hud\wallpaper-screen.log`
+
+## 五、多显示器 / 换屏幕
 
 Lively 的屏幕编号与 Windows 的 `DISPLAYn` 不同，且插拔后会变：
 
@@ -72,7 +89,7 @@ $lib = "$env:LOCALAPPDATA\Lively Wallpaper\Library\wallpapers\dshhaloflux.001"
 
 确认映射：改一次后看 `%LOCALAPPDATA%\Lively Wallpaper\WallpaperLayout.json` 里的 `DeviceName`。
 
-## 五、重启后自检
+## 六、重启后自检
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File dsh-hud\verify-after-reboot.ps1
@@ -81,7 +98,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File dsh-hud\verify-after-reboot.
 7 项检查：自启脚本 / 7788 监听 / `/stats` / `/wall` / Lively 进程 / 壁纸目标 / node 进程。
 全部 `[ OK ]` 即恢复成功。
 
-## 六、常见问题
+## 七、常见问题
 
 | 现象 | 原因 | 处理 |
 |---|---|---|
@@ -92,7 +109,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File dsh-hud\verify-after-reboot.
 | 中文显示成方块 | 字体缺失 | 装 MiSans 或修改 `bridge.js` 里的字体栈 |
 | 没有声音 | 正常：壁纸自带 BGM 已被硬静音 | 播放器面板控制的是你系统里的音乐软件 |
 
-## 七、目录与文件
+## 八、目录与文件
 
 见 [README.md](README.md#目录)。服务端只读以下本机数据：
 
