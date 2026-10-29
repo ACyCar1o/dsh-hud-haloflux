@@ -32,11 +32,12 @@
   const creditEl = document.createElement('div');
   creditEl.id = 'hf-credit';
   creditEl.textContent = 'HALOFLUX by Ryder191 · PolyForm Noncommercial · 个人非商业使用';
-  document.body.appendChild(creditEl);
+  const statusBox = document.querySelector('.ov.status');
+  (statusBox || document.body).appendChild(creditEl);
   const creditCss = document.createElement('style');
-  creditCss.textContent = '#hf-credit{position:fixed;right:10px;bottom:3px;' +
-    'font:8px/1.4 ui-monospace,Consolas,monospace;letter-spacing:.16em;color:#3f434a;' +
-    'pointer-events:none;z-index:5;white-space:nowrap}';
+  creditCss.textContent = '#hf-credit{' +
+    'font:9px/1.6 ui-monospace,Consolas,monospace;letter-spacing:.08em;color:#6b6f78;' +
+    'text-align:right;margin-top:10px;pointer-events:none;white-space:nowrap}';
   document.head.appendChild(creditCss);
 
   // ---- typeface: MiSans for CJK, JetBrains Mono for latin/numbers ----
@@ -368,7 +369,7 @@
       '.rate-head span{font:600 9px/1 \"JetBrains Mono\",Consolas,monospace;color:#9aa0aa}',
       '#mMix{gap:2px}',
       '#mMix .arow{display:flex;align-items:center;gap:6px;font-size:9.5px;line-height:1.5}',
-      '#mMix .arow b{font-weight:700;color:#fff;width:4.1em;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+      '#mMix .arow b{font-weight:400;color:#8d939c;width:4.1em;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
       '#mMix .arow i{flex:1;height:5px;background:rgba(255,255,255,.08);display:block;min-width:0}',
       '#mMix .arow i span{display:block;height:100%;background:rgba(235,238,244,.85)}',
       '#mMix .arow em{font-style:normal;font-family:\"JetBrains Mono\",Consolas,monospace;font-weight:700;color:#b9bec7;width:2.6em;text-align:right;flex:none}',
