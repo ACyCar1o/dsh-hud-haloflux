@@ -78,7 +78,6 @@ winget install --id rocksdanister.LivelyWallpaper
 | `dsh-hud/fix-wallpaper-screen.ps1` | 自动选择壁纸屏幕（spacedesk/iPad 优先，否则主屏） |
 | `dsh-hud/media.ps1` | 系统媒体会话读写（上下曲/播放暂停） |
 | `dsh-hud/external.ps1` | ChatGPT 桌面版状态（UI Automation） |
-| `dsh-hud/ocr.ps1`、`capture-window.ps1` | Windows OCR / 窗口抓图（备用通道） |
 | `dsh-hud/wall-proj/` | Lively / Wallpaper Engine 壁纸工程 |
 | `dsh-hud/install.ps1` | 一键安装（自启 + 启动 + 自动选屏） |
 | `dsh-hud/capture-gif.mjs` | 演示 GIF 录制（CDP 截帧） |

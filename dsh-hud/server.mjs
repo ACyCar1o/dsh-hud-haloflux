@@ -277,7 +277,9 @@ function refreshExternal() {
         const next = JSON.parse(readFileSync(EXTERNAL_TMP, 'utf8'));
         const snip = (next.apps || []).map(a => a.snippet || '').join('|');
         // text changed since the last probe → the app is producing output right now
-        if (externalPrevSnip && snip && snip !== externalPrevSnip) externalBusyUntil = Date.now() + 8000;
+        const agent = (next.apps || []).some(a => a && a.agent === true);
+        if (agent) externalBusyUntil = Date.now() + 6000;                 // agent / computer-use mode
+        else if (externalPrevSnip && snip && snip !== externalPrevSnip) externalBusyUntil = Date.now() + 8000;
         externalPrevSnip = snip;
         externalCache = { at: Date.now(), data: next };
       } catch {}

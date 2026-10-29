@@ -13,23 +13,26 @@ public class ExtWin2 {
   public delegate bool EnumProc(IntPtr hWnd, IntPtr lParam);
   [DllImport("user32.dll")] public static extern bool EnumWindows(EnumProc cb, IntPtr lp);
   [DllImport("user32.dll")] public static extern int GetClassName(IntPtr h, StringBuilder s, int n);
+  [DllImport("user32.dll", CharSet=CharSet.Unicode)] public static extern int GetWindowText(IntPtr h, StringBuilder s, int n);
   [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
+  [DllImport("user32.dll")] public static extern bool IsIconic(IntPtr h);
   [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h, out RECT r);
   [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
   [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
   [DllImport("user32.dll")] public static extern bool PrintWindow(IntPtr hwnd, IntPtr hdcBlt, uint nFlags);
   [StructLayout(LayoutKind.Sequential)] public struct RECT { public int L, T, R, B; }
-  public static List<string> Windows(uint[] pids) {
+  // every top-level window of the given processes: hwnd|w|h|visible|minimized|class|title
+  public static List<string> All(uint[] pids) {
     var set = new HashSet<uint>(pids);
     var list = new List<string>();
     EnumWindows((h, l) => {
       uint p; GetWindowThreadProcessId(h, out p);
       if (!set.Contains(p)) return true;
       var cn = new StringBuilder(128); GetClassName(h, cn, 128);
+      var tt = new StringBuilder(512); GetWindowText(h, tt, 512);
       RECT r; GetWindowRect(h, out r);
       int w = r.R - r.L, hh = r.B - r.T;
-      if (cn.ToString().StartsWith("Chrome_WidgetWin") && w > 500 && hh > 300)
-        list.Add(h.ToInt64() + "|" + w + "|" + hh + "|" + IsWindowVisible(h));
+      list.Add(h.ToInt64() + "|" + w + "|" + hh + "|" + IsWindowVisible(h) + "|" + IsIconic(h) + "|" + cn + "|" + tt.ToString().Replace("|", " "));
       return true;
     }, IntPtr.Zero);
     return list;
@@ -79,18 +82,41 @@ function Capture-Window([IntPtr]$hwnd, [string]$file) {
 
 $BLOCK = '^(返回|前进|跳转到内容|隐藏侧边栏|显示侧边栏|应用程序菜单|文件|编辑|视图|帮助|应用导航|首页|图像|定时任务|资料库|插件|探索|代码审查|GPT|地图|站点|项目|用量|有可用更新|打开个人资料菜单|切换模式.*|询问 ChatGPT|选择 ChatGPT 模型|ChatGPT 可能会出错.*|为项目、作品集.*|关闭 ChatGPT 信标横幅|新建聊天|搜索|.*创建新聊天|已归档.*|跳转.*)$'
 
+# 代理/操作电脑模式的窗口（ChatGPT 在替用户执行任务时会出现）
+$AGENT_RE = 'is using your computer|Esc to cancel|正在使用你的电脑|正在操作'
+
 function Get-ChatGptInfo {
   $pids = @(Get-Process -Name ChatGPT -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Id)
-  if ($pids.Count -eq 0) { return [ordered]@{ name='ChatGPT'; running=$false; state='未运行'; snippet=''; work='' } }
-  $wins = [ExtWin2]::Windows([uint32[]]$pids)
+  if ($pids.Count -eq 0) { return [ordered]@{ name='ChatGPT'; running=$false; state='未运行'; snippet=''; work=''; agent=$false; title='' } }
+
+  $wins = @([ExtWin2]::All([uint32[]]$pids))
   $fg = [ExtWin2]::GetForegroundWindow().ToInt64()
-  $best = $wins | Sort-Object { [int](($_ -split '\|')[1]) } -Descending | Select-Object -First 1
+  $agent = $false; $agentTitle = ''
+  foreach ($w in $wins) {
+    $p = $w -split '\|'
+    if ($p.Count -ge 7 -and $p[6] -match $AGENT_RE) { $agent = $true; $agentTitle = $p[6]; break }
+  }
+
+  # 选一个信息最多的窗口：可见的优先，其次看面积（最小化窗口也给 UIA 一次机会）
+  $best = $null; $bestScore = -1; $vis = $false; $min = $false; $title = ''
+  foreach ($w in $wins) {
+    $p = $w -split '\|'
+    if ($p.Count -lt 7) { continue }
+    if ($p[5] -notmatch 'Chrome_WidgetWin') { continue }
+    $area = [int]$p[1] * [int]$p[2]
+    if ($area -lt 10000) { $area = 1 }             # 最小化窗口的 rect 是负坐标/很小
+    $score = $area + $(if ($p[3] -eq 'True') { 1000000 } else { 0 })
+    if ($score -gt $bestScore) { $bestScore = $score; $best = $w; $vis = ($p[3] -eq 'True'); $min = ($p[4] -eq 'True'); $title = $p[6] }
+  }
+
   $state = '后台'
   if ($best) {
-    $parts = $best -split '\|'
-    if ($parts[3] -eq 'True') { $state = '已打开' }
-    if ($parts[0] -eq "$fg") { $state = '使用中' }
+    if ($vis) { $state = '已打开' }
+    if (($best -split '\|')[0] -eq "$fg") { $state = '使用中' }
+    if ($min) { $state = '最小化' }
   }
+  if ($agent) { $state = '执行中' }
+
   $snippet = ''; $work = ''
   if ($best) {
     try {
@@ -112,11 +138,11 @@ function Get-ChatGptInfo {
       if ($snippet.Length -gt 120) { $snippet = $snippet.Substring(0, 118) + '...' }
     } catch {}
   }
-  return [ordered]@{ name='ChatGPT'; running=$true; state=$state; snippet=$snippet; work=$work }
+  return [ordered]@{ name='ChatGPT'; running=$true; state=$state; snippet=$snippet; work=$work; agent=$agent; title=$title }
 }
 
 $apps = @()
-try { $apps += Get-ChatGptInfo } catch { $apps += [ordered]@{ name='ChatGPT'; running=$false; state='读取失败'; snippet=''; work='' } }
+try { $apps += Get-ChatGptInfo } catch { $apps += [ordered]@{ name='ChatGPT'; running=$false; state='读取失败'; snippet=''; work=''; agent=$false; title='' } }
 
 $json = [ordered]@{ at = [DateTimeOffset]::Now.ToUnixTimeMilliseconds(); apps = $apps } | ConvertTo-Json -Depth 6 -Compress
 if ($OutFile) {
