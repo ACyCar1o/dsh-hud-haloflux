@@ -616,6 +616,7 @@
   }
   connect();
 
+
   /* ---------- 9. standby = slow motion, not a freeze ----------
      The whole simulation advances through dt inside frame(). In standby we feed it
      a clock that runs at 10% speed: the disc keeps its slow idle drift, the "breathing"
@@ -624,15 +625,7 @@
   /* wallpaper mode: force DPR 1 ??a 4K screen at DPR2 allocates 7680?4320 buffers (??30 MB each) */
   if (WALL) {
     try {
-      const REAL_DPR = window.devicePixelRatio || 1;
       Object.defineProperty(window, 'devicePixelRatio', { get: () => 0.95, configurable: true });
-      // 虚拟屏（iPad/spacedesk）被 Windows 设成 200% 缩放时，WebView 的 CSS 视口只有一半，
-      // 页面会被整体放大、面板被裁掉。按真实 DPI 反向缩放，让 CSS 宽高回到物理像素。
-      try {
-        if (REAL_DPR > 1.3) {
-          document.documentElement.style.zoom = String(1 / REAL_DPR);
-        }
-      } catch (e) {}
       setTimeout(() => { try { resizeAll(); } catch (e) {} }, 400);
     } catch (e) {}
   }
