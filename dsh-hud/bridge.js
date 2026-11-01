@@ -243,6 +243,27 @@
     };
   }
 
+
+  /* 构图：整体往左一点（镜头略偏右看），给右边的光束留空间；
+     同时加大镜头的浮动感（轻微平移 + 呼吸缩放） */
+  if (typeof updateCam === 'function') {
+    const origUpdateCam = updateCam;
+    let camT0 = performance.now();
+    updateCam = function (dt) {
+      origUpdateCam(dt);
+      try {
+        const tt = (performance.now() - camT0) / 1000;
+        const shift = W * 0.05;                        // 画面整体左移
+        const floatX = Math.sin(tt * 0.33) * 7;        // 缓慢左右漂
+        const floatY = Math.sin(tt * 0.26 + 1.2) * 5;  // 缓慢上下漂
+        cam.x += shift + floatX;
+        cam.y += floatY;
+        cam.z *= 1 + 0.015 * Math.sin(tt * 0.21 + 0.4); // 呼吸感
+        clampCam();
+      } catch (e) {}
+    };
+  }
+
   /* ---------- 5b. ring data cards: real content instead of decorative blocks ---------- */
   let HF_CARDS = [{ k: 'STANDBY', v: 'no session activity' }];
   let slotSeq = 0;
