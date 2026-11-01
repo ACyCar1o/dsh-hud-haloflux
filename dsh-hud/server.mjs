@@ -336,6 +336,7 @@ function buildUsage() {
 
 /* ---------------- http ---------------- */
 const clients = new Set();
+let lastClientAt = Date.now();   // 最后一次有壁纸页面连上的时间
 
 function sendJson(res, obj) {
   const b = Buffer.from(JSON.stringify(obj));
@@ -392,6 +393,7 @@ const server = createServer(async (req, res) => {
     });
     res.write('retry: 1000\n\n');
     clients.add(res);
+    lastClientAt = Date.now();
     req.on('close', () => clients.delete(res));
     return;
   }
@@ -439,6 +441,30 @@ function tick() {
 
 tick();
 setInterval(tick, POLL_MS);
+
+/* 看门狗：壁纸页面掉线时自动恢复
+   第 1 步：3 分钟无页面连接 -> reload 壁纸
+   第 2 步：再 2 分钟还是没连上 -> 重启 Lively（WebView 冻死时 reload 不一定救得回来） */
+let wdPhase = 0;
+setInterval(() => {
+  if (clients.size > 0) { lastClientAt = Date.now(); wdPhase = 0; return; }
+  const idle = Date.now() - lastClientAt;
+  const LIVELY = 'C:\\Program Files\\Lively Wallpaper\\Lively.exe';
+  if (idle < 180000) return;
+  if (wdPhase === 0) {
+    wdPhase = 1; lastClientAt = Date.now();
+    try { execFile(LIVELY, ['setwp', '--file', 'reload'], { windowsHide: true, timeout: 20000 }, () => {}); } catch (e) {}
+    console.log('[watchdog] no wallpaper client for 3min -> reload wallpaper');
+  } else if (idle >= 120000) {
+    wdPhase = 0; lastClientAt = Date.now();
+    try {
+      execFile('taskkill', ['/IM', 'Lively.exe', '/F'], { windowsHide: true }, () => {
+        setTimeout(() => { try { execFile(LIVELY, [], { windowsHide: true }, () => {}); } catch (e) {} }, 3000);
+      });
+    } catch (e) {}
+    console.log('[watchdog] still no client -> restart Lively');
+  }
+}, 60000);
 
 server.on('error', (e) => {
   if (e.code === 'EADDRINUSE') { console.log(`port ${PORT} already in use — HUD server is already running`); process.exit(0); }
