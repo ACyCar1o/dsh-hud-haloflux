@@ -617,6 +617,7 @@
   connect();
 
 
+
   /* ---------- 9. standby = slow motion, not a freeze ----------
      The whole simulation advances through dt inside frame(). In standby we feed it
      a clock that runs at 10% speed: the disc keeps its slow idle drift, the "breathing"
