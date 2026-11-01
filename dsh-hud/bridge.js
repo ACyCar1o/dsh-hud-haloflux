@@ -253,7 +253,7 @@
       origUpdateCam(dt);
       try {
         const tt = (performance.now() - camT0) / 1000;
-        const shift = W * 0.05;                        // 画面整体左移
+        const shift = W * 0.07;                        // 画面整体左移
         const floatX = Math.sin(tt * 0.33) * 7;        // 缓慢左右漂
         const floatY = Math.sin(tt * 0.26 + 1.2) * 5;  // 缓慢上下漂
         cam.x += shift + floatX;
