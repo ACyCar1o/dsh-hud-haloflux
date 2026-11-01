@@ -16,7 +16,7 @@
   const PROBE = new URLSearchParams(location.search).has('probe');   // capture mode: ignore the observer tool itself
   const WALL = new URLSearchParams(location.search).has('wall') || location.pathname.startsWith('/wall');
   const ZOOM_MAX = 0.12;                 // camera push-in multiplier (1.7 max shot ????.08?)
-  const SHOT_CAP = 2.6;
+  const SHOT_CAP = 1.7;
   const fmt = (n) => (n ?? 0).toLocaleString();
   const short = (s, n = 26) => (String(s || '').length > n ? String(s).slice(0, n - 1) + '...' : String(s || ''));
 
@@ -243,35 +243,6 @@
     };
   }
 
-
-  /* 光轮构图：中心再往左，右侧留更多光束空间；运镜范围也拉大 */
-  const RING_X = 0.015;                     // was W*0.07
-  if (typeof resizeStage === 'function') {
-    const origResizeStage = resizeStage;
-    resizeStage = function () {
-      origResizeStage();
-      try {
-        cx = W * RING_X;
-        RMAX = Math.hypot(W - cx, H / 2) + 60;
-        buildWeb(); buildLanes(); buildCards(); buildOuter();
-        buildShots();
-      } catch (e) {}
-    };
-  }
-  if (typeof buildShots === 'function') {
-    const origBuildShots = buildShots;
-    buildShots = function () {
-      origBuildShots();
-      try {
-        for (const s of shots) {
-          if (s.z > 1) s.z = Math.min(SHOT_CAP, s.z * 1.35);   // 更深的推镜
-          s.x = W / 2 + (s.x - W / 2) * 1.45;                   // 更大的横向运镜
-          s.y = H / 2 + (s.y - H / 2) * 1.25;
-        }
-      } catch (e) {}
-    };
-  }
-
   /* ---------- 5b. ring data cards: real content instead of decorative blocks ---------- */
   let HF_CARDS = [{ k: 'STANDBY', v: 'no session activity' }];
   let slotSeq = 0;
@@ -418,7 +389,6 @@
       '.hf-use b{color:#fff;font-weight:700}',
       '#hf-main .feed,#hf-mini .feed{justify-content:flex-start !important}',
       '.ov.status .sm{display:none !important}',
-      '.chk{position:fixed !important;left:auto !important;top:104px !important;right:14px !important;transform:none !important;z-index:55}',
       '.rate-head{display:flex;align-items:baseline;gap:5px;margin-bottom:2px}',
       '.rate-head b{font:800 11px/1 \"JetBrains Mono\",Consolas,monospace;color:#fff}',
       '.rate-head span{font:600 9px/1 \"JetBrains Mono\",Consolas,monospace;color:#9aa0aa}',
@@ -645,8 +615,6 @@
     } catch (e) { setTimeout(connect, 1500); }
   }
   connect();
-
-
 
   /* ---------- 9. standby = slow motion, not a freeze ----------
      The whole simulation advances through dt inside frame(). In standby we feed it
