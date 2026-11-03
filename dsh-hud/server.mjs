@@ -337,6 +337,7 @@ function buildUsage() {
 /* ---------------- http ---------------- */
 const clients = new Set();
 let lastClientAt = Date.now();   // 最后一次有壁纸页面连上的时间
+let lastPagePollAt = Date.now(); // 最后一次页面主动轮询（/external）的时间
 
 function sendJson(res, obj) {
   const b = Buffer.from(JSON.stringify(obj));
@@ -361,6 +362,7 @@ const server = createServer(async (req, res) => {
     });
   }
   if (p === '/external') {
+    lastPagePollAt = Date.now();
     if (Date.now() - externalCache.at > 3000) refreshExternal();
     return sendJson(res, { ...externalCache.data, busy: Date.now() < externalBusyUntil, age: Date.now() - externalCache.at });
   }
@@ -447,16 +449,17 @@ setInterval(tick, POLL_MS);
    第 2 步：再 2 分钟还是没连上 -> 重启 Lively（WebView 冻死时 reload 不一定救得回来） */
 let wdPhase = 0;
 setInterval(() => {
-  if (clients.size > 0) { lastClientAt = Date.now(); wdPhase = 0; return; }
+  const pageFresh = Date.now() - lastPagePollAt < 180000;
+  if (clients.size > 0 && pageFresh) { lastClientAt = Date.now(); wdPhase = 0; return; }
   const idle = Date.now() - lastClientAt;
   const LIVELY = 'C:\\Program Files\\Lively Wallpaper\\Lively.exe';
   if (idle < 180000) return;
   if (wdPhase === 0) {
-    wdPhase = 1; lastClientAt = Date.now();
+    wdPhase = 1; lastClientAt = Date.now(); lastPagePollAt = Date.now();
     try { execFile(LIVELY, ['setwp', '--file', 'reload'], { windowsHide: true, timeout: 20000 }, () => {}); } catch (e) {}
     console.log('[watchdog] no wallpaper client for 3min -> reload wallpaper');
   } else if (idle >= 120000) {
-    wdPhase = 0; lastClientAt = Date.now();
+    wdPhase = 0; lastClientAt = Date.now(); lastPagePollAt = Date.now();
     try {
       execFile('taskkill', ['/IM', 'Lively.exe', '/F'], { windowsHide: true }, () => {
         setTimeout(() => { try { execFile(LIVELY, [], { windowsHide: true }, () => {}); } catch (e) {} }, 3000);
@@ -470,6 +473,9 @@ server.on('error', (e) => {
   if (e.code === 'EADDRINUSE') { console.log(`port ${PORT} already in use — HUD server is already running`); process.exit(0); }
   throw e;
 });
+
+process.on('uncaughtException', (e) => { console.error('[fatal] uncaught:', e && e.stack || e); process.exit(1); });
+process.on('unhandledRejection', (e) => { console.error('[warn] unhandled rejection:', e && e.stack || e); });
 
 server.listen(PORT, HOST, () => {
   console.log(`HUD live   http://${HOST}:${PORT}/`);
