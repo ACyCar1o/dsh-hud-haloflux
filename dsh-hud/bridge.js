@@ -638,6 +638,19 @@
   }
   connect();
 
+  /* 诊断：把页面 hidden 状态与 JS 错误报给服务端（/stats 里可见） */
+  try {
+    setInterval(() => {
+      fetch('/debug/state?h=' + (document.hidden ? 1 : 0), { cache: 'no-store' }).catch(() => {});
+    }, 5000);
+    window.addEventListener('error', (e) => {
+      try { fetch('/debug/state?err=' + encodeURIComponent((e.message || 'err') + ' @ ' + (e.filename || '') + ':' + (e.lineno || 0)), { cache: 'no-store' }).catch(() => {}); } catch (e2) {}
+    });
+    window.addEventListener('unhandledrejection', (e) => {
+      try { fetch('/debug/state?err=' + encodeURIComponent('reject: ' + (e.reason && e.reason.message || e.reason)), { cache: 'no-store' }).catch(() => {}); } catch (e2) {}
+    });
+  } catch (e) {}
+
   /* 锁屏/切后台回来：WebView 可能被挂起，数据陈旧就强制重载页面 */
   let lastStateAt = Date.now();
   const recoverIfStale = () => {

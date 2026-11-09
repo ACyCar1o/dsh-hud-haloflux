@@ -1,12 +1,28 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.11.0**（2026-11-09）
+当前版本：**v1.12.0**（2026-11-09）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.12.0 — 页面缓存导致"假死" + 诊断通道（2026-11-09）
+
+**修复**
+- 壁纸包装页每次加载都用 `?t=时间戳` 强制请求新页面：之前 Lively 的 WebView 会缓存旧版 `/wall`，
+  即使执行 `setwp --file reload` 也可能拿到旧 JS，表现为"画面定格、reload 无效"。
+- 配合 v1.11 的解锁重载、孤儿清理，长期运行后画面卡死可自愈。
+
+**新增（诊断）**
+- 页面每 5 秒上报 `document.hidden`，JS 报错也会上报；
+  `/stats` 返回 `pageHidden` / `pageErr` / `pageDbgAt`，用于快速判断"页面冻住"还是"渲染暂停"。
+
+**排查步骤**
+1. 看 `http://127.0.0.1:7788/stats` 的 `pageHidden` / `pageDbgAt`（应为 false / 最近时间）
+2. 重启 Lively（不是 reload）可强制重新加载包装页
+3. 仍无效时检查 `(Get-Process msedgewebview2).Count` 是否超过 30
 
 ## v1.11.0 — 锁屏/解锁与日志复发的修复（2026-11-09）
 

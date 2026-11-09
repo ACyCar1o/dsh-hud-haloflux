@@ -11,10 +11,11 @@
 </style>
 </head>
 <body>
-<iframe id="f" src="http://127.0.0.1:7788/wall" allow="autoplay"></iframe>
+<iframe id="f" allow="autoplay"></iframe>
 <div id="hint">等待 dsh-hud 服务（127.0.0.1:7788）…</div>
 <script>
   const f = document.getElementById('f');
+  f.src = 'http://127.0.0.1:7788/wall?t=' + Date.now();   // 每次加载都强制取新页面
   const hint = document.getElementById('hint');
   const BASE = 'http://127.0.0.1:7788';
   let up = null;          // null = unknown, true/false = last probe result

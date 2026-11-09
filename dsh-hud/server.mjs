@@ -335,6 +335,7 @@ function buildUsage() {
 }
 
 /* ---------------- http ---------------- */
+let dbg = { hidden: null, err: '', at: 0 };
 const clients = new Set();
 let lastClientAt = Date.now();   // 最后一次有壁纸页面连上的时间
 let lastPagePollAt = Date.now(); // 最后一次页面主动轮询（/external）的时间
@@ -359,8 +360,21 @@ const server = createServer(async (req, res) => {
       sessions: sessions.size,
       toolLog: toolLog.length,
       clients: clients.size,
+      pageHidden: dbg.hidden,
+      pageErr: dbg.err,
+      pageDbgAt: dbg.at,
     });
   }
+  if (p === '/debug/state') {
+    try {
+      const q2 = url.searchParams;
+      if (q2.has('h')) dbg.hidden = q2.get('h') === '1';
+      if (q2.has('err')) dbg.err = String(q2.get('err')).slice(0, 300);
+      dbg.at = Date.now();
+    } catch (e) {}
+    return sendJson(res, { ok: true });
+  }
+
   if (p === '/external') {
     lastPagePollAt = Date.now();
     if (Date.now() - externalCache.at > 3000) refreshExternal();
