@@ -1,12 +1,28 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.19.0**（2026-11-09）
+当前版本：**v1.19.1**（2026-11-09）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.19.1 — WorkBuddy 改为读事件流（对齐社区做法）（2026-11-09）
+
+**参考**
+- [b1ub1u/dsh-hud-haloflux-live2](https://github.com/b1ub1u/dsh-hud-haloflux-live2) 的 `workbuddy-source.mjs` 做法：
+  直接 tail `~/.workbuddy/projects/<workspace>/<sessionId>.jsonl`（追加式事件日志）+ 读 `~/.workbuddy/workbuddy.db`
+  的 `sessions` 表拿标题/状态，**完全不用 OCR**。
+
+**改动**
+- WorkBuddy 状态改由事件流判定：`reasoning` → 思考、`function_call` / `function_call_result` → 干活、
+  `message(assistant)` → 输出、`message(user)` → 等待；最后事件时间 90 秒内算活跃。
+- 移除 `external.ps1` 里每轮的 OCR 调用（省 CPU，原本约 0.75s/6s）；`workbuddy-probe.ps1` 保留作为无日志时的备用探针。
+- 任意外部 Agent 活跃（Codex / WorkBuddy / Claude）都会驱动光环加速，不再只依赖窗口探针。
+
+**实测**
+- WorkBuddy 生成中：`state=输出, active=true`，摘要为真实回复内容；停止 90 秒后自动回落"空闲"。
 
 ## v1.19.0 — WorkBuddy 接入（OCR 探针）（2026-11-09）
 

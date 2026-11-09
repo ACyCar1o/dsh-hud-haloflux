@@ -458,6 +458,8 @@ function tick() {
   const payload = aggregate();
   try {
     payload.agents = collectAgents();
+    // 任意外部 agent 活跃 → 光环也加速（不只看窗口探针）
+    if ((payload.agents || []).some(a => a && a.active)) externalBusyUntil = Math.max(externalBusyUntil, Date.now() + 6000);
     const wb = ((externalCache.data && externalCache.data.apps) || []).find(a => a && a.name === 'WorkBuddy');
     const row = (payload.agents || []).find(a => a.id === 'workbuddy');
     if (row && wb) {

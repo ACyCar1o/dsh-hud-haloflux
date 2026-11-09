@@ -106,27 +106,43 @@ function probeCodex(now) {
   return { id: 'codex', name: 'Codex', color: COLORS.codex, state, detail, active, at };
 }
 
-/* ---------------- WorkBuddy ---------------- */
+/* ---------------- WorkBuddy ----------------
+ * 记录格式（追加式 JSONL）：~/.workbuddy/projects/<workspace>/<sessionId>.jsonl
+ * 事件类型：session-meta / message(user|assistant) / reasoning / function_call /
+ *           function_call_result / credit-usage / ai-title / file-history-snapshot
+ * 元数据在 ~/.workbuddy/workbuddy.db（sqlite，sessions 表有 status 列）。
+ */
 function probeWorkBuddy(now) {
   const root = join(HOME, '.workbuddy', 'projects');
   const f = newestFile(root, (n) => n.endsWith('.jsonl'), 3);
   if (!f) return { id: 'workbuddy', name: 'WorkBuddy', color: COLORS.workbuddy, state: '未运行', detail: '', active: false, at: 0 };
   const ago = now - f.mtimeMs;
   if (ago > RECENT_MS) return { id: 'workbuddy', name: 'WorkBuddy', color: COLORS.workbuddy, state: '未运行', detail: '', active: false, at: f.mtimeMs };
-  const recs = parseLines(tailLines(f.path));
-  let state = '空闲', detail = '';
+
+  const recs = parseLines(tailLines(f.path, 512 * 1024));
+  let state = '空闲', detail = '', lastAt = f.mtimeMs, lastTs = 0;
   for (let i = recs.length - 1; i >= 0; i--) {
     const r = recs[i];
-    if (r.type === 'reasoning') { state = '思考'; detail = '推理中'; break; }
-    if (r.type === 'tool-call' || r.type === 'tool_call' || r.type === 'tool-result') { state = '干活'; detail = shortText(r.name || r.toolName || ''); break; }
-    if (r.type === 'message') {
-      if (r.role === 'assistant') { state = '输出'; detail = shortText(r.content || (r.message && r.message.content) || ''); break; }
-      if (r.role === 'user') { state = '思考'; detail = '等待回复'; break; }
+    if (!r || typeof r !== 'object') continue;
+    if (r.timestamp) lastTs = Math.max(lastTs, r.timestamp);
+    const type = r.type || '';
+    if (type === 'file-history-snapshot' || type === 'session-meta') continue;
+    if (type === 'reasoning') { state = '思考'; detail = '深度思考中'; break; }
+    if (type === 'function_call') { state = '干活'; detail = String(r.name || '工具调用'); break; }
+    if (type === 'function_call_result') { state = '干活'; detail = String(r.name || '工具返回'); break; }
+    if (type === 'message') {
+      const txt = asText(r.content);
+      if (r.role === 'assistant') { state = '输出'; detail = shortText(txt); }
+      else if (r.role === 'user') { state = '思考'; detail = shortText(txt) || '等待回复'; }
+      if (detail) break;
     }
+    if (type === 'ai-title' && r.aiTitle) { detail = shortText(r.aiTitle); break; }
   }
-  const active = ago < ACTIVE_MS;
+  // 最后一条事件的时间比文件 mtime 更可信
+  if (lastTs) lastAt = Math.max(lastAt, lastTs);
+  const active = (now - lastAt) < ACTIVE_MS && (now - f.mtimeMs) < ACTIVE_MS;
   if (!active) state = '空闲';
-  return { id: 'workbuddy', name: 'WorkBuddy', color: COLORS.workbuddy, state, detail, active, at: f.mtimeMs };
+  return { id: 'workbuddy', name: 'WorkBuddy', color: COLORS.workbuddy, state, detail, active, at: lastAt };
 }
 
 /* ---------------- Claude Code ---------------- */

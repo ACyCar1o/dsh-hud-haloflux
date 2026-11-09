@@ -161,24 +161,7 @@ function Get-ChatGptInfo {
 $apps = @()
 try { $apps += Get-ChatGptInfo } catch { $apps += [ordered]@{ name='ChatGPT'; running=$false; state='读取失败'; snippet=''; work=''; agent=$false; thinking=$false; title='' } }
 
-# WorkBuddy：Electron 界面，UIA 读不到文字，用 OCR 探针（结果缓存 6 秒，避免每轮都跑）
-try {
-  $wbCache = Join-Path $PSScriptRoot '.workbuddy.json'
-  $wbFresh = $false
-  if (Test-Path $wbCache) {
-    $ageS = ((Get-Date) - (Get-Item $wbCache).LastWriteTime).TotalSeconds
-    if ($ageS -lt 6) { $wbFresh = $true }
-  }
-  if (-not $wbFresh) {
-    $wbOut = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'workbuddy-probe.ps1') 2>$null
-    $wbStr = ($wbOut | Out-String).Trim()
-    if ($wbStr) { [System.IO.File]::WriteAllText($wbCache, $wbStr, (New-Object System.Text.UTF8Encoding($false))) }
-  }
-  if (Test-Path $wbCache) {
-    $wbJson = (Get-Content $wbCache -Raw -Encoding UTF8).Trim()
-    if ($wbJson) { $apps += ($wbJson | ConvertFrom-Json) }
-  }
-} catch {}
+# WorkBuddy 状态由 agents.mjs 直接读事件流（~/.workbuddy/projects/*/*.jsonl），这里不再做 OCR。
 
 $json = [ordered]@{ at = [DateTimeOffset]::Now.ToUnixTimeMilliseconds(); apps = $apps } | ConvertTo-Json -Depth 6 -Compress
 if ($OutFile) {
