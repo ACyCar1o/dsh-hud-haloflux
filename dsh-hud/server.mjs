@@ -462,6 +462,8 @@ setInterval(() => {
   const LIVELY = 'C:\\Program Files\\Lively Wallpaper\\Lively.exe';
   if (idle < 300000) return;
   if (wdPhase === 0) {
+    // 重载前先清理孤儿 WebView2，避免进程/显存越积越多
+    try { execFile('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', join(ROOT, 'dsh-hud', 'cleanup-webviews.ps1')], { windowsHide: true, timeout: 30000 }, () => {}); } catch (e) {}
     wdPhase = 1; lastClientAt = now; lastPagePollAt = now;
     wdReloads++;
     try { execFile(LIVELY, ['setwp', '--file', 'reload'], { windowsHide: true, timeout: 20000 }, () => {}); } catch (e) {}

@@ -627,6 +627,7 @@
         try {
           const st = JSON.parse(ev.data);
           ingest(st);
+          lastStateAt = Date.now();
           driveParams(st);
           renderPanels(st);
           pulse(st.bursts);
@@ -636,6 +637,16 @@
     } catch (e) { setTimeout(connect, 1500); }
   }
   connect();
+
+  /* 锁屏/切后台回来：WebView 可能被挂起，数据陈旧就强制重载页面 */
+  let lastStateAt = Date.now();
+  const recoverIfStale = () => {
+    if (document.visibilityState !== 'visible') return;
+    if (Date.now() - lastStateAt > 60000) location.reload();
+  };
+  document.addEventListener('visibilitychange', recoverIfStale);
+  window.addEventListener('pageshow', (e) => { if (e.persisted) location.reload(); });
+  setInterval(() => { if (document.visibilityState === 'visible' && Date.now() - lastStateAt > 90000) location.reload(); }, 15000);
 
   /* ---------- 9. standby = slow motion, not a freeze ----------
      The whole simulation advances through dt inside frame(). In standby we feed it

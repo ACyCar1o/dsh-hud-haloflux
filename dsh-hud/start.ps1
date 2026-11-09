@@ -22,6 +22,14 @@ if (Test-Path $fix) {
     -WindowStyle Hidden | Out-Null
 }
 
+# 解锁自动重载壁纸（只起一个）
+$unlock = Join-Path $PSScriptRoot 'unlock-reload.ps1'
+$running = Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object { $_.CommandLine -like '*unlock-reload.ps1*' }
+if (-not $running -and (Test-Path $unlock)) {
+  Start-Process -FilePath 'powershell.exe' -ArgumentList @('-NoProfile','-WindowStyle','Hidden','-ExecutionPolicy','Bypass','-File',"`"$unlock`"") -WindowStyle Hidden | Out-Null
+  Log 'unlock watcher started'
+}
+
 # 守护循环：node 崩了自动拉起（5 秒后重试），输出写进 server.log
 $server = Join-Path $PSScriptRoot 'server.mjs'
 while ($true) {

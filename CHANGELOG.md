@@ -1,12 +1,28 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.10.0**（2026-11-05）
+当前版本：**v1.11.0**（2026-11-09）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.11.0 — 锁屏/解锁与日志复发的修复（2026-11-09）
+
+**新增**
+- `unlock-reload.ps1`：订阅 Windows `SessionSwitch` 事件，解锁后自动重载壁纸（常驻后台，由 `start.ps1` 启动）。
+- `cleanup-webviews.ps1`：清理"父进程已退出"的孤儿 WebView2 进程；看门狗每次重载壁纸前先跑一遍。
+- 页面自愈：`bridge.js` 监听 `visibilitychange`/`pageshow`，切回前台发现数据陈旧（>60s）就自动重载页面。
+
+**修复**
+- 锁屏后再解锁，壁纸页面被 WebView 挂起、不再上报心跳 → 画面定格。
+- 看门狗每 5 分钟重载一次壁纸，每次留下孤儿 WebView2 → 进程数 59、显存 7.5GB；清理后 6 个、显存回落。
+
+**排查/使用**
+```powershell
+powershell -File dsh-hud\cleanup-webviews.ps1   # 手动清孤儿（会输出 total/killed）
+```
 
 ## v1.10.0 — 显存泄漏修复（551ea56）
 
