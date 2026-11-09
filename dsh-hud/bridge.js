@@ -807,7 +807,7 @@
     if (!el) return;
     const a = data && data.apps ? data.apps[0] : null;
     if (!a) { el.innerHTML = '<div>未运行</div>'; return; }
-    const st = data.busy ? '生成中' : a.state;
+    const st = data.busy ? (a.state === '思考中' || a.state === '执行中' ? a.state : '生成中') : a.state;
     const sn = a.snippet ? short(a.snippet, 46) : (a.work ? '上次用时 ' + a.work : '');
     el.innerHTML = '<div><b>' + esc(st) + '</b></div>' +
       (sn ? '<div>' + esc(sn) + '</div>' : '');

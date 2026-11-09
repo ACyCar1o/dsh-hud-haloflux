@@ -1,12 +1,23 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.12.0**（2026-11-09）
+当前版本：**v1.13.0**（2026-11-09）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.13.0 — ChatGPT"思考中/处理中"也联动（2026-11-09）
+
+**修复**
+- 之前只有"文字变化"或"代理模式"才算工作中，ChatGPT 处于思考/生成初期（还没输出文字）时壁纸完全没反应。
+- 现在会识别 UI 上的 `思考中 / 正在生成 / 处理中 / 运行中 / Thinking / Generating / Working / Stop generating` 等状态，
+  命中即判定 busy（保持 5 秒），光环加速 + 光束爆发。
+- GPT 面板状态会显示「思考中 / 执行中 / 生成中 / 已打开」。
+
+**接口**
+- `GET /external` 新增字段 `thinking`（boolean）。
 
 ## v1.12.0 — 页面缓存导致"假死" + 诊断通道（2026-11-09）
 

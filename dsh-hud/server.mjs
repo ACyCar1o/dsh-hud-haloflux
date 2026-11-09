@@ -278,7 +278,9 @@ function refreshExternal() {
         const snip = (next.apps || []).map(a => a.snippet || '').join('|');
         // text changed since the last probe → the app is producing output right now
         const agent = (next.apps || []).some(a => a && a.agent === true);
+        const thinking = (next.apps || []).some(a => a && a.thinking === true);
         if (agent) externalBusyUntil = Date.now() + 6000;                 // agent / computer-use mode
+        else if (thinking) externalBusyUntil = Date.now() + 5000;         // thinking / generating indicator visible
         else if (externalPrevSnip && snip && snip !== externalPrevSnip) externalBusyUntil = Date.now() + 8000;
         externalPrevSnip = snip;
         externalCache = { at: Date.now(), data: next };

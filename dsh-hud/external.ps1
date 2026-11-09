@@ -84,10 +84,12 @@ $BLOCK = '^(返回|前进|跳转到内容|隐藏侧边栏|显示侧边栏|应用
 
 # 代理/操作电脑模式的窗口（ChatGPT 在替用户执行任务时会出现）
 $AGENT_RE = 'is using your computer|Esc to cancel|正在使用你的电脑|正在操作'
+# 生成/思考/处理中的 UI 文案（中英文）
+$BUSY_RE = '思考中|正在思考|思考了|正在生成|生成中|正在处理|处理中|正在运行|运行中|正在分析|搜索中|正在搜索|停止生成|停止响应|^停止$|^Stop|Thinking|Generating|Working|Analyzing|Searching|Running|Reading|Writing code|Stop generating'
 
 function Get-ChatGptInfo {
   $pids = @(Get-Process -Name ChatGPT -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Id)
-  if ($pids.Count -eq 0) { return [ordered]@{ name='ChatGPT'; running=$false; state='未运行'; snippet=''; work=''; agent=$false; title='' } }
+  if ($pids.Count -eq 0) { return [ordered]@{ name='ChatGPT'; running=$false; state='未运行'; snippet=''; work=''; agent=$false; thinking=$false; title='' } }
 
   $wins = @([ExtWin2]::All([uint32[]]$pids))
   $fg = [ExtWin2]::GetForegroundWindow().ToInt64()
@@ -115,9 +117,9 @@ function Get-ChatGptInfo {
     if (($best -split '\|')[0] -eq "$fg") { $state = '使用中' }
     if ($min) { $state = '最小化' }
   }
-  if ($agent) { $state = '执行中' }
+  if ($agent) { $state = '执行中' } elseif ($thinking) { $state = '思考中' }
 
-  $snippet = ''; $work = ''
+  $snippet = ''; $work = ''; $thinking = $false
   if ($best) {
     try {
       $h = [IntPtr][int64](($best -split '\|')[0])
@@ -130,6 +132,7 @@ function Get-ChatGptInfo {
         $n = ($n -replace '\s+', ' ').Trim()
         if ($n.Length -lt 12) { continue }
         if ($n -match $BLOCK) { continue }
+        if (-not $thinking -and $n -match $BUSY_RE) { $thinking = $true }
         if ($n -match '^Worked for (.+)$') { $work = $Matches[1]; continue }
         [void]$kept.Add($n)
       }
@@ -138,11 +141,11 @@ function Get-ChatGptInfo {
       if ($snippet.Length -gt 120) { $snippet = $snippet.Substring(0, 118) + '...' }
     } catch {}
   }
-  return [ordered]@{ name='ChatGPT'; running=$true; state=$state; snippet=$snippet; work=$work; agent=$agent; title=$title }
+  return [ordered]@{ name='ChatGPT'; running=$true; state=$state; snippet=$snippet; work=$work; agent=$agent; thinking=$thinking; title=$title }
 }
 
 $apps = @()
-try { $apps += Get-ChatGptInfo } catch { $apps += [ordered]@{ name='ChatGPT'; running=$false; state='读取失败'; snippet=''; work=''; agent=$false; title='' } }
+try { $apps += Get-ChatGptInfo } catch { $apps += [ordered]@{ name='ChatGPT'; running=$false; state='读取失败'; snippet=''; work=''; agent=$false; thinking=$false; title='' } }
 
 $json = [ordered]@{ at = [DateTimeOffset]::Now.ToUnixTimeMilliseconds(); apps = $apps } | ConvertTo-Json -Depth 6 -Compress
 if ($OutFile) {
