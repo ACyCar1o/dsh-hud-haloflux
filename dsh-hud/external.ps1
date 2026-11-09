@@ -87,6 +87,17 @@ $AGENT_RE = 'is using your computer|Esc to cancel|正在使用你的电脑|正�
 # 生成/思考/处理中的 UI 文案（中英文）
 $BUSY_RE = '思考中|正在思考|思考了|正在生成|生成中|正在处理|处理中|正在运行|运行中|正在分析|搜索中|正在搜索|停止生成|停止响应|^停止$|^Stop|Thinking|Generating|Working|Analyzing|Searching|Running|Reading|Writing code|Stop generating'
 
+function Get-ChatGptCpu([double]$seconds = 0.5) {
+  $procs = @(Get-Process -Name ChatGPT -ErrorAction SilentlyContinue)
+  if ($procs.Count -eq 0) { return 0.0 }
+  $a = ($procs | ForEach-Object { $_.TotalProcessorTime.TotalSeconds } | Measure-Object -Sum).Sum
+  Start-Sleep -Milliseconds ([int]($seconds * 1000))
+  $procs2 = @(Get-Process -Name ChatGPT -ErrorAction SilentlyContinue)
+  if ($procs2.Count -eq 0) { return 0.0 }
+  $b = ($procs2 | ForEach-Object { $_.TotalProcessorTime.TotalSeconds } | Measure-Object -Sum).Sum
+  return ($b - $a)
+}
+
 function Get-ChatGptInfo {
   $pids = @(Get-Process -Name ChatGPT -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Id)
   if ($pids.Count -eq 0) { return [ordered]@{ name='ChatGPT'; running=$false; state='未运行'; snippet=''; work=''; agent=$false; thinking=$false; title='' } }
@@ -118,8 +129,11 @@ function Get-ChatGptInfo {
     if ($min) { $state = '最小化' }
   }
   if ($agent) { $state = '执行中' } elseif ($thinking) { $state = '思考中' }
+  # CPU 只作为诊断字段输出，不参与判定（空闲时 UI 动画也会占 CPU，容易误判）
 
-  $snippet = ''; $work = ''; $thinking = $false
+  $snippet = ''; $work = ''; $thinking = $false; $busyHit = ''
+  $cpuDelta = 0.0
+  try { $cpuDelta = Get-ChatGptCpu 0.45 } catch {}
   if ($best) {
     try {
       $h = [IntPtr][int64](($best -split '\|')[0])
@@ -130,9 +144,9 @@ function Get-ChatGptInfo {
         $n = $all[$i].Current.Name
         if (-not $n) { continue }
         $n = ($n -replace '\s+', ' ').Trim()
+        if (-not $thinking -and $n -match $BUSY_RE) { $thinking = $true; $busyHit = $n }   # 先判断状态词（可能只有 3-6 个字）
         if ($n.Length -lt 12) { continue }
         if ($n -match $BLOCK) { continue }
-        if (-not $thinking -and $n -match $BUSY_RE) { $thinking = $true }
         if ($n -match '^Worked for (.+)$') { $work = $Matches[1]; continue }
         [void]$kept.Add($n)
       }
@@ -141,7 +155,7 @@ function Get-ChatGptInfo {
       if ($snippet.Length -gt 120) { $snippet = $snippet.Substring(0, 118) + '...' }
     } catch {}
   }
-  return [ordered]@{ name='ChatGPT'; running=$true; state=$state; snippet=$snippet; work=$work; agent=$agent; thinking=$thinking; title=$title }
+  return [ordered]@{ name='ChatGPT'; running=$true; state=$state; snippet=$snippet; work=$work; agent=$agent; thinking=$thinking; busyHit=$busyHit; cpu=$([math]::Round($cpuDelta,3)); title=$title }
 }
 
 $apps = @()
