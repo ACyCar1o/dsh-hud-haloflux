@@ -1,12 +1,20 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.17.0**（2026-11-09）
+当前版本：**v1.17.1**（2026-11-09）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.17.1 — 多 Agent 移到底部面板（2026-11-09）
+
+**调整**
+- 去掉顶部新增的整行身份条（占用一行高度、打断构图）。
+- 把第二行最右侧的「ChatGPT」面板改成 **「其他 AI」**：纵向列出 Codex / WorkBuddy / Claude Code，
+  并把 ChatGPT 状态合并进同一块（身份色圆点 + 状态；活跃时圆点变亮、附 16 字摘要）。
+- 面板高度不变，不额外占位。
 
 ## v1.17.0 — 多 Agent 接入：Codex / WorkBuddy / Claude Code（2026-11-09）
 

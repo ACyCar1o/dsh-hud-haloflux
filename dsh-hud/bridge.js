@@ -382,7 +382,6 @@ const fmt = (n) => (n ?? 0).toLocaleString();
     const wrap = document.createElement('div');
     wrap.id = 'hf-bottom';
     wrap.innerHTML = [
-      '<div id="hf-agents"></div>',
       '<section class="panels" id="hf-main">',
       '<div class="p"><h3>现在任务</h3><div class="hf-now" id="hfNowIcon">○</div>',
       '<div class="hf-nowtxt" id="hfNowVerb">空闲</div><div class="cap" id="hfNowWhat">等你安排任务</div>',
@@ -397,7 +396,7 @@ const fmt = (n) => (n ?? 0).toLocaleString();
       '<div class="p"><h3>用量 · 费用</h3><div class="hf-use" id="hfUse"></div></div>',
       '<div class="p"><h3>会话工作台</h3><div class="feed" id="hfWork"></div></div>',
       '<div class="p"><h3>今日之最</h3><div class="hf-use" id="hfFun"></div></div>',
-      '<div class="p"><h3>ChatGPT</h3><div class="feed" id="mChatBody"></div></div>',
+      '<div class="p"><h3>其他 AI</h3><div class="feed" id="hfAgents"></div></div>',
       '</section>'
     ].join('');
     sec.replaceWith(wrap);
@@ -426,14 +425,11 @@ const fmt = (n) => (n ?? 0).toLocaleString();
       '.hf-use b{color:#fff;font-weight:700}',
       '#hf-main .feed,#hf-mini .feed{justify-content:flex-start !important}',
       '.ov.status .sm{display:none !important}',
-      '#hf-agents{display:flex;gap:14px;align-items:center;height:18px;margin-bottom:4px;font-size:9.5px;color:#8d939c;overflow:hidden;white-space:nowrap}',
-      '.hf-agent{display:flex;align-items:center;gap:5px;flex:none}',
-      '.hf-agent i{width:6px;height:6px;border-radius:50%;display:inline-block;opacity:.35}',
-      '.hf-agent.on i{opacity:1}',
-      '.hf-agent b{color:#8d939c;font-weight:700}',
-      '.hf-agent.on b{color:#fff}',
-      '.hf-agent span{color:#8d939c}',
-      '.hf-agent.on span{color:#b9bec7}',
+      '#hfAgents div{display:flex;align-items:center;gap:5px;font-size:9.5px;line-height:1.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#8d939c}',
+      '#hfAgents i{width:6px;height:6px;border-radius:50%;display:inline-block;flex:none;opacity:.4}',
+      '#hfAgents div.on i{opacity:1}',
+      '#hfAgents b{color:#8d939c;font-weight:700;flex:none}',
+      '#hfAgents div.on b{color:#fff}',
       '.rate-head{display:flex;align-items:baseline;gap:5px;margin-bottom:2px}',
       '.rate-head b{font:800 11px/1 \"JetBrains Mono\",Consolas,monospace;color:#fff}',
       '.rate-head span{font:600 9px/1 \"JetBrains Mono\",Consolas,monospace;color:#9aa0aa}',
@@ -547,16 +543,22 @@ const fmt = (n) => (n ?? 0).toLocaleString();
       ).join('') || '<div class="arow"><b>暂无</b></div>';
     }
 
-    // 多 Agent 身份条（Codex / WorkBuddy / Claude Code）
-    if ($('hf-agents')) {
+    // 其他 AI（Codex / WorkBuddy / Claude Code / ChatGPT）
+    if ($('hfAgents')) {
+      const rows = [];
       const list = st.agents || [];
-      $('hf-agents').innerHTML = list.map(a => {
+      for (const a of list) {
         const on = a.active ? ' on' : '';
-        const stt = a.state || '';
-        const det = (a.active && a.detail) ? ' · ' + esc(maskText(a.detail)).slice(0, 24) : '';
-        return '<span class="hf-agent' + on + '"><i style="background:' + (a.color || '#8d939c') + '"></i><b>' +
-          esc(a.name) + '</b><span>' + esc(stt) + det + '</span></span>';
-      }).join('');
+        const det = (a.active && a.detail) ? ' · ' + esc(maskText(a.detail)).slice(0, 16) : '';
+        rows.push('<div class="' + on + '"><i style="background:' + (a.color || '#8d939c') + '"></i><b>' + esc(a.name) + '</b>' + esc(a.state || '') + det + '</div>');
+      }
+      const ext = (window.__EXT && window.__EXT.apps) ? window.__EXT.apps[0] : null;
+      if (ext) {
+        const on = window.__EXT.busy ? ' on' : '';
+        const stt = window.__EXT.busy ? (ext.state === '思考中' || ext.state === '执行中' ? ext.state : '生成中') : (ext.state || '已打开');
+        rows.push('<div class="' + on + '"><i style="background:#98E0CF"></i><b>ChatGPT</b>' + esc(stt) + '</div>');
+      }
+      $('hfAgents').innerHTML = rows.join('') || '<div>暂无</div>';
     }
 
     // bottom status + callout
