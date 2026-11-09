@@ -701,64 +701,8 @@ const fmt = (n) => (n ?? 0).toLocaleString();
   }
 
 
-  /* ---------- 9b. 相位环：思考/工具/输出/等待 用不同弧线表达 ---------- */
-  let HF_SYS = null, HF_PAUSED = false, HF_BASS = 0, lastBassBeat = 0;
-  const phaseC = document.createElement('canvas');
-  phaseC.id = 'hf-phase';
-  phaseC.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:40';
-  document.body.appendChild(phaseC);
-  const phaseX = phaseC.getContext('2d');
-
-  function drawPhaseArc() {
-    const dpr2 = Math.min(window.devicePixelRatio || 1, 2);
-    const w = window.innerWidth, h = window.innerHeight;
-    if (phaseC.width !== Math.round(w * dpr2) || phaseC.height !== Math.round(h * dpr2)) {
-      phaseC.width = Math.round(w * dpr2); phaseC.height = Math.round(h * dpr2);
-    }
-    const x = phaseX;
-    x.setTransform(dpr2, 0, 0, dpr2, 0, 0);
-    x.clearRect(0, 0, w, h);
-
-    const st = LAST_STATE || {};
-    const top = (st.sessions || [])[0] || {};
-    const toolName = (top.currentTool && top.currentTool.name) || '';
-    let phase = 'idle';
-    if (toolName) phase = /ask_user_question/.test(toolName) ? 'wait' : 'tool';
-    else if (top.status === 'thinking') phase = 'think';
-    else if (AC > 0.25) phase = 'stream';
-    if (phase === 'idle') return;
-
-    const cx2 = cx, cy2 = cy;
-    const rad = (R + RO) / 2;
-    const bandW = Math.max(6, Math.min(14, (RO - R) * 0.55));
-    const now = performance.now() / 1000;
-    const rotate = (ringRot || 0) * 0.6;
-
-    x.lineCap = 'round';
-    x.lineWidth = bandW;
-    if (phase === 'think') {
-      x.strokeStyle = 'rgba(150,205,255,' + (0.35 + 0.18 * Math.sin(now * 1.4)) + ')';
-      x.setLineDash([rad * 0.09, rad * 0.05]);
-      x.beginPath(); x.arc(cx2, cy2, rad, rotate, rotate + 0.9, false); x.stroke();
-      x.setLineDash([]);
-    } else if (phase === 'tool') {
-      const a = 0.55 + 0.35 * Math.sin(now * 6);
-      x.strokeStyle = 'rgba(255,255,255,' + a.toFixed(2) + ')';
-      x.beginPath(); x.arc(cx2, cy2, rad, rotate + 0.4, rotate + 1.4, false); x.stroke();
-      x.fillStyle = 'rgba(255,255,255,0.9)';
-      x.beginPath(); x.arc(cx2 + Math.cos(rotate + 1.4) * rad, cy2 + Math.sin(rotate + 1.4) * rad, bandW * 0.55, 0, Math.PI * 2); x.fill();
-    } else if (phase === 'stream') {
-      x.strokeStyle = 'rgba(205,235,255,0.30)';
-      x.beginPath(); x.arc(cx2, cy2, rad, rotate, rotate + 1.8, false); x.stroke();
-    } else if (phase === 'wait') {
-      x.strokeStyle = 'rgba(255,190,120,' + (0.4 + 0.2 * Math.sin(now * 2)) + ')';
-      x.setLineDash([rad * 0.05, rad * 0.04]);
-      x.beginPath(); x.arc(cx2, cy2, rad, rotate, rotate + 1.1, false); x.stroke();
-      x.setLineDash([]);
-    }
-  }
-
-  /* 来自壁纸包装页（Lively 系统数据 / 音频 / 暂停事件）的消息 */
+  /* ---------- 9b. 宿主数据（系统状态 / 暂停）---------- */
+  let HF_SYS = null, HF_PAUSED = false;
   window.addEventListener('message', (e) => {
     const d = e.data;
     if (!d || typeof d !== 'object') return;
@@ -769,10 +713,6 @@ const fmt = (n) => (n ?? 0).toLocaleString();
         const ram = d.ramTotal ? Math.round((d.ramTotal - d.ramAvail) / d.ramTotal * 100) : 0;
         el.textContent = 'CPU ' + Math.round(d.cpu || 0) + '% · GPU ' + Math.round(d.gpu || 0) + '% · 内存 ' + ram + '%';
       }
-    } else if (d.type === 'audio') {
-      HF_BASS = d.bass || 0;
-      const t2 = Date.now();
-      if (HF_BASS > 0.45 && t2 - lastBassBeat > 320) { lastBassBeat = t2; try { onBeat(); } catch (err) {} }
     } else if (d.type === 'pause') {
       HF_PAUSED = !!d.paused;
     }
@@ -812,7 +752,6 @@ const fmt = (n) => (n ?? 0).toLocaleString();
     const speed = 0.10 + 0.90 * ease;                       // was: 0.10 -> 1.00 in one frame
     fakeT += dt * 1000 * speed;
     prevFrame(fakeT);
-    try { drawPhaseArc(); } catch (e) {}
   };
 
   /* ---------- 10. local player (QQ Music / Spotify / any SMTC app) ---------- */

@@ -67,19 +67,6 @@
     } catch (e) {}
   }
 
-  /* ---------- Lively 音频频谱（--audio）---------- */
-  let lastAudio = 0;
-  function livelyAudioListener(arr) {
-    const now = Date.now();
-    if (now - lastAudio < 120) return;
-    lastAudio = now;
-    if (!arr || !arr.length) return;
-    let sum = 0;
-    const n = Math.min(16, arr.length);
-    for (let i = 0; i < n; i++) sum += Math.max(0, arr[i]);
-    post({ type: 'audio', bass: Math.min(1, sum / n) });
-  }
-
   /* ---------- Lively 暂停事件（--pause-event）---------- */
   function livelyWallpaperPlaybackChanged(data) {
     try { post({ type: 'pause', paused: JSON.parse(data).IsPaused }); } catch (e) {}

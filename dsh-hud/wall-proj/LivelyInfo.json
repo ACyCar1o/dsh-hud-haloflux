@@ -8,6 +8,6 @@
   "License": "",
   "Contact": "",
   "Type": 1,
-  "Arguments": "--audio --system-information --pause-event true",
+  "Arguments": "--system-information --pause-event true",
   "FileName": "index.html"
 }
