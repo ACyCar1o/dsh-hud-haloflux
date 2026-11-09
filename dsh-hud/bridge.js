@@ -403,7 +403,7 @@
       '.hf-big{font-size:16px;font-weight:800;color:#fff;margin:2px 0}',
       '#hfActs div,#hfWork div,#mChatBody div{font-size:9.5px;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#b9bec7}',
       '#hfActs i{color:#8d939c;font-style:normal;margin-right:4px}',
-      '#mChatBody b{color:#fff}',,
+      '#mChatBody b{color:#fff}',
       '#hfActs b{color:#e8eaee;font-weight:700;margin:0 4px}',
       '#hfActs .bad{color:#ff7d8a}',
       '.hf-use div{font-size:9.5px;line-height:1.45;color:#b9bec7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
