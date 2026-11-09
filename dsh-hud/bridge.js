@@ -382,6 +382,7 @@ const fmt = (n) => (n ?? 0).toLocaleString();
     const wrap = document.createElement('div');
     wrap.id = 'hf-bottom';
     wrap.innerHTML = [
+      '<div id="hf-agents"></div>',
       '<section class="panels" id="hf-main">',
       '<div class="p"><h3>现在任务</h3><div class="hf-now" id="hfNowIcon">○</div>',
       '<div class="hf-nowtxt" id="hfNowVerb">空闲</div><div class="cap" id="hfNowWhat">等你安排任务</div>',
@@ -425,6 +426,14 @@ const fmt = (n) => (n ?? 0).toLocaleString();
       '.hf-use b{color:#fff;font-weight:700}',
       '#hf-main .feed,#hf-mini .feed{justify-content:flex-start !important}',
       '.ov.status .sm{display:none !important}',
+      '#hf-agents{display:flex;gap:14px;align-items:center;height:18px;margin-bottom:4px;font-size:9.5px;color:#8d939c;overflow:hidden;white-space:nowrap}',
+      '.hf-agent{display:flex;align-items:center;gap:5px;flex:none}',
+      '.hf-agent i{width:6px;height:6px;border-radius:50%;display:inline-block;opacity:.35}',
+      '.hf-agent.on i{opacity:1}',
+      '.hf-agent b{color:#8d939c;font-weight:700}',
+      '.hf-agent.on b{color:#fff}',
+      '.hf-agent span{color:#8d939c}',
+      '.hf-agent.on span{color:#b9bec7}',
       '.rate-head{display:flex;align-items:baseline;gap:5px;margin-bottom:2px}',
       '.rate-head b{font:800 11px/1 \"JetBrains Mono\",Consolas,monospace;color:#fff}',
       '.rate-head span{font:600 9px/1 \"JetBrains Mono\",Consolas,monospace;color:#9aa0aa}',
@@ -536,6 +545,18 @@ const fmt = (n) => (n ?? 0).toLocaleString();
       $('mMix').innerHTML = tops.map(e =>
         '<div class="arow"><b>' + esc(e[0]) + '</b><i><span style="width:' + Math.max(2, Math.round(e[1] / mx2 * 100)) + '%"></span></i><em>x' + e[1] + '</em></div>'
       ).join('') || '<div class="arow"><b>暂无</b></div>';
+    }
+
+    // 多 Agent 身份条（Codex / WorkBuddy / Claude Code）
+    if ($('hf-agents')) {
+      const list = st.agents || [];
+      $('hf-agents').innerHTML = list.map(a => {
+        const on = a.active ? ' on' : '';
+        const stt = a.state || '';
+        const det = (a.active && a.detail) ? ' · ' + esc(maskText(a.detail)).slice(0, 24) : '';
+        return '<span class="hf-agent' + on + '"><i style="background:' + (a.color || '#8d939c') + '"></i><b>' +
+          esc(a.name) + '</b><span>' + esc(stt) + det + '</span></span>';
+      }).join('');
     }
 
     // bottom status + callout

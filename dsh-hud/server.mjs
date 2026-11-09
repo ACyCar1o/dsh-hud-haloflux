@@ -10,6 +10,7 @@ const HOST = '127.0.0.1';
 const PORT = Number(process.env.HUD_PORT || 7788);
 const ROOT = resolve(process.argv[2] || '.');
 const STATIC_DIR = join(ROOT, 'haloflux');
+import { collectAgents } from './agents.mjs';
 const SESSIONS = join(homedir(), '.dsh', 'sessions');
 const POLL_MS = 500;
 const ACTIVE_WINDOW = 15 * 60 * 1000;
@@ -400,7 +401,9 @@ const server = createServer(async (req, res) => {
     return sendJson(res, { ...use, session });
   }
   if (p === '/state') {
-    const b = Buffer.from(JSON.stringify(aggregate()));
+    const st2 = aggregate();
+    try { st2.agents = collectAgents(); } catch (e) { st2.agents = []; }
+    const b = Buffer.from(JSON.stringify(st2));
     res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'content-length': b.length });
     return res.end(b);
   }
@@ -453,6 +456,7 @@ function tick() {
     } catch { /* skip */ }
   }
   const payload = aggregate();
+  try { payload.agents = collectAgents(); } catch (e) { payload.agents = []; }
   const msg = `event: state\ndata: ${JSON.stringify(payload)}\n\n`;
   for (const c of clients) { try { c.write(msg); } catch { clients.delete(c); } }
 }

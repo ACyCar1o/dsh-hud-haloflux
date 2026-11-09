@@ -1,12 +1,26 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.16.0**（2026-11-09）
+当前版本：**v1.17.0**（2026-11-09）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.17.0 — 多 Agent 接入：Codex / WorkBuddy / Claude Code（2026-11-09）
+
+**新增**
+- `dsh-hud/agents.mjs`：只读本机会话记录，归一成统一结构：
+  - **Codex**：`~/.codex/sessions/**/rollout-*.jsonl`（尾部 256KB 按行解析，不整文件读取）
+  - **WorkBuddy**：`~/.workbuddy/projects/*/*.jsonl`
+  - **Claude Code**：`~/.claude/projects/**/*.jsonl`（本机未安装，格式按公开结构实现，未实机验证）
+- 状态判定：最后事件类型（思考 / 干活 / 输出 / 空闲）+ 文件 90 秒内写入算活跃；30 分钟无写入显示"未运行"。
+- 底部新增**身份条**：每个 Agent 一个身份色圆点 + 名称 + 状态；活跃时圆点变亮、附最近内容摘要（路径已脱敏）。
+- `GET /state` 与 SSE 现在都带 `agents` 数组。
+
+**实测**
+- 本机 Codex 正常读到最近会话（空闲态）；WorkBuddy 显示"未运行"；Claude Code 显示"未安装"。
 
 ## v1.16.0 — 移除相位环与音频心跳（2026-11-09）
 
