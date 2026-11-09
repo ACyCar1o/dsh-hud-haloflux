@@ -65,8 +65,16 @@ function newestFile(dir, match, maxDepth = 5, limit = 400) {
   return best;
 }
 
+function asText(v) {
+  if (v == null) return '';
+  if (typeof v === 'string') return v;
+  if (Array.isArray(v)) return v.map((x) => (x && typeof x === 'object' ? (x.text || x.content || '') : x)).join(' ');
+  if (typeof v === 'object') return v.text || v.content || v.message || '';
+  return String(v);
+}
+
 function shortText(s, n = 46) {
-  const v = String(s || '').replace(/\s+/g, ' ').trim();
+  const v = asText(s).replace(/\s+/g, ' ').trim();
   return v.length > n ? v.slice(0, n - 1) + '…' : v;
 }
 

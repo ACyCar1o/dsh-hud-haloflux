@@ -279,7 +279,7 @@ function refreshExternal() {
         const snip = (next.apps || []).map(a => a.snippet || '').join('|');
         // text changed since the last probe → the app is producing output right now
         const agent = (next.apps || []).some(a => a && a.agent === true);
-        const thinking = (next.apps || []).some(a => a && a.thinking === true);
+        const thinking = (next.apps || []).some(a => a && (a.thinking === true || a.busy === true));
         if (agent) externalBusyUntil = Date.now() + 6000;                 // agent / computer-use mode
         else if (thinking) externalBusyUntil = Date.now() + 5000;         // thinking / generating indicator visible
         else if (externalPrevSnip && snip && snip !== externalPrevSnip) externalBusyUntil = Date.now() + 8000;
@@ -456,7 +456,17 @@ function tick() {
     } catch { /* skip */ }
   }
   const payload = aggregate();
-  try { payload.agents = collectAgents(); } catch (e) { payload.agents = []; }
+  try {
+    payload.agents = collectAgents();
+    const wb = ((externalCache.data && externalCache.data.apps) || []).find(a => a && a.name === 'WorkBuddy');
+    const row = (payload.agents || []).find(a => a.id === 'workbuddy');
+    if (row && wb) {
+      row.active = !!wb.busy;
+      if (wb.state) row.state = wb.busy ? wb.state : (wb.state === '空闲' ? '空闲' : wb.state);
+      row.detail = wb.detail || '';
+      row.fromProbe = true;
+    }
+  } catch (e) { payload.agents = []; }
   const msg = `event: state\ndata: ${JSON.stringify(payload)}\n\n`;
   for (const c of clients) { try { c.write(msg); } catch { clients.delete(c); } }
 }

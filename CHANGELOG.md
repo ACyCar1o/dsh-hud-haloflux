@@ -1,12 +1,29 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.18.1**（2026-11-09）
+当前版本：**v1.19.0**（2026-11-09）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.19.0 — WorkBuddy 接入（OCR 探针）（2026-11-09）
+
+**问题**
+- WorkBuddy 是 Electron 应用，Chromium 渲染的文字 UI Automation 读不到；
+  其会话 JSONL（`~/.workbuddy/projects`）只在归档时写，最后一条是 10-29，导致永远判定"未运行/空闲"。
+
+**方案**
+- 新增 `dsh-hud/workbuddy-probe.ps1`：`PrintWindow` 抓 WorkBuddy 窗口位图 + Windows OCR（zh-Hans-CN），
+  识别 `思考中 / 深度思考 / 生成回复中 / 正在生成 / 处理中 / 停止生成` 等状态词，命中即 busy。
+- 结果缓存 6 秒（单次约 0.75s），并行的 ChatGPT UIA 探针不受影响。
+- `external.ps1` 把 WorkBuddy 加进 `apps`；看门狗逻辑把 `busy` 计入光环加速；
+  `agents` 里 WorkBuddy 的状态改由探针接管（面板显示 思考中/生成中）。
+- 顺便修了 WorkBuddy 摘要在对象类型上显示成 `[object Object]` 的问题。
+
+**限制**
+- WorkBuddy 窗口最小化时抓不到画面（保持窗口可见即可）；OCR 只读画面文字，不读会话内容。
 
 ## v1.18.1 — 空闲时光轮不再自转 / 修 ChatGPT 误判忙碌（2026-11-09）
 
