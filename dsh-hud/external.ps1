@@ -85,7 +85,7 @@ $BLOCK = '^(返回|前进|跳转到内容|隐藏侧边栏|显示侧边栏|应用
 # 代理/操作电脑模式的窗口（ChatGPT 在替用户执行任务时会出现）
 $AGENT_RE = 'is using your computer|Esc to cancel|正在使用你的电脑|正在操作'
 # 生成/思考/处理中的 UI 文案（中英文）
-$BUSY_RE = '思考中|正在思考|思考了|正在生成|生成中|正在处理|处理中|正在运行|运行中|正在分析|搜索中|正在搜索|停止生成|停止响应|^停止$|^Stop|Thinking|Generating|Working|Analyzing|Searching|Running|Reading|Writing code|Stop generating'
+$BUSY_RE = '思考中|正在思考|思考了|正在生成|生成中|正在处理|处理中|正在运行|运行中|正在分析|搜索中|正在搜索|停止生成|停止响应|Thinking|Generating|Analyzing|Searching|Stop generating'
 
 function Get-ChatGptCpu([double]$seconds = 0.5) {
   $procs = @(Get-Process -Name ChatGPT -ErrorAction SilentlyContinue)

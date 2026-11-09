@@ -229,7 +229,7 @@ const fmt = (n) => (n ?? 0).toLocaleString();
       rot.hold -= dt;
       // drift with velocity smoothing, so leaving a tween does not snap from 0 to full speed
       const active = clamp((C.ringSpeed || 0) / 3, 0, 1);
-      const targetVel = 0.02 * active + 0.10 * (1 - active);
+      const targetVel = 0.02 * active;   // 待命时圆环完全停住（不再缓慢转动）
       ringVel += (targetVel - ringVel) * (1 - Math.exp(-dt / 0.5));
       ringRot += ringVel * dt;
     }

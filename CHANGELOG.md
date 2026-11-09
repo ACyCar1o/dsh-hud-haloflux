@@ -1,12 +1,24 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.18.0**（2026-11-09）
+当前版本：**v1.18.1**（2026-11-09）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.18.1 — 空闲时光轮不再自转 / 修 ChatGPT 误判忙碌（2026-11-09）
+
+**修复**
+- 待命时圆环曾按 0.10 rad/s 缓慢自转（原设计"慢速漂移"），看起来像一直在转。现在 **待命时圆环完全停住**，
+  只有真实活动才转。
+- ChatGPT 探针把 UI 上的通用「停止」按钮误判成"生成中"（`busyHit:"停止"`），导致 `busy` 恒为 true、
+  圆环一直全速。已从匹配列表移除过于宽泛的 `停止` / `Stop` / `Working`，只保留明确状态词
+  （正在思考 / 正在生成 / 处理中 / Thinking / Generating / Stop generating 等）。
+
+**验证**
+- 空闲时 `GET /external` 应为 `thinking:false, busyHit:"", busy:false`。
 
 ## v1.18.0 — Codex/ChatGPT 去重 + 「现在任务」显示当前 AI（2026-11-09）
 
