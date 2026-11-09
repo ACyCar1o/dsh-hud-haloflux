@@ -17,7 +17,16 @@
   const WALL = new URLSearchParams(location.search).has('wall') || location.pathname.startsWith('/wall');
   const ZOOM_MAX = 0.12;                 // camera push-in multiplier (1.7 max shot ????.08?)
   const SHOT_CAP = 1.7;
-  const fmt = (n) => (n ?? 0).toLocaleString();
+  // 路径脱敏：C:\Users\xxx\a\b\c.js -> …\b\c.js（截图分享不泄露本机结构）
+const shortenPath = (s) => {
+  const v = String(s || '');
+  if (!/[\\/]/.test(v)) return v;
+  const parts = v.split(/[\\/]+/).filter(Boolean);
+  if (parts.length <= 2) return v;
+  return '…\\' + parts.slice(-2).join('\\');
+};
+
+const fmt = (n) => (n ?? 0).toLocaleString();
   const short = (s, n = 26) => (String(s || '').length > n ? String(s).slice(0, n - 1) + '...' : String(s || ''));
 
   /* ---------- 2. relabel ---------- */
@@ -358,7 +367,10 @@
     let a2 = args;
     if (typeof a2 === 'string') { try { a2 = JSON.parse(a2); } catch (e) { return short(String(a2).replace(/\s+/g, ' '), 56); } }
     const pick = a2.description || a2.path || a2.file_path || a2.command || a2.pattern || a2.query || a2.url || a2.prompt || a2.title;
-    return pick ? short(String(pick).replace(/\s+/g, ' '), 56) : '';
+    if (!pick) return '';
+    let val = String(pick).replace(/\s+/g, ' ');
+    if (/^([A-Za-z]:[\\/]|\\\\)/.test(val)) val = shortenPath(val);
+    return short(val, 56);
   }
 
   function buildPanels() {
@@ -689,7 +701,18 @@
   let realLast = performance.now();
   let fakeT = last;                       // `last` is HALOFLUX's own frame clock
   let fpsEMA = 60, qFrames = 0;
+  let idleSleep = false;
   frame = function (now) {
+    // 空闲休眠：60 秒没有任何状态推送就停渲染（壁纸省电），有数据自动恢复
+    if (!idleSleep && Date.now() - lastStateAt > 60000) {
+      idleSleep = true;
+      try { console.log('[hud] idle sleep'); } catch (e) {}
+    } else if (idleSleep && Date.now() - lastStateAt < 5000) {
+      idleSleep = false;
+      realLast = now;
+      try { console.log('[hud] idle wake'); } catch (e) {}
+    }
+    if (idleSleep) { setTimeout(() => frame(performance.now()), 1000); return; }
     const dt = Math.min(0.05, (now - realLast) / 1000);
     realLast = now;
     // adaptive quality: heavy particles/beams back off before the frame rate sags

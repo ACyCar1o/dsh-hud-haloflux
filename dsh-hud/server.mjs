@@ -460,42 +460,31 @@ function tick() {
 tick();
 setInterval(tick, POLL_MS);
 
-/* 看门狗：壁纸页面掉线时自动恢复（带退避，避免反复 reload 把 WebView 进程堆爆）
-   1) 5 分钟无页面轮询 -> reload 壁纸；连续 3 次无效 -> 冷却 30 分钟
-   2) reload 后 3 分钟仍无响应 -> 重启 Lively；连续 2 次无效 -> 冷却 60 分钟
-   页面一旦恢复轮询，所有计数清零 */
-let wdPhase = 0, wdReloads = 0, wdRestarts = 0, wdCooldownUntil = 0;
+/* 看门狗（v1.14 起）：只记录 + 每小时最多一次「干净重启 Lively」
+   不再自动 setwp --file reload —— 每次 reload 都会遗弃一个 2~3.5GB 的 WebView2 GPU 进程，
+   自动恢复反而在制造故障（社区实测会顶到 OOM 0xE0000008）。 */
+let lastHealAt = 0;
 setInterval(() => {
   const now = Date.now();
   const pageFresh = now - lastPagePollAt < 300000;
-  if (clients.size > 0 && pageFresh) {
-    lastClientAt = now; wdPhase = 0;
-    wdReloads = 0; wdRestarts = 0; wdCooldownUntil = 0;
+  if (clients.size > 0 && pageFresh) { lastClientAt = now; return; }
+  if (now - lastClientAt < 300000) return;
+  if (now - lastHealAt < 3600000) {
+    console.log('[watchdog] page unhealthy, cooling down (last heal < 60min)');
     return;
   }
-  if (now < wdCooldownUntil) return;
-  const idle = now - lastClientAt;
+  lastHealAt = now; lastClientAt = now; lastPagePollAt = now;
   const LIVELY = 'C:\\Program Files\\Lively Wallpaper\\Lively.exe';
-  if (idle < 300000) return;
-  if (wdPhase === 0) {
-    // 重载前先清理孤儿 WebView2，避免进程/显存越积越多
-    try { execFile('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', join(ROOT, 'dsh-hud', 'cleanup-webviews.ps1')], { windowsHide: true, timeout: 30000 }, () => {}); } catch (e) {}
-    wdPhase = 1; lastClientAt = now; lastPagePollAt = now;
-    wdReloads++;
-    try { execFile(LIVELY, ['setwp', '--file', 'reload'], { windowsHide: true, timeout: 20000 }, () => {}); } catch (e) {}
-    console.log(`[watchdog] no page poll for 5min -> reload wallpaper (${wdReloads}/3)`);
-    if (wdReloads >= 3) { wdCooldownUntil = now + 30 * 60000; wdReloads = 0; console.log('[watchdog] give up, cooldown 30min'); }
-  } else if (idle >= 180000) {
-    wdPhase = 0; lastClientAt = now; lastPagePollAt = now;
-    wdRestarts++;
-    try {
-      execFile('taskkill', ['/IM', 'Lively.exe', '/F'], { windowsHide: true }, () => {
-        setTimeout(() => { try { execFile(LIVELY, [], { windowsHide: true }, () => {}); } catch (e) {} }, 3000);
-      });
-    } catch (e) {}
-    console.log(`[watchdog] still no client -> restart Lively (${wdRestarts}/2)`);
-    if (wdRestarts >= 2) { wdCooldownUntil = now + 60 * 60000; wdRestarts = 0; console.log('[watchdog] give up, cooldown 60min'); }
-  }
+  console.log('[watchdog] page unhealthy -> clean restart Lively');
+  try {
+    execFile('taskkill', ['/IM', 'Lively.exe', '/F'], { windowsHide: true }, () => {
+      setTimeout(() => { try { execFile(LIVELY, [], { windowsHide: true }, () => {}); } catch (e) {} }, 4000);
+      setTimeout(() => {
+        try { execFile('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', join(ROOT, 'dsh-hud', 'cleanup-webviews.ps1')], { windowsHide: true }, () => {}); } catch (e) {}
+        try { execFile('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', join(ROOT, 'dsh-hud', 'fix-wallpaper-screen.ps1'), '-Quiet'], { windowsHide: true }, () => {}); } catch (e) {}
+      }, 25000);
+    });
+  } catch (e) {}
 }, 60000);
 
 server.on('error', (e) => {

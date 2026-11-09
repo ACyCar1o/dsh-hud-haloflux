@@ -24,6 +24,10 @@ Log 'unlock watcher started'
       if (Test-Path $LIVELY) {
         & $LIVELY setwp --file reload 2>&1 | Out-Null
         Log 'wallpaper reloaded after unlock'
+        # reload 会遗留 WebView2 进程，等 20 秒后清掉
+        Start-Sleep -Seconds 20
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'cleanup-webviews.ps1') 2>&1 | Out-Null
+        Log 'orphan webviews cleaned after unlock'
       }
     }
   } catch { Log ('error: ' + $_.Exception.Message) }
