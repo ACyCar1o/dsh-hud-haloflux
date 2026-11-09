@@ -1,12 +1,22 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.17.1**（2026-11-09）
+当前版本：**v1.18.0**（2026-11-09）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.18.0 — Codex/ChatGPT 去重 + 「现在任务」显示当前 AI（2026-11-09）
+
+**修复**
+- **Codex 与 ChatGPT 是同一个桌面程序**（ChatGPT 桌面版的 Codex 代理写入 `~/.codex/sessions`），
+  之前同一份活动被显示成两行。现在 Codex 有活动时不再单列 ChatGPT；只有 Codex 未运行时才显示 ChatGPT 行。
+
+**改进**
+- **「现在任务」面板不再只显示 DSH**：当 DSH 空闲、而 Codex / WorkBuddy / Claude / ChatGPT 中有活跃者时，
+  自动显示该 AI 的状态与最近内容，并在下方标注「来自 <名称>」。
 
 ## v1.17.1 — 多 Agent 移到底部面板（2026-11-09）
 

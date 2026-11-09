@@ -494,6 +494,19 @@ const fmt = (n) => (n ?? 0).toLocaleString();
     if ($('hfNowWhat')) $('hfNowWhat').textContent = what;
     if ($('hfNowDur')) $('hfNowDur').textContent = pend && pend.t0 ? ('已经跑了 ' + Math.max(1, Math.round((Date.now() - pend.t0) / 1000)) + ' 秒') : '';
 
+    // 现在任务：如果 DSH 没在干活，就把当前最活跃的外部 AI 顶上来
+    try {
+      const nowAgents = (st.agents || []).filter(a => a.active && a.state && a.state !== '空闲' && a.state !== '未运行' && a.state !== '未安装');
+      const dshBusy = !!pend;
+      if (!dshBusy && nowAgents.length) {
+        const a = nowAgents[0];
+        if ($('hfNowIcon')) $('hfNowIcon').textContent = '◆';
+        if ($('hfNowVerb')) $('hfNowVerb').textContent = a.state;
+        if ($('hfNowWhat')) $('hfNowWhat').textContent = maskText(a.detail || a.name);
+        if ($('hfNowDur')) $('hfNowDur').textContent = '来自 ' + a.name;
+      }
+    } catch (e) {}
+
     // 进度
     if ($('hfProg')) $('hfProg').textContent = '第 ' + (top.turn || 0) + ' 轮 · ' + (top.steps || 0) + ' 步';
     if ($('hfProgSub')) $('hfProgSub').textContent = '工具 ' + (top.tools || 0) + ' 次 · 报错 ' + (top.errors || 0) + ' 次';
@@ -553,7 +566,9 @@ const fmt = (n) => (n ?? 0).toLocaleString();
         rows.push('<div class="' + on + '"><i style="background:' + (a.color || '#8d939c') + '"></i><b>' + esc(a.name) + '</b>' + esc(a.state || '') + det + '</div>');
       }
       const ext = (window.__EXT && window.__EXT.apps) ? window.__EXT.apps[0] : null;
-      if (ext) {
+      const codexRow = list.find(a => a.id === 'codex');
+      const codexAlive = codexRow && (codexRow.active || (codexRow.state && codexRow.state !== '未运行' && codexRow.state !== '未安装'));
+      if (ext && !codexAlive) {
         const on = window.__EXT.busy ? ' on' : '';
         const stt = window.__EXT.busy ? (ext.state === '思考中' || ext.state === '执行中' ? ext.state : '生成中') : (ext.state || '已打开');
         rows.push('<div class="' + on + '"><i style="background:#98E0CF"></i><b>ChatGPT</b>' + esc(stt) + '</div>');
