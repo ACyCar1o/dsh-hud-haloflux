@@ -23,6 +23,10 @@
   function showHint(msg) { hint.textContent = msg; hint.style.display = 'block'; }
   function hideHint() { hint.style.display = 'none'; }
 
+  function post(msg) {
+    try { f.contentWindow.postMessage(msg, '*'); } catch (e) {}
+  }
+
   async function probe() {
     try {
       const r = await fetch(BASE + '/state', { cache: 'no-store', signal: AbortSignal.timeout(2500) });
@@ -38,13 +42,48 @@
       if (up === false) f.src = BASE + '/wall?t=' + Date.now();
     } else {
       showHint('等待 dsh-hud 服务（127.0.0.1:7788）…');
-      // server was up before → the page inside the iframe is now stale
       if (up === true) showHint('dsh-hud 服务已断开，等待重连…');
     }
     up = ok;
     setTimeout(tick, ok ? 5000 : 3000);
   }
   tick();
+
+  /* ---------- Lively 系统数据（需 LivelyInfo.json Arguments）---------- */
+  let lastSys = 0;
+  function livelySystemInformation(data) {
+    const now = Date.now();
+    if (now - lastSys < 1000) return;
+    lastSys = now;
+    try {
+      const o = JSON.parse(data);
+      post({
+        type: 'sysinfo',
+        cpu: o.CurrentCpu || 0,
+        gpu: o.CurrentGpu3D || 0,
+        ramTotal: o.TotalRam || 0,
+        ramAvail: o.CurrentRamAvail || 0
+      });
+    } catch (e) {}
+  }
+
+  /* ---------- Lively 音频频谱（--audio）---------- */
+  let lastAudio = 0;
+  function livelyAudioListener(arr) {
+    const now = Date.now();
+    if (now - lastAudio < 120) return;
+    lastAudio = now;
+    if (!arr || !arr.length) return;
+    let sum = 0;
+    const n = Math.min(16, arr.length);
+    for (let i = 0; i < n; i++) sum += Math.max(0, arr[i]);
+    post({ type: 'audio', bass: Math.min(1, sum / n) });
+  }
+
+  /* ---------- Lively 暂停事件（--pause-event）---------- */
+  function livelyWallpaperPlaybackChanged(data) {
+    try { post({ type: 'pause', paused: JSON.parse(data).IsPaused }); } catch (e) {}
+  }
 </script>
 </body>
 </html>
