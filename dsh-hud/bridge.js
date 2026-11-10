@@ -504,6 +504,12 @@ const fmt = (n) => (n ?? 0).toLocaleString();
         if ($('hfNowVerb')) $('hfNowVerb').textContent = a.state;
         if ($('hfNowWhat')) $('hfNowWhat').textContent = maskText(a.detail || a.name);
         if ($('hfNowDur')) $('hfNowDur').textContent = '来自 ' + a.name;
+      } else if (!dshBusy && window.__EXT && window.__EXT.busy) {
+        const g = (window.__EXT.apps || [])[0] || {};
+        if ($('hfNowIcon')) $('hfNowIcon').textContent = '◆';
+        if ($('hfNowVerb')) $('hfNowVerb').textContent = g.state === '执行中' ? '执行中' : '思考中';
+        if ($('hfNowWhat')) $('hfNowWhat').textContent = maskText(g.snippet || 'ChatGPT');
+        if ($('hfNowDur')) $('hfNowDur').textContent = '来自 ChatGPT';
       }
     } catch (e) {}
 

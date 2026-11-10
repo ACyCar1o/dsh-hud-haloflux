@@ -85,7 +85,9 @@ $BLOCK = '^(返回|前进|跳转到内容|隐藏侧边栏|显示侧边栏|应用
 # 代理/操作电脑模式的窗口（ChatGPT 在替用户执行任务时会出现）
 $AGENT_RE = 'is using your computer|Esc to cancel|正在使用你的电脑|正在操作'
 # 生成/思考/处理中的 UI 文案（中英文）
-$BUSY_RE = '思考中|正在思考|思考了|正在生成|生成中|正在处理|处理中|正在运行|运行中|正在分析|搜索中|正在搜索|停止生成|停止响应|Thinking|Generating|Analyzing|Searching|Stop generating'
+$BUSY_RE = '思考中|正在思考|正在生成|生成中|正在处理|处理中|正在运行|运行中|正在分析|搜索中|正在搜索|停止生成|停止响应|Thinking|Generating|Analyzing|Searching|Stop generating'
+# 历史痕迹（“思考了 16s”“Worked for 2m 19s”“已处理 24s”）说明这一轮已经结束，不算忙碌
+$HISTORY_RE = '^(思考了|已思考|思考用时|Worked for|已处理|已完成|Thought for)'
 
 function Get-ChatGptCpu([double]$seconds = 0.5) {
   $procs = @(Get-Process -Name ChatGPT -ErrorAction SilentlyContinue)
@@ -144,6 +146,7 @@ function Get-ChatGptInfo {
         $n = $all[$i].Current.Name
         if (-not $n) { continue }
         $n = ($n -replace '\s+', ' ').Trim()
+        if (-not $thinking -and $n -match $HISTORY_RE) { continue }   # 历史痕迹，跳过
         if (-not $thinking -and $n -match $BUSY_RE) { $thinking = $true; $busyHit = $n }   # 先判断状态词（可能只有 3-6 个字）
         if ($n.Length -lt 12) { continue }
         if ($n -match $BLOCK) { continue }

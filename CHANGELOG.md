@@ -1,12 +1,23 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.19.1**（2026-11-09）
+当前版本：**v1.20.0**（2026-11-10）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.20.0 — 修 ChatGPT 历史痕迹误判 + 「现在任务」接入 ChatGPT（2026-11-10）
+
+**修复**
+- ChatGPT 对话里完成后的历史文字（`思考了 16s`、`Worked for 2m 19s`、`已处理 24s`、`Thought for …`）
+  被当成"正在思考"，导致 `busy` 恒为 true、光轮一直转。现在这类**带时长数字的历史痕迹**直接跳过，
+  只认现在进行时的状态词（思考中 / 正在思考 / 正在生成 / Thinking / Stop generating…）。
+- 实测：空闲时 `busy=false`、面板显示"已打开"，光轮不再自转。
+
+**新增**
+- 「现在任务」在 DSH 空闲时也会显示 ChatGPT 的实时状态（`来自 ChatGPT` + 最近一句内容）。
 
 ## v1.19.1 — WorkBuddy 改为读事件流（对齐社区做法）（2026-11-09）
 
