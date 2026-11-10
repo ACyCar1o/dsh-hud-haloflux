@@ -6,6 +6,22 @@
 param([switch]$Silent)
 
 $ErrorActionPreference = 'SilentlyContinue'
+
+# --- Job 逃逸助手 ------------------------------------------------------------
+# DSH 把每条命令的进程树放进 KILL_ON_JOB_CLOSE 的 Job：从命令里 Start-Process 起的
+# 常驻进程会被连带杀掉，Job 不空还会让命令永不返回（会话卡住/自动更新超时）。
+# 实测：Start-Process 和 explorer.exe 都会落进 Job；只有 WMI Win32_Process.Create 能逃出去。
+function Start-Detached {
+  param([string]$File, [string]$Arguments = '')
+  try {
+    $cmd = if ($Arguments) { '"' + $File + '" ' + $Arguments } else { '"' + $File + '"' }
+    $r = ([wmiclass]'Win32_Process').Create($cmd)
+    if ($r.ReturnValue -eq 0) { return $true }
+  } catch {}
+  try { Start-Process -FilePath $File -ArgumentList $Arguments -WindowStyle Hidden | Out-Null; return $true } catch {}
+  return $false
+}
+# ---------------------------------------------------------------------------
 $here = Split-Path -Parent $PSCommandPath
 $LIVELY = 'C:\Program Files\Lively Wallpaper\Lively.exe'
 if (-not (Test-Path $LIVELY)) { $LIVELY = (Get-ChildItem 'C:\Program Files*\Lively*' -Filter Lively.exe -Recurse -Depth 2 -ErrorAction SilentlyContinue | Select-Object -First 1).FullName }
@@ -22,7 +38,7 @@ Say '=== 恢复壁纸 ==='
 $svc = Get-NetTCPConnection -LocalPort 7788 -State Listen -ErrorAction SilentlyContinue
 if (-not $svc) {
   Say '数据服务未运行，启动中…'
-  Start-Process powershell.exe -ArgumentList @('-NoProfile','-WindowStyle','Hidden','-ExecutionPolicy','Bypass','-File',"`"$here\start.ps1`"") -WindowStyle Hidden
+  Start-Detached -File 'powershell.exe' -Arguments ('-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "' + (Join-Path $here 'start.ps1') + '"') | Out-Null
   Start-Sleep -Seconds 8
 } else { Say '数据服务正常' }
 
@@ -30,7 +46,7 @@ if (-not $svc) {
 Say '重启 Lively…'
 Get-Process Lively -ErrorAction SilentlyContinue | Stop-Process -Force
 Start-Sleep -Seconds 3
-if (Test-Path $LIVELY) { Start-Process $LIVELY }
+if (Test-Path $LIVELY) { Start-Detached -File $LIVELY | Out-Null }
 Start-Sleep -Seconds 12
 
 # 3) 清理本次重启前遗留的孤儿 WebView2

@@ -8,6 +8,22 @@
 #   4. 打印 Lively 壁纸设置步骤
 
 $ErrorActionPreference = 'Stop'
+
+# --- Job 逃逸助手 ------------------------------------------------------------
+# DSH 把每条命令的进程树放进 KILL_ON_JOB_CLOSE 的 Job：从命令里 Start-Process 起的
+# 常驻进程会被连带杀掉，Job 不空还会让命令永不返回（会话卡住/自动更新超时）。
+# 实测：Start-Process 和 explorer.exe 都会落进 Job；只有 WMI Win32_Process.Create 能逃出去。
+function Start-Detached {
+  param([string]$File, [string]$Arguments = '')
+  try {
+    $cmd = if ($Arguments) { '"' + $File + '" ' + $Arguments } else { '"' + $File + '"' }
+    $r = ([wmiclass]'Win32_Process').Create($cmd)
+    if ($r.ReturnValue -eq 0) { return $true }
+  } catch {}
+  try { Start-Process -FilePath $File -ArgumentList $Arguments -WindowStyle Hidden | Out-Null; return $true } catch {}
+  return $false
+}
+# ---------------------------------------------------------------------------
 $here = Split-Path -Parent $PSCommandPath
 $root = Split-Path -Parent $here
 $halo = Join-Path $root 'haloflux'
@@ -38,7 +54,8 @@ sh.Run "powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -F
 Set-Content -Path $vbsPath -Value $vbs -Encoding ASCII
 Write-Host "已写入开机自启：$vbsPath"
 
-Start-Process -FilePath 'powershell.exe' `
+Start-Detached -File 'wscript.exe' -Arguments ('"' + $vbsPath + '"') | Out-Null
+# `
   -ArgumentList '-NoProfile', '-WindowStyle', 'Hidden', '-ExecutionPolicy', 'Bypass', '-File', "`"$here\start.ps1`"" `
   -WindowStyle Hidden
 Start-Sleep -Seconds 4

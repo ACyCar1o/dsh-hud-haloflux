@@ -1,12 +1,34 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.20.0**（2026-11-10）
+当前版本：**v1.21.0**（2026-11-10）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.21.0 — 修复与 DSH 进程 Job 的冲突（壁纸被连带杀 / 命令卡死 / 更新超时）（2026-11-10）
+
+**根因（已实测验证）**
+- DSH 在 Windows 上把每条命令的整棵进程树放进 `KILL_ON_JOB_CLOSE` 的 Job：
+  1. 从命令里 `Start-Process` / `explorer.exe` 起的常驻进程会**落进 Job**，Job 关闭时被一起杀掉（壁纸消失的直接原因）；
+  2. 常驻进程不退出 → Job 永远不空 → 那条命令**永远不返回**（会话卡住一小时）；
+  3. 卡住的命令还会让 DSH 自动更新前的「任务排空」检查 10 秒超时（`desktop update: task inspection timed out`）。
+- 对照实验：`Start-Process` → IN_JOB；`explorer.exe` → IN_JOB；**WMI `Win32_Process.Create` → 自由（不在任何 Job）**。
+
+**修复**
+- 所有常驻进程（node 服务、Lively、解锁监听、选屏脚本）改为经 WMI `Win32_Process.Create` 启动，脱离 DSH Job；
+- `start.ps1` 增加自检：如果它自己是被 DSH 命令拉起的（处于 Job 内），立刻用 WMI 重新拉起自己并退出，**不再卡住命令**；
+- 监理循环改为只做端口探活 + WMI 拉起 `run-node.cmd`（不再前台 `& node`，避免长时间占用命令）；
+- `recover-wallpaper.ps1` / `install.ps1` 同样改用 WMI 启动，`recover-wallpaper.cmd` 现在从任何地方跑都不会卡（实测 22 秒完成）。
+
+**验证**
+- Lively：`free`（不在 Job）；恢复脚本 22s 返回；数据服务正常、壁纸页重连成功。
+- 副产物：不会再出现"退出 DSH 时连 Lively 一起被带走"。
+
+**注意**
+- 创建计划任务（Task Scheduler）需要管理员权限，本机未采用；开机自启仍走 `shell:startup` 的 VBS。
 
 ## v1.20.0 — 修 ChatGPT 历史痕迹误判 + 「现在任务」接入 ChatGPT（2026-11-10）
 

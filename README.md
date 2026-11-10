@@ -54,6 +54,19 @@
 
 > 当前版本 **v1.10.0** · 每个版本修了什么见 [CHANGELOG.md](CHANGELOG.md)
 
+
+## ⚠️ 与 DSH 的进程管理冲突（重要）
+
+DSH 在 Windows 上会把**每条命令的整棵进程树**塞进一个 `KILL_ON_JOB_CLOSE` 的 Job：
+
+- 从命令里用 `Start-Process` / `explorer.exe` 起的常驻进程（Lively、服务、守护脚本）会落进 Job，
+  Job 关闭时被一起杀掉 → **壁纸突然消失**；
+- 常驻进程不退出 → Job 永远不空 → **那条命令永远不返回**（会话卡住）；
+- 卡住的命令会让 DSH 自动更新的"任务排空"检查 10 秒超时（`desktop update: task inspection timed out`）。
+
+本项目的脚本已全部改为经 **WMI `Win32_Process.Create`** 启动常驻进程（实测可脱离 Job），
+`start.ps1` 还会自检并把自己重新拉出 Job。日常请用 `dsh-hud\recover-wallpaper.cmd` 恢复壁纸。
+
 ## 快速开始
 
 ```powershell
