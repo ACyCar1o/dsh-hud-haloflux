@@ -62,6 +62,14 @@ function Log($msg) {
 
 Write-Host "DSH HUD starting on http://127.0.0.1:$Port/" -ForegroundColor Cyan
 
+# 独立看门狗（WMI 启动，Job 外；它负责在端口掉时补 node/补守护）
+$wd = Join-Path $PSScriptRoot 'watchdog.ps1'
+$wdRun = Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*dsh-hud\watchdog.ps1*' }
+if (-not $wdRun -and (Test-Path $wd)) {
+  Start-Detached -File 'powershell.exe' -Arguments ('-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "' + $wd + '"') | Out-Null
+  Log 'watchdog started'
+}
+
 # 顺手把壁纸落到正确的屏幕（iPad/spacedesk 优先，否则主屏），不再写死显示器编号
 $fix = Join-Path $PSScriptRoot 'fix-wallpaper-screen.ps1'
 if (Test-Path $fix) {
