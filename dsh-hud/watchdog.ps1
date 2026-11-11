@@ -13,8 +13,10 @@ function Start-Detached2([string]$File, [string]$Arguments = '') {
 }
 
 # 单实例
-$me = @(Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object { $_.CommandLine -like '*watchdog.ps1*' })
-if ($me.Count -gt 1) { exit 0 }
+$me = @(Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object {
+  $_.ProcessId -ne $PID -and $_.CommandLine -match '-File .*dsh-hud\\watchdog\.ps1'
+})
+if ($me.Count -gt 0) { exit 0 }
 Log 'watchdog started'
 
 while ($true) {

@@ -50,9 +50,11 @@ function Test-UnderDsh {
 }
 # ---------------------------------------------------------------------------
 
-# 1) 端口已在监听 → 不重复起实例
-$early = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
-if ($early) { exit 0 }
+# 1) 已经有别的守护在跑 → 退出；否则无论端口是否占用都留下来守护
+$others = @(Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object {
+  $_.ProcessId -ne $PID -and $_.CommandLine -match '-File .*dsh-hud\\start\.ps1'
+})
+if ($others.Count -gt 0) { exit 0 }
 
 # 2) 如果本脚本是在 DSH 命令里被拉起的（Job 内 / DSH 环境变量存在），改为 WMI 重拉并立即退出，
 #    避免把命令卡住、也避免服务被 DSH 的 Job 连带杀掉
