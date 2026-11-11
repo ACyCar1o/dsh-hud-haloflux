@@ -1,12 +1,32 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.22.0**（2026-11-11）
+当前版本：**v1.23.0**（2026-11-11）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.23.0 — 全静默后台：VBS 无窗口守护（2026-11-11）
+
+**修复"弹黑窗 / 弹资源管理器"**
+- 之前 node 由 `cmd /c run-node.cmd` 拉起，cmd 的控制台窗口会一直挂在那儿（node 活多久窗口留多久），
+  而 node 偶尔崩溃触发重启 → 黑窗反复弹出。
+- 现在改成两级 **VBS 隐藏启动**（wscript 本身没有控制台，内部 `Run cmd, 0` 再隐藏一次）：
+  - `supervise-node.vbs`：node 的隐藏守护，崩溃后 3 秒拉起；
+  - `watchdog.vbs`：每 30 秒 HTTP 探活，服务整体掉了就拉起守护。
+- `start.ps1` 改为**一次性设置**（选屏 / 解锁监听 / 确保两个 VBS 在跑）后立即退出，不再常驻占用命令行。
+- 开机自启 VBS 同步改写：只启动两个隐藏 VBS + 一次性设置，全程无窗口。
+- 顺带清理桌面：更新相关临时脚本挪到 `DSH-更新留档` 文件夹。
+
+**架构**
+```
+登录 → dsh-hud-start.vbs（隐藏）
+        ├─ wscript supervise-node.vbs   （node 隐藏守护，崩溃3秒重启）
+        ├─ wscript watchdog.vbs         （30秒 HTTP 探活，整体掉线时拉起守护）
+        └─ powershell start.ps1（隐藏） （一次性：选屏 + 解锁监听）
+```
 
 ## v1.22.0 — 计划任务方案（彻底独立于 DSH 进程树）（2026-11-11）
 

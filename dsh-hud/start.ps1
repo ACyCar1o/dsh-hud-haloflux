@@ -97,15 +97,16 @@ if (-not $running -and (Test-Path $unlock)) {
   Log 'unlock watcher started'
 }
 
-# 守护循环：只做端口探活；node 由 WMI 拉起（Job 外，不阻塞调用方、不会被连带杀）
-$runner = Join-Path $PSScriptRoot 'run-node.cmd'
-while ($true) {
-  $existing = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
-  if (-not $existing) {
-    Log 'starting server.mjs (detached)'
-    Start-Detached -File 'cmd.exe' -Arguments ('/c ""' + $runner + '""') | Out-Null
-    Start-Sleep -Seconds 8
-  } else {
-    Start-Sleep -Seconds 5
+# 一次性设置完成后退出；node 的守护交给 supervise-node.vbs（无窗口）
+$ensure = @(
+  @{ File = 'wscript.exe'; Args = ('"' + (Join-Path $PSScriptRoot 'supervise-node.vbs') + '"') },
+  @{ File = 'wscript.exe'; Args = ('"' + (Join-Path $PSScriptRoot 'watchdog.vbs') + '"') }
+)
+foreach ($e in $ensure) {
+  $running = Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like ('*' + [System.IO.Path]::GetFileName($e.Args.Trim('"')) + '*') }
+  if (-not $running) {
+    Start-Detached -File $e.File -Arguments $e.Args | Out-Null
+    Log ('launched ' + [System.IO.Path]::GetFileName($e.Args.Trim('"')))
   }
 }
+exit 0
