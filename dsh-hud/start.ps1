@@ -37,6 +37,17 @@ public static extern bool CloseHandle(System.IntPtr h);
     return $inJob
   } catch { return $false }
 }
+function Test-UnderDsh {
+  # 沿父进程链最多看 8 层，碰到 DeepSeek Harness 就是"被 DSH 命令拉起的"
+  $cur = Get-CimInstance Win32_Process -Filter "ProcessId=$PID" -ErrorAction SilentlyContinue
+  for ($i = 0; $i -lt 8; $i++) {
+    if (-not $cur -or -not $cur.ParentProcessId) { return $false }
+    $cur = Get-CimInstance Win32_Process -Filter "ProcessId=$($cur.ParentProcessId)" -ErrorAction SilentlyContinue
+    if (-not $cur) { return $false }
+    if ($cur.Name -match '^DeepSeek Harness|^dsh') { return $true }
+  }
+  return $false
+}
 # ---------------------------------------------------------------------------
 
 # 1) 端口已在监听 → 不重复起实例
@@ -45,7 +56,7 @@ if ($early) { exit 0 }
 
 # 2) 如果本脚本是在 DSH 命令里被拉起的（Job 内 / DSH 环境变量存在），改为 WMI 重拉并立即退出，
 #    避免把命令卡住、也避免服务被 DSH 的 Job 连带杀掉
-$inDsh = ($env:DSH_SHELL -eq '1') -or ($env:DSH_SESSION_ID) -or (Test-InJob)
+$inDsh = Test-UnderDsh
 if ($inDsh) {
   $self = '"' + $PSCommandPath + '"'
   Start-Detached -File 'powershell.exe' -Arguments ('-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File ' + $self) | Out-Null

@@ -1,12 +1,23 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.21.2**（2026-11-10）
+当前版本：**v1.21.3**（2026-11-11）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.21.3 — 守护自检改为父进程链判断（2026-11-11）
+
+**修复**
+- `start.ps1` 原来用 `DSH_SHELL`/`DSH_SESSION_ID` 环境变量判断"是否在 DSH 里"，
+  但 WMI 启动的进程会**继承调用者的环境变量** → 自我重拉陷入循环、还可能出现重复守护。
+- 改为沿父进程链最多查 8 层：只有祖先里真的出现 `DeepSeek Harness` 才判定"在 DSH 命令里"，
+  此时才用 WMI 迁出 Job。
+
+**结果**
+- supervisor / watchdog 都是 WmiPrvSE 的子进程，父链里没有 DSH，不会再被 DSH 退出带走。
 
 ## v1.21.2 — 独立看门狗，防止"服务死了没人拉"（2026-11-10）
 
