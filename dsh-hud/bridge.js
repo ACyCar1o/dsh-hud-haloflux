@@ -430,7 +430,7 @@ function ingest(st) {
       '.ov.status .sm{display:none !important}',
       '#chk{display:none!important}',
       '#hf-cards{position:fixed;top:17%;left:57%;width:29vw;max-width:320px;height:0;z-index:55;pointer-events:none}',
-      '.hf-card{position:absolute;left:0;top:0;width:100%;padding:8px 10px 9px;background:rgba(9,11,15,.86);border:1px solid rgba(255,255,255,.10);border-left:2px solid #fff;border-radius:3px;transform-origin:0 0;box-shadow:0 6px 26px rgba(0,0,0,.38);transition:transform .42s cubic-bezier(.22,.61,.36,1),opacity .42s ease}',
+      '.hf-card{position:absolute;left:0;top:0;width:100%;padding:8px 10px 9px;background:rgba(9,11,15,.97);border:1px solid rgba(255,255,255,.10);border-left:2px solid #fff;border-radius:3px;transform-origin:0 0;box-shadow:0 6px 26px rgba(0,0,0,.38);transition:transform .42s cubic-bezier(.22,.61,.36,1),opacity .42s ease}',
       '.hf-card .k{font-size:8px;letter-spacing:1.6px;color:#6b6f78;font-weight:700;line-height:1.2}',
       '.hf-card .t{font-size:11.5px;font-weight:800;color:#f4f5f7;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
       '.hf-card .s{font-size:9px;color:#9a9ea7;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
@@ -658,6 +658,9 @@ function ingest(st) {
         kEl.textContent = it.k;
         tEl.textContent = short(maskText(it.t || '—'), 30);
         sEl.textContent = it.s || '';
+        // 只有最前面那张显示完整信息；后面的层只露一条标签，像牌堆
+        tEl.style.display = i === 0 ? '' : 'none';
+        sEl.style.display = i === 0 ? '' : 'none';
         el.style.borderLeftColor = it.c;
         el.style.transform = 'translateY(' + (-24 * i) + 'px) scale(' + (1 - 0.07 * i).toFixed(3) + ')';
         el.style.opacity = String(Math.max(0.4, 1 - 0.3 * i));
