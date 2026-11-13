@@ -125,20 +125,10 @@ Lively Wallpaper (WebView2) → desktop wallpaper
 - Visuals: HALOFLUX by Ryder191 — PolyForm Noncommercial (**no commercial use**)
 - Integration scripts: MIT (see `LICENSE-MIT`); redistribution must stay non-commercial and keep attribution
 
-## Related projects
-
-- [Ryder191/haloflux](https://github.com/Ryder191/haloflux) — the original visual engine
-- [Ke-wood/dsh-haloflux](https://github.com/Ke-wood/dsh-haloflux) — first DSH Web GUI port of HALOFLUX
-- [Michael-ZAG/dsh-haloflux](https://github.com/Michael-ZAG/dsh-haloflux) — rebuilt HUD (phase ring, context arc, 117 params)
-- [b1ub1u/dsh-hud-haloflux-live2](https://github.com/b1ub1u/dsh-hud-haloflux-live2) — multi-agent screen, stacked cards, recovery script
-- [caihao373-star/agent-halo](https://github.com/caihao373-star/agent-halo) — multi-agent monitor (plan progress ring)
-
 ## Author & credits
 
 - **Author**: 竹子Away (ACyCar1o) · [Bilibili](https://space.bilibili.com/8124574) · [GitHub](https://github.com/ACyCar1o)
-- **Original visual**: **HALOFLUX** by **Ryder191**
-  - Chinese nickname: **麦克白夫人的猫**
-  - Release credit: `RYDER CODE / Ms MAIKEBAIs CAT` (kept verbatim in the Required Notice)
+- **Original visual**: **HALOFLUX** by **Ryder191** (`RYDER CODE / Ms MAIKEBAIs CAT`, Bilibili: **麦克白夫人的猫**)
   - [GitHub](https://github.com/Ryder191/haloflux) · [Bilibili](https://space.bilibili.com/485939159) · [Original demo video](https://www.bilibili.com/video/BV1dhn163E2V)
 
 ## License
@@ -165,3 +155,11 @@ and must ship the `LICENSE`.
 
 See **[NOTICE.md](NOTICE.md)** and **[LICENSE](LICENSE)** for the full terms.
 The on-canvas credit line is hidden by default (`SHOW_CREDIT = true` in `bridge.js` re-enables it); attribution lives in README/NOTICE.
+
+## Related projects
+
+- [Ryder191/haloflux](https://github.com/Ryder191/haloflux) — the original visual engine
+- [Ke-wood/dsh-haloflux](https://github.com/Ke-wood/dsh-haloflux) — first DSH Web GUI port of HALOFLUX
+- [Michael-ZAG/dsh-haloflux](https://github.com/Michael-ZAG/dsh-haloflux) — rebuilt HUD (phase ring, context arc, 117 params)
+- [b1ub1u/dsh-hud-haloflux-live2](https://github.com/b1ub1u/dsh-hud-haloflux-live2) — multi-agent screen, stacked cards, recovery script
+- [caihao373-star/agent-halo](https://github.com/caihao373-star/agent-halo) — multi-agent monitor (plan progress ring)

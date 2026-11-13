@@ -1,12 +1,21 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.26.9**（2026-11-13）
+当前版本：**v1.26.10**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.26.10 — 署名排版再简化 + 「相关项目」位置修正（2026-11-13）
+
+- 去掉「中文网名 / 发行署名」这类生硬标签：改为一行自然写法
+  `HALOFLUX by Ryder191（RYDER CODE / Ms MAIKEBAIs CAT，B 站：麦克白夫人的猫）`。
+- `相关项目` 从「作者与致谢」上方移动到**文末**（之前写「见文末」但实际在上方，容易找不到），
+  并在作者段加上锚点链接。
+- 元数据（project.json / LivelyInfo.json）同步：`Bilibili: 麦克白夫人的猫`。
+- `LICENSE` 与 Required Notice 原文均未改动。
 
 ## v1.26.9 — 原作者署名排版修正（2026-11-13）
 
