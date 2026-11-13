@@ -72,18 +72,23 @@ Required Notice: Noncommercial use only. Any commercial use is strictly prohibit
 - 鼓励但不强制 @ 作者：B 站 @麦克白夫人的猫，抖音 @Grand】Ryder
 - **未注明来源的分享不在许可范围内**，原作者有权举报并要求下架
 
-## 三、背景音乐
+## 三、宿主软件
+
+- 壁纸宿主：[Lively Wallpaper](https://github.com/rocksdanister/lively)，**GPL-3.0**，由 rocksdanister 开发。
+  本项目通过其 CLI 挂载/重载网页壁纸，未修改其源码；分发本项目时无需附带 Lively。
+
+## 四、背景音乐
 
 `haloflux/audio/sw421k.mp3` 为 **「Synthwave 421k」**，出自 *Pixelsphere* 原声，
 作者 **cynicmusic**，以 **CC0** 发布于 [OpenGameArt](https://opengameart.org/users/cynicmusic)，
 **不受** PolyForm 许可约束。
 
-## 四、历史版本
+## 五、历史版本
 
 - 2026-10-26 **之前**发布的 HALOFLUX 版本曾以 MIT 授权。
 - 自 2026-10-26 起，仅按 PolyForm Noncommercial 1.0.0 + 本 NOTICE 所述条款授权。
 
-## 五、数据与隐私
+## 六、数据与隐私
 
 - 只读取本机数据：`~/.dsh/sessions`、`~/.dsh/storages/cost-meter`、系统媒体会话、
   ChatGPT 桌面版界面（UI Automation）、`~/.codex` / `~/.workbuddy` / `~/.claude` 会话记录

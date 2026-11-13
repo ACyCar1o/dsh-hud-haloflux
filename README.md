@@ -212,9 +212,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File dsh-hud\install-codex-hooks.
 
 ## 相关项目
 
-**本项目实际用到的（唯一依赖）**
+**本项目实际用到的**
 
 - [Ryder191/haloflux](https://github.com/Ryder191/haloflux) — 视觉引擎。本仓库的 `haloflux/` 就是它的原始文件，运行时注入 `bridge.js`
+- [rocksdanister/lively](https://github.com/rocksdanister/lively) — 壁纸宿主（GPL-3.0，20k+ stars）。负责把网页渲染成桌面壁纸，并提供
+  `--system-information` / `--pause-event` 等能力；本项目通过它的 CLI（`setwp`）挂载与重载壁纸
 
 **看过并借鉴过思路的（没有使用它们的代码）**
 

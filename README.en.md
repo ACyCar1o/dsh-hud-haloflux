@@ -151,9 +151,11 @@ The on-canvas credit line is hidden by default (`SHOW_CREDIT = true` in `bridge.
 
 ## Related projects
 
-**Actually used (the only dependency)**
+**Actually used**
 
 - [Ryder191/haloflux](https://github.com/Ryder191/haloflux) — the visual engine (`haloflux/` in this repo is its original files)
+- [rocksdanister/lively](https://github.com/rocksdanister/lively) — the wallpaper host (GPL-3.0). Renders the page as a desktop
+  wallpaper; provides `--system-information` / `--pause-event`, and this project mounts/reloads via its `setwp` CLI
 
 **Ideas borrowed (no code taken)**
 

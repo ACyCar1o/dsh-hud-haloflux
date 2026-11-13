@@ -1,12 +1,19 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.30.1**（2026-11-13）
+当前版本：**v1.30.2**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 版本号以仓库根目录 [`VERSION`](VERSION) 为准。
 > 升级方式：`git pull` 后重启后台（`dsh-hud\stack.ps1`），或直接覆盖解压 `DSH-HUD-portable.zip`。
 
 ---
+
+## v1.30.2 — 补全壁纸宿主 Lively 的仓库地址（2026-11-13）
+
+- README（中/英）「相关项目 · 实际用到的」补上 [rocksdanister/lively](https://github.com/rocksdanister/lively)，
+  注明许可证 GPL-3.0、用途（壁纸宿主 + `setwp` 挂载/重载、`--system-information` / `--pause-event`）。
+- NOTICE 新增「宿主软件」一节，说明 Lively 的许可与依赖关系（未修改其源码）。
+- 版本号 1.30.2。
 
 ## v1.30.1 — 卡片生命周期与多 AI 联动修正（2026-11-13）
 
