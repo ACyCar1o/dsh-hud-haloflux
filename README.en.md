@@ -135,8 +135,9 @@ Lively Wallpaper (WebView2) → desktop wallpaper
 
 ## Author & credits
 
-- **Author**: ACyCar1o · [Bilibili](https://space.bilibili.com/8124574) · [GitHub](https://github.com/ACyCar1o)
-- **Original visual**: HALOFLUX by **Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT)** · https://github.com/Ryder191/haloflux
+- **Author**: 竹子Away (ACyCar1o) · [Bilibili](https://space.bilibili.com/8124574) · [GitHub](https://github.com/ACyCar1o)
+- **Original visual**: HALOFLUX by **Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT / 麦克白夫人的猫)**
+  · [GitHub](https://github.com/Ryder191/haloflux) · [Bilibili](https://space.bilibili.com/485939159) · [Original demo video](https://www.bilibili.com/video/BV1dhn163E2V)
 
 ## License
 

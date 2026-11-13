@@ -165,7 +165,7 @@ winget install --id rocksdanister.LivelyWallpaper
 
 ## 相关项目
 
-- [Ryder191/haloflux](https://github.com/Ryder191/haloflux) — 视觉原作（本项目使用的引擎）
+- [Ryder191/haloflux](https://github.com/Ryder191/haloflux) — 视觉原作（Ryder191，中文网名「麦克白夫人的猫」）
 - [Ke-wood/dsh-haloflux](https://github.com/Ke-wood/dsh-haloflux) — 最早把 HALOFLUX 接进 DSH Web GUI 的移植版
 - [Michael-ZAG/dsh-haloflux](https://github.com/Michael-ZAG/dsh-haloflux) — 在该移植上重做 HUD（相位环 / 上下文弧 / 117 参数）
 - [b1ub1u/dsh-hud-haloflux-live2](https://github.com/b1ub1u/dsh-hud-haloflux-live2) — 多平台 AI 同屏、多卡堆叠、恢复脚本
@@ -173,8 +173,9 @@ winget install --id rocksdanister.LivelyWallpaper
 
 ## 作者与致谢
 
-- **项目作者**：ACyCar1o · [B 站主页](https://space.bilibili.com/8124574) · [GitHub](https://github.com/ACyCar1o)
-- **视觉原作**：HALOFLUX by Ryder191（RYDER CODE / Ms MAIKEBAIs CAT） · [仓库](https://github.com/Ryder191/haloflux)
+- **项目作者**：**竹子Away（ACyCar1o）** · [B 站主页](https://space.bilibili.com/8124574) · [GitHub](https://github.com/ACyCar1o)
+- **视觉原作**：HALOFLUX by Ryder191（RYDER CODE / Ms MAIKEBAIs CAT / 麦克白夫人的猫） · [GitHub 仓库](https://github.com/Ryder191/haloflux)
+  · 中文网名：**麦克白夫人的猫** · [B 站主页](https://space.bilibili.com/485939159) · [原作演示视频（B 站）](https://www.bilibili.com/video/BV1dhn163E2V)
 - 感谢在 HALOFLUX 之上做 DSH 移植与 HUD 探索的社区项目（见文末「相关项目」）
 
 ## 许可与权益（务必阅读）

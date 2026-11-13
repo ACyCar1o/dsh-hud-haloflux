@@ -1,12 +1,20 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.26.6**（2026-11-13）
+当前版本：**v1.26.7**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.26.7 — 作者与原作身份信息补全（2026-11-13）
+
+- 本项目作者：**竹子Away（ACyCar1o）** · B 站 <https://space.bilibili.com/8124574>
+- 视觉原作补充身份：Ryder191（RYDER CODE / Ms MAIKEBAIs CAT），中文网名 **麦克白夫人的猫**；
+  B 站主页 <https://space.bilibili.com/485939159>；原作演示视频 <https://www.bilibili.com/video/BV1dhn163E2V>
+- 同步更新：README（中/英）、NOTICE、`dsh-hud/README.md`、`wall-proj/LivelyInfo.json`、`wall-proj/project.json`。
+- `LICENSE` 保持与上游逐字节一致，未做改动。
 
 ## v1.26.6 — 按原作 LICENSE 原文校正权益说明（2026-11-13）
 

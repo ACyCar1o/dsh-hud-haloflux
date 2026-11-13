@@ -3,7 +3,7 @@
 这是 DSH × HALOFLUX 联动壁纸的**后台部分**。完整介绍、截图与安装步骤见仓库根目录
 [README.md](../README.md)；每个版本改了什么见 [CHANGELOG.md](../CHANGELOG.md)。
 
-- 作者：ACyCar1o · [B 站](https://space.bilibili.com/8124574)
+- 作者：竹子Away（ACyCar1o） · [B 站](https://space.bilibili.com/8124574)
 - 许可：脚本 **MIT**；视觉 `haloflux/` 为 **PolyForm Noncommercial 1.0.0**（详见 ../NOTICE.md）
 
 ## 组成

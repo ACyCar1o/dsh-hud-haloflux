@@ -5,7 +5,7 @@
 
 ## 一、本项目
 
-- **作者**：ACyCar1o · [B 站主页](https://space.bilibili.com/8124574) · [GitHub](https://github.com/ACyCar1o)
+- **作者**：**竹子Away（ACyCar1o）** · [B 站主页](https://space.bilibili.com/8124574) · [GitHub](https://github.com/ACyCar1o)
 - **仓库**：https://github.com/ACyCar1o/dsh-hud-haloflux
 - **代码**（`dsh-hud/`）：MIT（见 `LICENSE-MIT`）
 - **视觉**（`haloflux/`）：HALOFLUX，PolyForm Noncommercial 1.0.0（见 `LICENSE`）
