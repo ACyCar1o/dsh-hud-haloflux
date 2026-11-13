@@ -1,12 +1,31 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.23.0**（2026-11-11）
+当前版本：**v1.24.0**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.24.0 — 彻底去掉 VBS / 无窗口后台（2026-11-13）
+
+**问题**
+- 之前两个 `.vbs` 文件被我写成了"缺少 BOM 的 UTF-16"，wscript 解析失败 → 每次开机弹两个
+  「Windows Script Host：无效字符（800A0408）」报错框；你看到的"开机两个黑窗口"就是它。
+- 另外用 `Win32_Process.Create` 启动控制台程序时，Windows 11 会在 Windows Terminal 里
+  开一个可见标签页（黑色空窗口）——这是我手动重启守护时弹出的那个。
+
+**修复**
+- 删除 `supervise-node.vbs` / `watchdog.vbs` / `launch-node.vbs`，改为纯 PowerShell：
+  - `dsh-hud/daemon.ps1`：单实例（mutex + 文件锁兜底），node 掉线 3 秒重启，
+    输出写 `server.log` / `server.stdout.log`；
+  - 开机自启只保留一个 ASCII 的 `dsh-hud-start.vbs`，用
+    `conhost.exe --headless powershell.exe ... -File daemon.ps1` 启动（**零窗口**）。
+- 所有 `.ps1` 统一加 UTF-8 BOM（之前有脚本因无 BOM 在 PS 5.1 下解析乱码）。
+
+**验证**
+- 可见终端窗口数 = 0；daemon 1 个、node 1 个；杀 node 后 12 秒自动拉起。
 
 ## v1.23.0 — 全静默后台：VBS 无窗口守护（2026-11-11）
 
