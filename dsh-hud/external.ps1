@@ -133,13 +133,19 @@ function Get-ChatGptInfo {
   if ($agent) { $state = '执行中' } elseif ($thinking) { $state = '思考中' }
   # CPU 只作为诊断字段输出，不参与判定（空闲时 UI 动画也会占 CPU，容易误判）
 
-  $snippet = ''; $work = ''; $thinking = $false; $busyHit = ''
+  $snippet = ''; $work = ''; $thinking = $false; $busyHit = ''; $chatTitle = ''
   $cpuDelta = 0.0
   try { $cpuDelta = Get-ChatGptCpu 0.45 } catch {}
   if ($best) {
     try {
       $h = [IntPtr][int64](($best -split '\|')[0])
       $el = [System.Windows.Automation.AutomationElement]::FromHandle($h)
+      # 当前对话标题：优先 Document 元素的 Name，其次工具栏里那个 truncate 按钮
+      try {
+        $docCond = New-Object System.Windows.Automation.PropertyCondition ([System.Windows.Automation.AutomationElement]::ControlTypeProperty), ([System.Windows.Automation.ControlType]::Document)
+        $doc = $el.FindFirst([System.Windows.Automation.TreeScope]::Descendants, $docCond)
+        if ($doc -and $doc.Current.Name) { $chatTitle = ($doc.Current.Name -replace '\s+', ' ').Trim() }
+      } catch {}
       $all = $el.FindAll([System.Windows.Automation.TreeScope]::Descendants, [System.Windows.Automation.Condition]::TrueCondition)
       $kept = New-Object System.Collections.ArrayList
       for ($i = 0; $i -lt $all.Count; $i++) {
@@ -158,7 +164,20 @@ function Get-ChatGptInfo {
       if ($snippet.Length -gt 120) { $snippet = $snippet.Substring(0, 118) + '...' }
     } catch {}
   }
-  return [ordered]@{ name='ChatGPT'; running=$true; state=$state; snippet=$snippet; work=$work; agent=$agent; thinking=$thinking; busyHit=$busyHit; cpu=$([math]::Round($cpuDelta,3)); title=$title }
+  if (-not $chatTitle) {
+    try {
+      $btnCond = New-Object System.Windows.Automation.PropertyCondition ([System.Windows.Automation.AutomationElement]::ControlTypeProperty), ([System.Windows.Automation.ControlType]::Button)
+      $btns = $el.FindAll([System.Windows.Automation.TreeScope]::Descendants, $btnCond)
+      foreach ($b in $btns) {
+        try {
+          if ($b.Current.ClassName -match 'truncate leading-6' -and $b.Current.Name) {
+            $chatTitle = ($b.Current.Name -replace '\s+', ' ').Trim(); break
+          }
+        } catch {}
+      }
+    } catch {}
+  }
+  return [ordered]@{ name='ChatGPT'; running=$true; state=$state; snippet=$snippet; work=$work; agent=$agent; thinking=$thinking; busyHit=$busyHit; cpu=$([math]::Round($cpuDelta,3)); title=$title; chatTitle=$chatTitle }
 }
 
 $apps = @()

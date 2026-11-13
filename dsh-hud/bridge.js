@@ -9,6 +9,7 @@
   /* ---------- 1. stop the demo's fake content timers ---------- */
   for (let i = 1; i < 20000; i++) clearInterval(i);
 
+  const HF_VER = '2026-11-13-1540';
   const $ = (id) => document.getElementById(id);
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -107,6 +108,12 @@ const fmt = (n) => (n ?? 0).toLocaleString();
 
   let lastHookAt = 0;
 let HF_CARD_NODES = null;
+let HF_CARD_ITEMS = [];
+let HF_FRAMES = 0;
+let HF_FPS_AT = 0;
+let HF_FPS_CUR = 0;
+let HF_EXT_LAST_BUSY = 0;
+let HF_EXT_LAST_TITLE = '';
 
 function ingest(st) {
     if (!st) return;
@@ -428,12 +435,13 @@ function ingest(st) {
       '.hf-use b{color:#fff;font-weight:700}',
       '#hf-main .feed,#hf-mini .feed{justify-content:flex-start !important}',
       '.ov.status .sm{display:none !important}',
-      '#chk{display:none!important}',
-      '#hf-cards{position:fixed;top:17%;left:57%;width:29vw;max-width:320px;height:0;z-index:55;pointer-events:none}',
-      '.hf-card{position:absolute;left:0;top:0;width:100%;padding:8px 10px 9px;background:rgba(9,11,15,.97);border:1px solid rgba(255,255,255,.10);border-left:2px solid #fff;border-radius:3px;transform-origin:0 0;box-shadow:0 6px 26px rgba(0,0,0,.38);transition:transform .42s cubic-bezier(.22,.61,.36,1),opacity .42s ease}',
-      '.hf-card .k{font-size:8px;letter-spacing:1.6px;color:#6b6f78;font-weight:700;line-height:1.2}',
-      '.hf-card .t{font-size:11.5px;font-weight:800;color:#f4f5f7;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
-      '.hf-card .s{font-size:9px;color:#9a9ea7;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+      '#chk{opacity:0!important;pointer-events:none!important}',
+      '#chkStack{position:fixed;left:0;top:0;width:0;height:0;z-index:55;pointer-events:none}',
+      '#chkStack{position:fixed;left:0;top:0;width:0;height:0;z-index:55;pointer-events:none;will-change:transform;transition:transform .2s linear}',
+      '.hcard{position:absolute;left:0;top:0;width:286px;padding:8px 11px 9px;background:rgba(9,11,15,.97);border:1px solid rgba(255,255,255,.10);border-left:2px solid #9AA0AA;border-radius:2px;box-shadow:0 8px 30px rgba(0,0,0,.45);transition:transform .5s cubic-bezier(.22,.61,.36,1),opacity 1.1s linear;transform-origin:0 0}',
+      '.hcard .hk{display:block;font-size:8px;letter-spacing:1.7px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+      '.hcard .hv{display:block;font-size:11.5px;font-weight:800;color:#f4f5f7;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+      '.hcard .hbadge{font-size:9px;margin-left:6px;font-weight:600}',
       '#hfAgents div{display:flex;align-items:center;gap:5px;font-size:9.5px;line-height:1.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#8d939c}',
       '#hfAgents i{width:6px;height:6px;border-radius:50%;display:inline-block;flex:none;opacity:.4}',
       '#hfAgents div.on i{opacity:1}',
@@ -602,74 +610,176 @@ function ingest(st) {
       $('hfAgents').innerHTML = rows.join('') || '<div>暂无</div>';
     }
 
-    // 多平台标题卡堆叠：谁最近操作谁浮最前，其余缩小/下移/压暗
+    // 多平台标题卡：数据层（位置/淡出交给 rAF 循环）
     try {
-      let stack = $('hf-cards');
-      if (!stack) {
-        stack = document.createElement('div');
-        stack.id = 'hf-cards';
-        document.body.appendChild(stack);
-      }
       const now = Date.now();
+      const label = (m) => String(m || '').replace(/[-_.]/g, ' ').replace(/\s+/g, ' ').trim().toUpperCase();
       const items = [];
-      for (const s of (st.sessions || []).slice(0, 3)) {
+      for (const s of (st.sessions || [])) {
+        if (!s) continue;
+        const age = now - (s.lastTime || 0);
+        if (age > 10 * 60 * 1000) continue;
         items.push({
-          k: String(s.ws || 'DSH').toUpperCase(),
-          t: s.title || '',
-          s: s.status === 'tool' ? '执行中' : (s.status === 'thinking' ? '思考中' : '空闲'),
-          c: '#E8EAEE', at: s.lastTime || 0
+          key: 'dsh:' + s.id,
+          label: label(s.model) || 'DEEPSEEK',
+          title: s.title || '',
+          badge: s.status === 'tool' ? '执行中' : s.status === 'thinking' ? '思考中' : '空闲',
+          color: '#E8EAEE',
+          lastAt: s.lastTime || 0
         });
       }
-      const hk = st.hook;
+      const hkState = st.hook;
+      const hkHot = hkState && hkState.at && (now - hkState.at) < 15000;
+      let hasGpt = false;
       for (const a of (st.agents || [])) {
-        if (!a.active) continue;
-        let at = a.at || 0;
-        if (a.id === 'codex' && hk && hk.at && (now - hk.at) < 15000) at = Math.max(at, hk.at);
-        items.push({ k: a.name, t: a.detail || '', s: a.state || '', c: a.color || '#8d939c', at });
-      }
-      if (hk && hk.at && (now - hk.at) < 15000 && !items.some(x => x.k === 'Codex')) {
-        items.push({ k: 'CODEX', t: hk.tool || '工具调用', s: '执行中', c: '#10A37F', at: hk.at });
+        if (!a) continue;
+        // 统一规则：最近 10 分钟内有活动就存在（不要求当前 active）
+        const age = now - (a.at || 0);
+        if (!a.at || age > 10 * 60 * 1000) continue;
+        if (a.state === '未安装') continue;
+        if (a.id === 'codex') hasGpt = true;
+        items.push({
+          key: 'ag:' + a.id,
+          label: label(a.model) || (a.id === 'workbuddy' ? 'WORKBUDDY' : a.id === 'codex' ? 'CODEX' : 'CLAUDE CODE'),
+          title: (a.id === 'codex' && st.codexThread && st.codexThread.title) || a.title || a.detail || '',
+          badge: (a.id === 'codex' && hkHot) ? '执行中' : (a.state === '未运行' || !a.state ? '空闲' : a.state),
+          color: a.color || '#8d939c',
+          lastAt: a.at || 0
+        });
       }
       const ext = window.__EXT;
-      if (ext && ext.busy && ext.apps && ext.apps[0]) {
-        const g = ext.apps[0];
+      const g0 = (ext && ext.apps && ext.apps[0]) || {};
+      if (ext && ext.busy) HF_EXT_LAST_BUSY = now;
+      if (g0 && g0.chatTitle) HF_EXT_LAST_TITLE = g0.chatTitle;
+      // 与 DSH 卡一致：最后一次活动后保留 10 分钟，60 秒后开始淡出
+      const extAlive = HF_EXT_LAST_BUSY && (now - HF_EXT_LAST_BUSY < 10 * 60 * 1000);
+      if (extAlive && !hasGpt) {
+        const mm2 = String(g0.snippet || '').match(/GPT-[\d.]+\s*[A-Za-z]*/);
         items.push({
-          k: 'CHATGPT', t: g.snippet || '', s: g.state === '执行中' ? '执行中' : '思考中',
-          c: '#98E0CF', at: ext.at || now - 1000
+          key: 'ext:chatgpt',
+          label: mm2 ? mm2[0].replace(/\s+/g, ' ').toUpperCase() : 'CHATGPT',
+          title: (ext.busy && g0.chatTitle) || HF_EXT_LAST_TITLE || (st.codexThread && st.codexThread.title) || '',
+          badge: ext.busy ? (g0.state === '执行中' ? '执行中' : '思考中') : '空闲',
+          color: '#98E0CF',
+          lastAt: HF_EXT_LAST_BUSY
         });
       }
-      const byKey = new Map();
-      for (const it of items) { const cur = byKey.get(it.k); if (!cur || it.at > cur.at) byKey.set(it.k, it); }
-      const list = [...byKey.values()].sort((a2, b2) => b2.at - a2.at).slice(0, 4);
-
-      HF_CARD_NODES = HF_CARD_NODES || new Map();
-      const alive = new Set();
-      list.forEach((it, i) => {
-        alive.add(it.k);
-        let el = HF_CARD_NODES.get(it.k);
-        if (!el) {
-          el = document.createElement('div');
-          el.className = 'hf-card';
-          el.innerHTML = '<div class="k"></div><div class="t"></div><div class="s"></div>';
-          stack.appendChild(el);
-          HF_CARD_NODES.set(it.k, el);
-        }
-        const kEl = el.firstChild, tEl = kEl.nextSibling, sEl = tEl.nextSibling;
-        kEl.textContent = it.k;
-        tEl.textContent = short(maskText(it.t || '—'), 30);
-        sEl.textContent = it.s || '';
-        // 只有最前面那张显示完整信息；后面的层只露一条标签，像牌堆
-        tEl.style.display = i === 0 ? '' : 'none';
-        sEl.style.display = i === 0 ? '' : 'none';
-        el.style.borderLeftColor = it.c;
-        el.style.transform = 'translateY(' + (-24 * i) + 'px) scale(' + (1 - 0.07 * i).toFixed(3) + ')';
-        el.style.opacity = String(Math.max(0.4, 1 - 0.3 * i));
-        el.style.zIndex = String(30 - i);
-      });
-      for (const [k, el] of [...HF_CARD_NODES]) {
-        if (!alive.has(k)) { el.remove(); HF_CARD_NODES.delete(k); }
+      // 去重：同标签+同标题只留最新的（避免 GPT 卡片出现两张）
+      const seen = new Set();
+      const uniq = [];
+      for (const it of items.sort((x, y) => y.lastAt - x.lastAt)) {
+        const gptLike = /^GPT|CHATGPT/.test(it.label);
+        const sig = gptLike ? it.label : it.label + '|' + it.title;
+        if (seen.has(sig)) continue;
+        seen.add(sig);
+        uniq.push(it);
+      }
+      HF_CARD_ITEMS = uniq.slice(0, 3);
+      HF_DBG = (HF_DBG || 0) + 1;
+      if (HF_DBG % 2 === 1) {
+        try {
+          fetch('/debug/state?err=' + encodeURIComponent('CARDS:' + JSON.stringify(HF_CARD_ITEMS.map(x => x.label + '|' + x.title))), { cache: 'no-store' }).catch(() => {});
+        } catch (e) {}
       }
     } catch (e) {}
+
+    // 卡片渲染循环：每帧锚定光环、平滑跟随、淡出、连线
+    if (!window.__hfCardRAF) {
+      window.__hfCardRAF = true;
+      // 接管原生 callout 的连线：圆点画在环边缘，细线连到卡片左上角
+      try {
+        const origDrawCallout = drawCallout;
+        const canAnchor = () => (typeof toScreen === 'function' && typeof cx === 'number' &&
+          typeof cy === 'number' && typeof RO === 'number' && typeof thS === 'number' && S);
+        drawCallout = function () {
+          if (!canAnchor()) { try { origDrawCallout(); } catch (e) {} return; }
+          try {
+            const a = -0.14;
+            const A = toScreen(cx + Math.cos(a) * (RO + 12), cy + Math.sin(a) * (RO + 12));
+            S.fillStyle = '#fff';
+            S.fillRect(A.x - 1.5, A.y - 1.5, 3, 3);
+          } catch (e) { try { origDrawCallout(); } catch (e2) {} }
+        };
+      } catch (e) {}
+      const tickCard = () => {
+        try {
+          let stack = $('chkStack');
+          if (!stack) { stack = document.createElement('div'); stack.id = 'chkStack'; document.body.appendChild(stack); }
+          // 锚点：跟随相机投影（每帧重算，无抖动）
+          const a = -0.14;
+          const A = toScreen(cx + Math.cos(a) * (RO + 12), cy + Math.sin(a) * (RO + 12));
+          const vw = window.innerWidth || 1600, vh = window.innerHeight || 900;
+          const bx = Math.max(12, Math.min(A.x + 16, vw - 320));
+          const by = Math.max(64, Math.min(A.y - 12, vh - 230));
+          stack.style.transform = 'translate(' + bx.toFixed(1) + 'px,' + by.toFixed(1) + 'px)';
+          // 圆点 → 卡片左侧的连线（DOM 画，坐标与卡片同坐标系，绝对对位）
+          let ln = $('hfLine');
+          if (!ln) {
+            ln = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            ln.id = 'hfLine';
+            ln.setAttribute('style', 'position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:54');
+            ln.innerHTML = '<line id="hfLineA" x1="0" y1="0" x2="0" y2="0" stroke="rgba(236,238,243,.72)" stroke-width="0.9"/>' +
+              '<circle id="hfLineDot" cx="0" cy="0" r="1.8" fill="#ffffff"/>';
+            document.body.appendChild(ln);
+          }
+          const cardEl = stack.querySelector('.hcard');
+          if (cardEl) {
+            const cr = cardEl.getBoundingClientRect();
+            const lineEl = $('hfLineA'), dotEl = $('hfLineDot');
+            const show = (HF_CARD_ITEMS || []).length > 0 && parseFloat(cardEl.style.opacity || '1') > 0.05;
+            lineEl.style.display = dotEl.style.display = show ? '' : 'none';
+            if (show) {
+              lineEl.setAttribute('x1', A.x.toFixed(1));
+              lineEl.setAttribute('y1', A.y.toFixed(1));
+              lineEl.setAttribute('x2', cr.left.toFixed(1));
+              lineEl.setAttribute('y2', (cr.top + 13).toFixed(1));
+              dotEl.setAttribute('cx', A.x.toFixed(1));
+              dotEl.setAttribute('cy', A.y.toFixed(1));
+            }
+          }
+          const list = HF_CARD_ITEMS || [];
+          const now = Date.now();
+          HF_FRAMES += 1;
+          if (!HF_FPS_AT) HF_FPS_AT = now;
+          if (now - HF_FPS_AT >= 1000) {
+            HF_FPS_CUR = (HF_FRAMES * 1000) / (now - HF_FPS_AT);
+            HF_FRAMES = 0; HF_FPS_AT = now;
+          }
+          const alive = new Set();
+          list.forEach((it, i) => {
+            alive.add(it.key);
+            let el = stack.querySelector('[data-key="' + it.key + '"]');
+            if (!el) {
+              el = document.createElement('div');
+              el.className = 'hcard';
+              el.dataset.key = it.key;
+              el.innerHTML = '<span class="hk"></span><span class="hv"></span>';
+              stack.appendChild(el);
+              el.style.opacity = '0';
+            }
+            const hk = el.children[0], hv = el.children[1];
+            hk.textContent = it.label;
+            hk.style.color = '#E8EAEE';
+            hv.innerHTML = esc(it.title || '(无标题)') + '<span class="hbadge" style="color:#A9AEB7">' + esc(it.badge || '') + '</span>';
+            const dx = i * 34, dy = i * 64, sc = i === 0 ? 1 : i === 1 ? 0.84 : 0.72;
+            el.style.zIndex = String(9 - i);
+            el.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + sc + ')';
+            // 不活跃 -> 逐渐变淡（60 秒后开始，10 分钟归零）
+            const age = now - ((it.key === 'ext:chatgpt' && HF_EXT_LAST_BUSY) ? HF_EXT_LAST_BUSY : (it.lastAt || now));
+            const fade = age < 60000 ? 1 : Math.max(0, 1 - (age - 60000) / (9 * 60 * 1000));
+            el.style.opacity = String(i === 0 ? Math.max(0.08, fade) : Math.max(0.06, fade * 0.85));
+          });
+          for (const el of [...stack.children]) if (!alive.has(el.dataset.key)) el.remove();
+          const cardAlpha = list.length ? parseFloat((stack.querySelector('.hcard') || {}).style.opacity || '0') : 0;
+          stack.style.display = cardAlpha > 0.02 ? 'block' : 'none';
+        } catch (e) {
+          try { fetch('/debug/state?err=' + encodeURIComponent('CARD:' + String(e && e.stack || e).slice(0, 240)), { cache: 'no-store' }).catch(() => {}); } catch (e2) {}
+        }
+        const hasCards = (HF_CARD_ITEMS || []).length > 0;
+        setTimeout(tickCard, hasCards ? 33 : 200);   // 有卡 30fps；没卡 5fps 省电
+      };
+      setTimeout(tickCard, 33);
+    }
 
     // bottom status + callout
     const big = $('stBig');
@@ -791,7 +901,7 @@ function ingest(st) {
   /* 诊断：把页面 hidden 状态与 JS 错误报给服务端（/stats 里可见） */
   try {
     setInterval(() => {
-      fetch('/debug/state?h=' + (document.hidden ? 1 : 0) + '&w=' + window.innerWidth + '&h2=' + window.innerHeight + '&dpr=' + (window.devicePixelRatio || 1), { cache: 'no-store' }).catch(() => {});
+      fetch('/debug/state?h=' + (document.hidden ? 1 : 0) + '&w=' + window.innerWidth + '&h2=' + window.innerHeight + '&dpr=' + (window.devicePixelRatio || 1) + '&fps=' + (HF_FPS_CUR || 0).toFixed(1) + '&ver=' + HF_VER, { cache: 'no-store' }).catch(() => {});
     }, 5000);
     window.addEventListener('error', (e) => {
       try { fetch('/debug/state?err=' + encodeURIComponent((e.message || 'err') + ' @ ' + (e.filename || '') + ':' + (e.lineno || 0)), { cache: 'no-store' }).catch(() => {}); } catch (e2) {}

@@ -2,7 +2,7 @@
 // 归一成统一结构交给 /state（桥渲染成底部身份条）。
 // 只读本机文件，不读登录凭据；状态判定全部基于文件修改时间 + 最后一条事件类型。
 
-import { readdirSync, statSync, openSync, readSync, closeSync } from 'node:fs';
+import { readdirSync, statSync, openSync, readSync, closeSync, readFileSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { homedir } from 'node:os';
 
@@ -78,7 +78,39 @@ function shortText(s, n = 46) {
   return v.length > n ? v.slice(0, n - 1) + '…' : v;
 }
 
-/* ---------------- Codex ---------------- */
+
+/* Codex 会话元信息：模型名（rollout 里的 thread_settings）+ 线程标题（session_index.jsonl） */
+let CODEX_META_CACHE = { at: 0, path: '', model: '', title: '' };
+function codexMeta(rolloutPath, now) {
+  if (CODEX_META_CACHE.path === rolloutPath && now - CODEX_META_CACHE.at < 5000) return CODEX_META_CACHE;
+  let model = '', title = '';
+  try {
+    const fd = openSync(rolloutPath, 'r');
+    const buf = Buffer.alloc(65536);
+    const n = readSync(fd, buf, 0, buf.length, 0);
+    closeSync(fd);
+    const head = buf.subarray(0, n).toString('utf8');
+    const mm = head.match(/"model"\s*:\s*"([^"]+)"/);
+    if (mm) model = mm[1];
+  } catch (e) {}
+  try {
+    const idx = readFileSync(join(HOME, '.codex', 'session_index.jsonl'), 'utf8');
+    const lines = idx.split('\n').filter(Boolean);
+    let best = null;
+    for (const ln of lines) {
+      try {
+        const o = JSON.parse(ln);
+        if (!o || !o.thread_name) continue;
+        const ts = Date.parse(o.updated_at || '') || 0;
+        if (!best || ts > best.ts) best = { ts, name: o.thread_name };
+      } catch (e2) {}
+    }
+    if (best) title = shortText(best.name, 44);
+  } catch (e) {}
+  CODEX_META_CACHE = { at: now, path: rolloutPath, model, title };
+  return CODEX_META_CACHE;
+}
+
 function probeCodex(now) {
   const root = join(HOME, '.codex', 'sessions');
   const f = newestFile(root, (n) => n.startsWith('rollout-') && n.endsWith('.jsonl'));
@@ -102,8 +134,11 @@ function probeCodex(now) {
     }
   }
   const active = ago < ACTIVE_MS;
+  const meta = codexMeta(f.path, now);
+  const model = meta.model || '';
+  const title = meta.title || '';
   if (!active) state = '空闲';
-  return { id: 'codex', name: 'Codex', color: COLORS.codex, state, detail, active, at };
+  return { id: 'codex', name: 'Codex', color: COLORS.codex, state, detail, active, at, model, title };
 }
 
 /* ---------------- WorkBuddy ----------------

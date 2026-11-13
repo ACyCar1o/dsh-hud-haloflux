@@ -266,6 +266,83 @@ let externalPrevSnip = '';
 let externalBusyUntil = 0;
 // Codex Hook 事件（codex-hook.mjs 转发）
 let lastHook = null;
+// 最新 ChatGPT/Codex 线程（state_5.sqlite 的 threads 表）：卡片用它显示“当前对话”
+let latestThread = null;
+function cleanThreadTitle(raw) {
+  let s = String(raw || '').replace(/\r/g, '');
+  // 带附件提示的线程：取 "## My request:" 之后的内容
+  const m = s.match(/##\s*My request:\s*([\s\S]+)$/);
+  if (m) s = m[1];
+  // 去掉 markdown 标题 / 图片附件说明
+  s = s.split('\n').map(l => l.trim())
+    .filter(l => l && !/^#/.test(l) && !/^Image attachment:/i.test(l) && !/^Distinguish instructions/i.test(l))
+    .join(' ');
+  s = s.replace(/\s+/g, ' ').trim();
+  return s.slice(0, 60);
+}
+
+async function refreshLatestThread() {
+  try {
+    // 1) 最新 rollout -> 当前会话 id（文件名第一个 UUID）
+    const root = join(homedir(), '.codex', 'sessions');
+    let newest = null;
+    const walk = (dir, depth) => {
+      if (depth > 3) return;
+      let ents = [];
+      try { ents = readdirSync(dir, { withFileTypes: true }); } catch (e) { return; }
+      for (const e of ents) {
+        const full = join(dir, e.name);
+        try {
+          if (e.isDirectory()) walk(full, depth + 1);
+          else if (e.name.startsWith('rollout-') && e.name.endsWith('.jsonl')) {
+            const st = statSync(full);
+            if (!newest || st.mtimeMs > newest.mtimeMs) newest = { path: full, mtimeMs: st.mtimeMs };
+          }
+        } catch (e2) {}
+      }
+    };
+    walk(root, 0);
+    if (!newest) return;
+    const idMatch = newest.path.match(/rollout-[\dT-]+-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})_/i);
+    const sid = idMatch ? idMatch[1] : '';
+
+    // 2) 标题：session_index 优先（名字干净），否则 state_5.threads.title（清洗）
+    let title = '';
+    try {
+      const idxRaw = readFileSync(join(homedir(), '.codex', 'session_index.jsonl'), 'utf8');
+      for (const ln of idxRaw.split('\n')) {
+        if (!ln.includes(sid) || !sid) continue;
+        try {
+          const o = JSON.parse(ln);
+          if (o && o.thread_name) title = String(o.thread_name);
+        } catch (e) {}
+      }
+    } catch (e) {}
+    if (!title) {
+      try {
+        const { DatabaseSync } = await import('node:sqlite');
+        const db = new DatabaseSync(join(homedir(), '.codex', 'state_5.sqlite'), { readOnly: true });
+        try {
+          const row = sid ? db.prepare('select title from threads where id = ?').get(sid) : null;
+          if (row && row.title) title = cleanThreadTitle(row.title);
+        } finally { try { db.close(); } catch (e) {} }
+      } catch (e) {}
+    }
+    if (!title) title = cleanThreadTitle('');
+
+    // 3) 模型：rollout 头部里的 thread_settings
+    let model = '';
+    try {
+      const buf = readFileSync(newest.path).subarray(0, 65536).toString('utf8');
+      const mm = buf.match(/"model"\s*:\s*"([^"]+)"/);
+      if (mm) model = mm[1];
+    } catch (e) {}
+
+    latestThread = { title: title || '', model, id: sid, at: Date.now() };
+  } catch (e) {}
+}
+try { refreshLatestThread(); } catch (e) {}
+setInterval(() => { refreshLatestThread(); }, 4000);
 let hookBusyUntil = 0;
 const hookLog = [];
 
@@ -334,7 +411,17 @@ function buildUsage() {
     return {
       today: { tokens: tok(day), costCny: day.costCny || 0, hit: hitOf(day), calls: day.calls || 0, date: today },
       sessions,
-      balance: (d.balanceRef && d.balanceRef.total) || null,
+      balance: (() => {
+      const ref = d.balanceRef;
+      if (!ref || !Number.isFinite(ref.total)) return null;
+      const todayCostCny = day.costCny || 0;
+      const refCost = Number.isFinite(ref.ledgerCost) ? ref.ledgerCost : 0;
+      // 账本只保存“某个时刻的官方余额快照”(balanceRef)，要用它减去快照之后的消费，才是当前估算余额
+      if (ref.date === today) return Math.max(0, ref.total - Math.max(0, todayCostCny - refCost));
+      return ref.total;   // 跨天的快照不再可信，先原样显示
+    })(),
+    balanceAt: (d.balanceRef && d.balanceRef.at) || null,
+    balanceEstimated: !!(d.balanceRef && d.balanceRef.date === today),
       peak: { inPeak: !!active, remainMs: nextAt ? nextAt - now : 0, nextLabel: label },
       at: Date.now(),
     };
@@ -368,7 +455,7 @@ const server = createServer(async (req, res) => {
       toolLog: toolLog.length,
       clients: clients.size,
       pageHidden: dbg.hidden,
-      pageW: dbg.w, pageH: dbg.h2, pageDpr: dbg.dpr,
+      pageW: dbg.w, pageH: dbg.h2, pageDpr: dbg.dpr, pageFps: dbg.fps, pageVer: dbg.ver,
       pageErr: dbg.err,
       pageDbgAt: dbg.at,
     });
@@ -400,6 +487,8 @@ const server = createServer(async (req, res) => {
       const q2 = url.searchParams;
       if (q2.has('h')) dbg.hidden = q2.get('h') === '1';
       if (q2.has('err')) dbg.err = String(q2.get('err')).slice(0, 300);
+      if (q2.has('fps')) dbg.fps = Number(q2.get('fps'));
+      if (q2.has('ver')) dbg.ver = String(q2.get('ver')).slice(0, 40);
       if (q2.has('w')) { dbg.w = Number(q2.get('w')); dbg.h2 = Number(q2.get('h2')); dbg.dpr = Number(q2.get('dpr')); }
       dbg.at = Date.now();
     } catch (e) {}
@@ -431,6 +520,7 @@ const server = createServer(async (req, res) => {
   if (p === '/state') {
     const st2 = aggregate();
     st2.hook = lastHook; st2.hookLog = hookLog; st2.hookBusyUntil = hookBusyUntil;
+    st2.codexThread = latestThread;
     try { st2.agents = collectAgents(); } catch (e) { st2.agents = []; }
     const b = Buffer.from(JSON.stringify(st2));
     res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'content-length': b.length });
@@ -485,6 +575,8 @@ function tick() {
     } catch { /* skip */ }
   }
   const payload = aggregate();
+  payload.hook = lastHook; payload.hookLog = hookLog; payload.hookBusyUntil = hookBusyUntil;
+  payload.codexThread = latestThread;
   try {
     payload.agents = collectAgents();
     // 任意外部 agent 活跃 → 光环也加速（不只看窗口探针）
