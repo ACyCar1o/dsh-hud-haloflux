@@ -828,7 +828,9 @@ function ingest(st) {
     const running = PROBE ? 0 : clamp(tot.activeTools || 0, 0, 9);
     const hkNow = LAST_STATE && LAST_STATE.hook;
     const hookFloor = (hkNow && hkNow.at && (Date.now() - hkNow.at) < (hkNow.event === 'PreToolUse' ? 5000 : 3000)) ? 0.85 : 0;
-    const agNow = LAST_STATE && (LAST_STATE.agents || []).some(a => a && a.active) ? 0.85 : 0;
+    const agNow = LAST_STATE && (LAST_STATE.agents || []).some(a =>
+      a && a.active && /干活|思考|执行中|输出/.test(String(a.state || '')) &&
+      (Date.now() - (a.at || 0)) < 45 * 1000) ? 0.7 : 0;
     const ext = Math.max(Date.now() < extBusyUntil ? 0.85 : 0, hookFloor, agNow);
     const t = clamp(Math.max(short / 2, running, ext), 0, 1);
     const errs = clamp(tot.errors || 0, 0, 40);
@@ -1137,7 +1139,9 @@ function ingest(st) {
 
   /* external AI heartbeat: beats while ChatGPT/other app is generating */
   setInterval(() => {
-    const agentOn = LAST_STATE && (LAST_STATE.agents || []).some(a => a && a.active);
+    const agentOn = LAST_STATE && (LAST_STATE.agents || []).some(a =>
+      a && a.active && /干活|思考|执行中/.test(String(a.state || '')) &&
+      (Date.now() - (a.at || 0)) < 45 * 1000);
     if (Date.now() < extBusyUntil || agentOn) { try { onBeat(); } catch (e) {} }
   }, 700);
 

@@ -12,12 +12,12 @@ same frame, then the whole page is mounted as a **Lively Wallpaper** desktop wal
 > ⚠️ HALOFLUX is licensed under **PolyForm Noncommercial** — **personal, non-commercial use only**.
 > Details in [NOTICE.md](NOTICE.md). The on-screen credit is hidden by default; set `SHOW_CREDIT = true` in `bridge.js` to show it again.
 
-![Overview](docs/screenshots/overview-2.png)
+![Overview](docs/screenshots/overview-3.png)
 
-*Live view: the ring accelerates with real DSH session events; the task panel shows a `CPU · GPU · RAM` line,
+*Live view: the ring accelerates with real DSH session events; the stacked title cards (model + current session, following the ring with a leader line) sit top-right; the task panel shows a `CPU · GPU · RAM` line,
 and the bottom-right "Other AI" panel lists Codex / WorkBuddy / Claude Code / ChatGPT with identity colors.*
 
-![Live while tools run](docs/screenshots/demo-2.gif)
+![Live while tools run](docs/screenshots/demo-3.gif)
 
 ## Features
 
@@ -29,16 +29,16 @@ and the bottom-right "Other AI" panel lists Codex / WorkBuddy / Claude Code / Ch
 - **Chinese UI** — MiSans for Chinese, JetBrains Mono for Latin/digits
 - **Wallpaper-ready** — Lively / Wallpaper Engine project with auto-reconnect when the service restarts
 
-![Panels](docs/screenshots/panels-2.png)
+![Panels](docs/screenshots/panels-3.png)
 
 *Bottom rows: current task (with machine status) / tool calls / event rate / tool mix +
 progress / usage & cost / session desk / today's best / other AI.*
 
-![Ring data band](docs/screenshots/ring-2.png)
+![Ring data band](docs/screenshots/ring-3.png)
 
 *Ring close-up: card text comes from real token and tool events; paths are masked.*
 
-![Local player](docs/screenshots/player-2.png)
+![Local player](docs/screenshots/player-3.png)
 
 *Local player: reads the Windows media session (QQ Music / Spotify, ...), with prev / play-pause / next.*
 
@@ -151,18 +151,23 @@ The on-canvas credit line is hidden by default (`SHOW_CREDIT = true` in `bridge.
 
 ## Related projects
 
-**Actually used**
+### Runtime dependencies (used directly)
 
-- [Ryder191/haloflux](https://github.com/Ryder191/haloflux) — the visual engine (`haloflux/` in this repo is its original files)
-- [rocksdanister/lively](https://github.com/rocksdanister/lively) — the wallpaper host (GPL-3.0). Renders the page as a desktop
-  wallpaper; provides `--system-information` / `--pause-event`, and this project mounts/reloads via its `setwp` CLI
+| Project | License | Role |
+|---|---|---|
+| [Ryder191/haloflux](https://github.com/Ryder191/haloflux) | PolyForm Noncommercial 1.0.0 | Visual engine; `haloflux/` in this repo is its original files, `bridge.js` is injected at runtime |
+| [rocksdanister/lively](https://github.com/rocksdanister/lively) | GPL-3.0 | Wallpaper host; mounted/reloaded via `setwp`, using `--system-information` and `--pause-event` |
 
-**Ideas borrowed (no code taken)**
+### Design references (no code reused)
 
-- [Ke-wood/dsh-haloflux](https://github.com/Ke-wood/dsh-haloflux) — first DSH Web GUI port; proved session-driven visuals work
-- [Michael-ZAG/dsh-haloflux](https://github.com/Michael-ZAG/dsh-haloflux) — HUD layout / phase ring / context arc explorations
-- [b1ub1u/dsh-hud-haloflux-live2](https://github.com/b1ub1u/dsh-hud-haloflux-live2) — multi-platform screen; its finding that
-  `setwp --file reload` leaks a 2–3.5GB WebView process shaped our restart strategy
-- [caihao373-star/agent-halo](https://github.com/caihao373-star/agent-halo) — multi-agent monitor & plan-progress ring, inspiration for the "Other AI" panel
+These projects informed product direction and engineering decisions only. No source code from them is included in this
+repository; copyrights and licenses remain with their respective authors.
 
-> Except HALOFLUX, **no code was copied** from these projects; they are references only and their own licenses apply.
+| Project | Reference point |
+|---|---|
+| [Ke-wood/dsh-haloflux](https://github.com/Ke-wood/dsh-haloflux) | First DSH Web GUI port; proved session-driven visuals work |
+| [Michael-ZAG/dsh-haloflux](https://github.com/Michael-ZAG/dsh-haloflux) | HUD layout, phase ring and context arc explorations |
+| [b1ub1u/dsh-hud-haloflux-live2](https://github.com/b1ub1u/dsh-hud-haloflux-live2) | Multi-platform screen; its finding that `setwp --file reload` leaks a 2–3.5GB WebView process shaped our restart strategy |
+| [caihao373-star/agent-halo](https://github.com/caihao373-star/agent-halo) | Multi-agent monitoring and plan-progress ring, reference for the "Other AI" panel |
+
+> Apart from the runtime dependencies above, this project contains no code from other projects.

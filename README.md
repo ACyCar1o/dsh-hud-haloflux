@@ -11,14 +11,14 @@
 > ⚠️ HALOFLUX 采用 **PolyForm Noncommercial** 许可：**仅限个人非商业使用**，详见 [NOTICE.md](NOTICE.md)。
 > 署名默认不在画面上显示（`bridge.js` 的 `SHOW_CREDIT = true` 可重新打开）；完整版权信息见 `NOTICE.md` / `LICENSE`。
 
-![整体画面](docs/screenshots/overview-2.png)
+![整体画面](docs/screenshots/overview-3.png)
 
-*真实运行画面：光环随 DSH 会话事件加速、光束爆发；底部「现在任务」带 `CPU · GPU · 内存` 状态行，
+*真实运行画面：光环随 DSH 会话事件加速、光束爆发；右上角为多平台标题卡（模型名 + 当前会话，跟随光环并连线）；底部「现在任务」带 `CPU · GPU · 内存` 状态行，
 右下「其他 AI」同时显示 Codex / WorkBuddy / Claude Code / ChatGPT 的身份色与状态。*
 
-![工具运行时的联动](docs/screenshots/demo-2.gif)
+![工具运行时的联动](docs/screenshots/demo-3.gif)
 
-*连续运行时的动图：光束持续爆发、环带加速、面板数字滚动；空闲后自动降为慢速待命。*
+*连续运行时的动图：光束持续爆发、环带加速、标题卡按最近活动排序；30 分钟无对话后开始淡出。*
 
 ## 特性
 
@@ -34,16 +34,16 @@
 - **空闲休眠**：60 秒无数据自动停渲染；Lively 暂停时同样停
 - **静默后台**：开机零窗口（`conhost --headless` + 单实例守护），node 掉线 3–10 秒自愈
 
-![面板](docs/screenshots/panels-2.png)
+![面板](docs/screenshots/panels-3.png)
 
 *底部两行面板：现在任务（含机器状态）/ 工具调用 / 事件速率 / 工具分布 +
 进度 / 用量 · 费用 / 会话工作台 / 今日之最 / 其他 AI。*
 
-![圆环数据带](docs/screenshots/ring-2.png)
+![圆环数据带](docs/screenshots/ring-3.png)
 
 *光环特写：环上数据卡来自真实 token 与工具事件，路径已脱敏。*
 
-![本地播放器](docs/screenshots/player-2.png)
+![本地播放器](docs/screenshots/player-3.png)
 
 *本地播放器：读取 Windows 媒体会话（QQ 音乐 / Spotify 等），可上一首 / 播放暂停 / 下一首。*
 
@@ -212,18 +212,22 @@ powershell -NoProfile -ExecutionPolicy Bypass -File dsh-hud\install-codex-hooks.
 
 ## 相关项目
 
-**本项目实际用到的**
+### 运行时依赖（直接使用）
 
-- [Ryder191/haloflux](https://github.com/Ryder191/haloflux) — 视觉引擎。本仓库的 `haloflux/` 就是它的原始文件，运行时注入 `bridge.js`
-- [rocksdanister/lively](https://github.com/rocksdanister/lively) — 壁纸宿主（GPL-3.0，20k+ stars）。负责把网页渲染成桌面壁纸，并提供
-  `--system-information` / `--pause-event` 等能力；本项目通过它的 CLI（`setwp`）挂载与重载壁纸
+| 项目 | 许可 | 用途 |
+|---|---|---|
+| [Ryder191/haloflux](https://github.com/Ryder191/haloflux) | PolyForm Noncommercial 1.0.0 | 视觉引擎；本仓库 `haloflux/` 即其原始文件，运行时注入 `bridge.js` |
+| [rocksdanister/lively](https://github.com/rocksdanister/lively) | GPL-3.0 | 壁纸宿主；通过 `setwp` 挂载/重载页面，并使用 `--system-information` 与 `--pause-event` |
 
-**看过并借鉴过思路的（没有使用它们的代码）**
+### 设计参考（未复用其代码）
 
-- [Ke-wood/dsh-haloflux](https://github.com/Ke-wood/dsh-haloflux) — 最早把 HALOFLUX 接进 DSH Web GUI，验证了"用会话数据驱动光环"这个方向可行
-- [Michael-ZAG/dsh-haloflux](https://github.com/Michael-ZAG/dsh-haloflux) — HUD 面板布局 / 相位环 / 上下文弧等探索，给了面板设计的参考
-- [b1ub1u/dsh-hud-haloflux-live2](https://github.com/b1ub1u/dsh-hud-haloflux-live2) — 多平台 AI 同屏；它记录的
-  "`setwp --file reload` 会泄漏一个 2–3.5GB WebView 进程"的实测结论，直接影响了本项目的守护策略（改为干净重启 + 限频）
-- [caihao373-star/agent-halo](https://github.com/caihao373-star/agent-halo) — 多智能体监控与"规划进度环"，是「其他 AI」面板的思路来源
+以下项目仅用于产品方向与工程经验的参考，本项目未包含或复制其源代码；版权与许可归各原作者所有。
 
-> 除 HALOFLUX 外，其余项目**均未复制代码**，只作为方向与经验参考；它们的许可以各自仓库为准。
+| 项目 | 参考点 |
+|---|---|
+| [Ke-wood/dsh-haloflux](https://github.com/Ke-wood/dsh-haloflux) | 最早将 HALOFLUX 接入 DSH Web GUI，验证了"会话数据驱动光环"的可行性 |
+| [Michael-ZAG/dsh-haloflux](https://github.com/Michael-ZAG/dsh-haloflux) | HUD 面板布局、相位环与上下文弧的探索 |
+| [b1ub1u/dsh-hud-haloflux-live2](https://github.com/b1ub1u/dsh-hud-haloflux-live2) | 多平台同屏方案；其「`setwp --file reload` 会泄漏 2–3.5 GB WebView 进程」的实测结论影响了本项目的守护策略 |
+| [caihao373-star/agent-halo](https://github.com/caihao373-star/agent-halo) | 多智能体监控与规划进度环，为「其他 AI」面板提供参考 |
+
+> 除上表「运行时依赖」外，本项目不包含其他项目的代码。

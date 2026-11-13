@@ -10,7 +10,7 @@ let DatabaseSync = null;
 try { ({ DatabaseSync } = await import('node:sqlite')); } catch (e) {}
 
 const HOME = homedir();
-const ACTIVE_MS = 90 * 1000;        // 90 秒内有写入算“活跃”
+const ACTIVE_MS = 45 * 1000;        // 45 秒内有写入算“活跃”（停止后更快安静）
 const RECENT_MS = 30 * 60 * 1000;   // 30 分钟内出现过才算“最近用过”
 
 const COLORS = {
