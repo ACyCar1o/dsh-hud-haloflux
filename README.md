@@ -174,8 +174,10 @@ winget install --id rocksdanister.LivelyWallpaper
 ## 作者与致谢
 
 - **项目作者**：**竹子Away（ACyCar1o）** · [B 站主页](https://space.bilibili.com/8124574) · [GitHub](https://github.com/ACyCar1o)
-- **视觉原作**：HALOFLUX by Ryder191（RYDER CODE / Ms MAIKEBAIs CAT / 麦克白夫人的猫） · [GitHub 仓库](https://github.com/Ryder191/haloflux)
-  · 中文网名：**麦克白夫人的猫** · [B 站主页](https://space.bilibili.com/485939159) · [原作演示视频（B 站）](https://www.bilibili.com/video/BV1dhn163E2V)
+- **视觉原作**：**HALOFLUX** by **Ryder191**
+  - 中文网名：**麦克白夫人的猫**
+  - 发行署名：`RYDER CODE / Ms MAIKEBAIs CAT`（Licensed 要求的 Required Notice 原文保持这个写法）
+  - [GitHub 仓库](https://github.com/Ryder191/haloflux) · [B 站主页](https://space.bilibili.com/485939159) · [原作演示视频（B 站）](https://www.bilibili.com/video/BV1dhn163E2V)
 - 感谢在 HALOFLUX 之上做 DSH 移植与 HUD 探索的社区项目（见文末「相关项目」）
 
 ## 许可与权益（务必阅读）

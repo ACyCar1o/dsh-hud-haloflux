@@ -7,5 +7,5 @@
     "Technology"
   ],
   "contentrating": "Everyone",
-  "description": "Live HALOFLUX visualization driven by DeepSeek Harness session activity. Requires the local dsh-hud server on 127.0.0.1:7788.\nOriginal work: HALOFLUX by Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT / 麦克白夫人的猫)\nSource: https://github.com/Ryder191/haloflux\nOriginal video: https://www.bilibili.com/video/BV1dhn163E2V\nDSH integration: 竹子Away (ACyCar1o) - https://space.bilibili.com/8124574\nNoncommercial use only. Any commercial use is strictly prohibited."
+  "description": "Live HALOFLUX visualization driven by DeepSeek Harness session activity. Requires the local dsh-hud server on 127.0.0.1:7788.\nOriginal work: HALOFLUX by Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT)\nSource: https://github.com/Ryder191/haloflux\nChinese nickname: 麦克白夫人的猫\nOriginal video: https://www.bilibili.com/video/BV1dhn163E2V\nDSH integration: 竹子Away (ACyCar1o) - https://space.bilibili.com/8124574\nNoncommercial use only. Any commercial use is strictly prohibited."
 }

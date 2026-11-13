@@ -3,7 +3,7 @@
   "Title": "HALOFLUX · DSH LIVE",
   "Thumbnail": "",
   "Preview": "",
-  "Desc": "Live HALOFLUX visualization driven by DeepSeek Harness session activity. Needs dsh-hud on 127.0.0.1:7788. Original work: HALOFLUX by Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT / 麦克白夫人的猫) - https://github.com/Ryder191/haloflux ; original video: https://www.bilibili.com/video/BV1dhn163E2V . DSH integration: 竹子Away (ACyCar1o). Noncommercial use only.",
+  "Desc": "Live HALOFLUX visualization driven by DeepSeek Harness session activity. Needs dsh-hud on 127.0.0.1:7788. Original work: HALOFLUX by Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT) - https://github.com/Ryder191/haloflux . Chinese nickname: 麦克白夫人的猫 . DSH integration: 竹子Away (ACyCar1o). Noncommercial use only.",
   "Author": "竹子Away (ACyCar1o)",
   "License": "Visual: PolyForm Noncommercial 1.0.0 (HALOFLUX by Ryder191) / Scripts: MIT",
   "Contact": "https://space.bilibili.com/8124574",

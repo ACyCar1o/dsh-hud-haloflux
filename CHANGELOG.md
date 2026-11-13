@@ -1,12 +1,22 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.26.8**（2026-11-13）
+当前版本：**v1.26.9**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.26.9 — 原作者署名排版修正（2026-11-13）
+
+**修正**
+- 之前把「麦克白夫人的猫」塞进了 Required Notice 的括号里，又单独写了一行「中文网名」→ 看起来重复、像写错。
+- 现在拆清楚：**Ryder191**（GitHub 账号）· **麦克白夫人的猫**（中文网名）·
+  `RYDER CODE / Ms MAIKEBAIs CAT`（发行署名，Required Notice 按原文保留）。
+- `project.json` / `LivelyInfo.json` 里的 Required Notice 两行恢复为**原文精确格式**，
+  中文网名、原视频单独成行。
+- LICENSE 未改动（仍与上游逐字节一致）。
 
 ## v1.26.8 — NOTICE 补上原作 B 站/视频链接（2026-11-13）
 
