@@ -1,12 +1,27 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.25.2**（2026-11-13）
+当前版本：**v1.26.0**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.26.0 — 文档截图与演示 GIF 全部重拍（2026-11-13）
+
+**更新**
+- `docs/screenshots/overview.png`：1920×1080 全屏，包含「其他 AI」面板与
+  「现在任务」里的 `CPU · GPU · 内存` 系统状态行。
+- `panels.png`：底部两行面板（现在任务 / 工具调用 / 事件速率 / 工具分布 +
+  进度 / 用量费用 / 会话工作台 / 今日之最 / 其他 AI）。
+- `ring.png`：光环主体特写（不含面板）。
+- `player.png`：本地播放器面板（真实播放的曲目信息）。
+- `demo.gif`：36 帧原始序列压缩为 18 帧 / 900×506 / 3.0 MB，画面是真实运行状态。
+
+**工具**
+- 新增 `dsh-hud/docs-shots.mjs`、`dsh-hud/docs-player-shot.mjs`：headless Chrome + CDP
+  截图与录帧，注入宿主系统状态（headless 无 Lively 宿主 API）。
 
 ## v1.25.2 — 守护增强：严格单实例 + Lively 看护（2026-11-13）
 
