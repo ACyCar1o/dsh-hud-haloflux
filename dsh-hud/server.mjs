@@ -13,7 +13,7 @@ const STATIC_DIR = join(ROOT, 'haloflux');
 import { collectAgents } from './agents.mjs';
 const SESSIONS = join(homedir(), '.dsh', 'sessions');
 const POLL_MS = 500;
-const ACTIVE_WINDOW = 15 * 60 * 1000;
+const ACTIVE_WINDOW = 45 * 60 * 1000;   // 会话保留 45 分钟：卡片生命周期是 40 分钟
 
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
@@ -264,6 +264,7 @@ let externalCache = { at: 0, data: { apps: [] } };
 let externalBusy = false;
 let externalPrevSnip = '';
 let externalBusyUntil = 0;
+let chatgptBusyUntil = 0;   // 只代表 ChatGPT 自身忙碌
 // Codex Hook 事件（codex-hook.mjs 转发）
 let lastHook = null;
 // 最新 ChatGPT/Codex 线程（state_5.sqlite 的 threads 表）：卡片用它显示“当前对话”
@@ -361,9 +362,9 @@ function refreshExternal() {
         // text changed since the last probe → the app is producing output right now
         const agent = (next.apps || []).some(a => a && a.agent === true);
         const thinking = (next.apps || []).some(a => a && (a.thinking === true || a.busy === true));
-        if (agent) externalBusyUntil = Date.now() + 6000;                 // agent / computer-use mode
-        else if (thinking) externalBusyUntil = Date.now() + 5000;         // thinking / generating indicator visible
-        else if (externalPrevSnip && snip && snip !== externalPrevSnip) externalBusyUntil = Date.now() + 8000;
+        if (agent) { externalBusyUntil = Date.now() + 6000; chatgptBusyUntil = externalBusyUntil; }
+        else if (thinking) { externalBusyUntil = Date.now() + 5000; chatgptBusyUntil = externalBusyUntil; }
+        else if (externalPrevSnip && snip && snip !== externalPrevSnip) { externalBusyUntil = Date.now() + 8000; chatgptBusyUntil = externalBusyUntil; }
         externalPrevSnip = snip;
         externalCache = { at: Date.now(), data: next };
       } catch {}
@@ -498,7 +499,7 @@ const server = createServer(async (req, res) => {
   if (p === '/external') {
     lastPagePollAt = Date.now();
     if (Date.now() - externalCache.at > 3000) refreshExternal();
-    return sendJson(res, { ...externalCache.data, busy: Date.now() < externalBusyUntil, age: Date.now() - externalCache.at });
+    return sendJson(res, { ...externalCache.data, busy: Date.now() < chatgptBusyUntil, age: Date.now() - externalCache.at });
   }
   if (p === '/media') {
     if (Date.now() - mediaCache.at > 3000) refreshMedia('status');
@@ -581,7 +582,7 @@ function tick() {
     payload.agents = collectAgents();
     // 任意外部 agent 活跃 → 光环也加速（不只看窗口探针）
     if ((payload.agents || []).some(a => a && a.active)) externalBusyUntil = Math.max(externalBusyUntil, Date.now() + 6000);
-    if (hookBusyUntil > Date.now()) externalBusyUntil = Math.max(externalBusyUntil, hookBusyUntil);
+
     const wb = ((externalCache.data && externalCache.data.apps) || []).find(a => a && a.name === 'WorkBuddy');
     const row = (payload.agents || []).find(a => a.id === 'workbuddy');
     if (row && wb) {

@@ -1,12 +1,32 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.30.0**（2026-11-13）
+当前版本：**v1.30.1**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 版本号以仓库根目录 [`VERSION`](VERSION) 为准。
 > 升级方式：`git pull` 后重启后台（`dsh-hud\stack.ps1`），或直接覆盖解压 `DSH-HUD-portable.zip`。
 
 ---
+
+## v1.30.1 — 卡片生命周期与多 AI 联动修正（2026-11-13）
+
+**生命周期（按最终确认的规则统一）**
+- 会话开始 / 窗口出现即出现卡片；未对话 **30 分钟**后开始淡出，淡出 **10 分钟**后消失（总 40 分钟）。
+- 任何一次对话都会重置计时。所有来源共用 `HF_FADE_START` / `HF_LIFE_MS` 两个常量与同一个淡出函数。
+- 服务端会话保留窗口放宽到 45 分钟。
+
+**WorkBuddy**
+- 它的窗口没有暴露 UIA 无障碍树（只有 2 个节点），改为读 `~/.workbuddy/workbuddy.db` 的 `sessions` 表，
+  获得真实会话标题与模型（卡片显示 `DEEPSEEK V4 1 FLASH / 测试`）。
+
+**ChatGPT**
+- 读取窗口 Document 名作为**当前对话标题**（如「干杂活」），不再用 Codex 会话标题顶替。
+- 忙碌状态与其它 AI 拆分：WorkBuddy/Codex 活跃不再让 ChatGPT 卡误显示「思考中」并置顶。
+- 窗口一出现就挂卡（空闲也显示），不再要求正在思考。
+
+**光环联动**
+- 之前光环只响应 DSH 事件 + ChatGPT + Codex Hooks；现在 **任何 agent 活跃都驱动光环**
+  （WorkBuddy / Codex / Claude），活跃期间每 700ms 打拍子，由闲转忙补三拍。
 
 ## v1.30.0 — 多平台标题卡（跟随光环 · 连线 · 统一生命周期）（2026-11-13）
 

@@ -113,7 +113,11 @@ let HF_FRAMES = 0;
 let HF_FPS_AT = 0;
 let HF_FPS_CUR = 0;
 let HF_EXT_LAST_BUSY = 0;
+const HF_FADE_START = 30 * 60 * 1000;  // 未对话 30 分钟后开始淡出
+const HF_LIFE_MS = 40 * 60 * 1000;     // 淡出 10 分钟后消失（总 40 分钟）
 let HF_EXT_LAST_TITLE = '';
+let HF_EXT_FIRST_SEEN = 0;
+let HF_AGENT_ACTIVE_LAST = false;
 
 function ingest(st) {
     if (!st) return;
@@ -618,7 +622,7 @@ function ingest(st) {
       for (const s of (st.sessions || [])) {
         if (!s) continue;
         const age = now - (s.lastTime || 0);
-        if (age > 10 * 60 * 1000) continue;
+        if (age > HF_LIFE_MS) continue;
         items.push({
           key: 'dsh:' + s.id,
           label: label(s.model) || 'DEEPSEEK',
@@ -635,7 +639,7 @@ function ingest(st) {
         if (!a) continue;
         // 统一规则：最近 10 分钟内有活动就存在（不要求当前 active）
         const age = now - (a.at || 0);
-        if (!a.at || age > 10 * 60 * 1000) continue;
+        if (!a.at || age > HF_LIFE_MS) continue;
         if (a.state === '未安装') continue;
         if (a.id === 'codex') hasGpt = true;
         items.push({
@@ -650,9 +654,11 @@ function ingest(st) {
       const ext = window.__EXT;
       const g0 = (ext && ext.apps && ext.apps[0]) || {};
       if (ext && ext.busy) HF_EXT_LAST_BUSY = now;
+      if (g0 && g0.running && !HF_EXT_FIRST_SEEN) HF_EXT_FIRST_SEEN = now;
       if (g0 && g0.chatTitle) HF_EXT_LAST_TITLE = g0.chatTitle;
-      // 与 DSH 卡一致：最后一次活动后保留 10 分钟，60 秒后开始淡出
-      const extAlive = HF_EXT_LAST_BUSY && (now - HF_EXT_LAST_BUSY < 10 * 60 * 1000);
+      // 窗口出现或对话过就存在；按“最后活动 = max(最后忙碌, 首次出现)”统一计时
+      const extLastAt = Math.max(HF_EXT_LAST_BUSY || 0, HF_EXT_FIRST_SEEN || 0);
+      const extAlive = extLastAt && (now - extLastAt < HF_LIFE_MS);
       if (extAlive && !hasGpt) {
         const mm2 = String(g0.snippet || '').match(/GPT-[\d.]+\s*[A-Za-z]*/);
         items.push({
@@ -661,7 +667,7 @@ function ingest(st) {
           title: (ext.busy && g0.chatTitle) || HF_EXT_LAST_TITLE || (st.codexThread && st.codexThread.title) || '',
           badge: ext.busy ? (g0.state === '执行中' ? '执行中' : '思考中') : '空闲',
           color: '#98E0CF',
-          lastAt: HF_EXT_LAST_BUSY
+          lastAt: extLastAt
         });
       }
       // 去重：同标签+同标题只留最新的（避免 GPT 卡片出现两张）
@@ -675,6 +681,12 @@ function ingest(st) {
         uniq.push(it);
       }
       HF_CARD_ITEMS = uniq.slice(0, 3);
+      // 任何 agent 从闲转忙：补三拍，光环立刻有反应
+      const busyNow = (st.agents || []).some(a => a && a.active);
+      if (busyNow && !HF_AGENT_ACTIVE_LAST) {
+        for (let bi = 0; bi < 3; bi++) setTimeout(() => { try { onBeat(); } catch (e) {} }, bi * 110);
+      }
+      HF_AGENT_ACTIVE_LAST = busyNow;
       HF_DBG = (HF_DBG || 0) + 1;
       if (HF_DBG % 2 === 1) {
         try {
@@ -766,7 +778,7 @@ function ingest(st) {
             el.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + sc + ')';
             // 不活跃 -> 逐渐变淡（60 秒后开始，10 分钟归零）
             const age = now - ((it.key === 'ext:chatgpt' && HF_EXT_LAST_BUSY) ? HF_EXT_LAST_BUSY : (it.lastAt || now));
-            const fade = age < 60000 ? 1 : Math.max(0, 1 - (age - 60000) / (9 * 60 * 1000));
+            const fade = age < HF_FADE_START ? 1 : Math.max(0, 1 - (age - HF_FADE_START) / (HF_LIFE_MS - HF_FADE_START));
             el.style.opacity = String(i === 0 ? Math.max(0.08, fade) : Math.max(0.06, fade * 0.85));
           });
           for (const el of [...stack.children]) if (!alive.has(el.dataset.key)) el.remove();
@@ -816,7 +828,8 @@ function ingest(st) {
     const running = PROBE ? 0 : clamp(tot.activeTools || 0, 0, 9);
     const hkNow = LAST_STATE && LAST_STATE.hook;
     const hookFloor = (hkNow && hkNow.at && (Date.now() - hkNow.at) < (hkNow.event === 'PreToolUse' ? 5000 : 3000)) ? 0.85 : 0;
-    const ext = Math.max(Date.now() < extBusyUntil ? 0.85 : 0, hookFloor);
+    const agNow = LAST_STATE && (LAST_STATE.agents || []).some(a => a && a.active) ? 0.85 : 0;
+    const ext = Math.max(Date.now() < extBusyUntil ? 0.85 : 0, hookFloor, agNow);
     const t = clamp(Math.max(short / 2, running, ext), 0, 1);
     const errs = clamp(tot.errors || 0, 0, 40);
     AC_TARGET = t;
@@ -1124,7 +1137,8 @@ function ingest(st) {
 
   /* external AI heartbeat: beats while ChatGPT/other app is generating */
   setInterval(() => {
-    if (Date.now() < extBusyUntil) { try { onBeat(); } catch (e) {} }
+    const agentOn = LAST_STATE && (LAST_STATE.agents || []).some(a => a && a.active);
+    if (Date.now() < extBusyUntil || agentOn) { try { onBeat(); } catch (e) {} }
   }, 700);
 
   /* ---------- 12. HARD MUTE: never let HALOFLUX's built-in mp3 play ----------

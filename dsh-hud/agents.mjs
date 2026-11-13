@@ -6,6 +6,9 @@ import { readdirSync, statSync, openSync, readSync, closeSync, readFileSync } fr
 import { join, basename } from 'node:path';
 import { homedir } from 'node:os';
 
+let DatabaseSync = null;
+try { ({ DatabaseSync } = await import('node:sqlite')); } catch (e) {}
+
 const HOME = homedir();
 const ACTIVE_MS = 90 * 1000;        // 90 秒内有写入算“活跃”
 const RECENT_MS = 30 * 60 * 1000;   // 30 分钟内出现过才算“最近用过”
@@ -147,6 +150,33 @@ function probeCodex(now) {
  *           function_call_result / credit-usage / ai-title / file-history-snapshot
  * 元数据在 ~/.workbuddy/workbuddy.db（sqlite，sessions 表有 status 列）。
  */
+
+/* WorkBuddy 会话元信息：workbuddy.db 的 sessions 表（title / custom_title / model / last_activity_at） */
+let WB_CACHE = { at: 0, data: null };
+function workbuddySession(now) {
+  if (WB_CACHE.data && now - WB_CACHE.at < 5000) return WB_CACHE.data;
+  let data = null;
+  try {
+    if (DatabaseSync) {
+      const dbPath = join(HOME, '.workbuddy', 'workbuddy.db');
+      const db = new DatabaseSync(dbPath, { readOnly: true });
+      try {
+        let row = null;
+        const activeFile = newestFile(join(HOME, '.workbuddy', 'sessions'), (n) => n.endsWith('.json'), 2);
+        if (activeFile) {
+          try {
+            const j = JSON.parse(readFileSync(activeFile.path, 'utf8'));
+            if (j && j.sessionId) row = db.prepare('select id,title,custom_title,model,last_activity_at from sessions where id = ?').get(j.sessionId);
+          } catch (e2) {}
+        }
+        if (!row) row = db.prepare('select id,title,custom_title,model,last_activity_at from sessions order by last_activity_at desc limit 1').get();
+        if (row) data = { title: (row.custom_title || row.title || ''), model: row.model || '', id: row.id, lastActivity: Number(row.last_activity_at) || 0 };
+      } finally { try { db.close(); } catch (e) {} }
+    }
+  } catch (e) {}
+  WB_CACHE = { at: now, data };
+  return data;
+}
 function probeWorkBuddy(now) {
   const root = join(HOME, '.workbuddy', 'projects');
   const f = newestFile(root, (n) => n.endsWith('.jsonl'), 3);
@@ -177,7 +207,12 @@ function probeWorkBuddy(now) {
   if (lastTs) lastAt = Math.max(lastAt, lastTs);
   const active = (now - lastAt) < ACTIVE_MS && (now - f.mtimeMs) < ACTIVE_MS;
   if (!active) state = '空闲';
-  return { id: 'workbuddy', name: 'WorkBuddy', color: COLORS.workbuddy, state, detail, active, at: lastAt };
+  const meta = workbuddySession(now);
+  if (meta && meta.title) detail = shortText(meta.title, 44);
+  return {
+    id: 'workbuddy', name: 'WorkBuddy', color: COLORS.workbuddy, state, detail, active, at: lastAt,
+    model: (meta && meta.model) || '', title: (meta && meta.title) || ''
+  };
 }
 
 /* ---------------- Claude Code ---------------- */
