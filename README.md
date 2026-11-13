@@ -18,13 +18,15 @@
 ## 特性
 
 - **真实数据驱动**：事件速率 → 转速；每次工具调用 → 一次真实光束爆发；报错 → 闪光变密
-- **空闲待命**：4 秒无事件即降为慢速漂移（10% 时间轴），不空转
-- **人话面板**：现在任务 / 进度 / 工具调用 / 会话工作台 / 今日之最 / ChatGPT / 事件速率 / 工具分布
+- **多 AI 同屏**：「其他 AI」面板显示 Codex / WorkBuddy / Claude Code / ChatGPT 的身份色与实时状态
+- **人话面板**：现在任务 / 进度 / 工具调用 / 会话工作台 / 今日之最 / 其他 AI / 事件速率 / 工具分布
 - **用量费用**：今日 tokens、花费、余额、缓存命中、峰谷剩余（读 `dsh-cost-meter` 账本）
+- **机器状态**：CPU / GPU / 内存占用直接读 Lively 宿主 API（每秒刷新，零额外开销）
 - **本地播放器**：读取系统媒体会话，可上一首 / 播放暂停 / 下一首，面板可收起
 - **自动选屏**：优先 iPad（spacedesk 虚拟屏），否则主屏；插拔显示器不用手动改编号
-- **中文界面**：MiSans 中文 + JetBrains Mono 英文数字
-- **壁纸化**：Lively / Wallpaper Engine 专用工程，断线自动重试
+- **隐私友好**：面板上的绝对路径只显示末两段（截图可分享）
+- **空闲休眠**：60 秒无数据自动停渲染；Lively 暂停时同样停
+- **静默后台**：开机零窗口（`conhost --headless` + 单实例守护），node 掉线 3–10 秒自愈
 
 ![面板](docs/screenshots/panels.png)
 
@@ -52,20 +54,20 @@
 
 所有文字（含图表标签、计数、事件速率数值）都用 **DOM 渲染**，canvas 只画柱状/热力等图形，从根上保证字体与面板完全一致。
 
-> 当前版本 **v1.10.0** · 每个版本修了什么见 [CHANGELOG.md](CHANGELOG.md)
+> 当前版本 **v1.25.0** · 每个版本修了什么见 [CHANGELOG.md](CHANGELOG.md)
 
 
 ## ⚠️ 与 DSH 的进程管理冲突（重要）
 
 DSH 在 Windows 上会把**每条命令的整棵进程树**塞进一个 `KILL_ON_JOB_CLOSE` 的 Job：
 
-- 从命令里用 `Start-Process` / `explorer.exe` 起的常驻进程（Lively、服务、守护脚本）会落进 Job，
-  Job 关闭时被一起杀掉 → **壁纸突然消失**；
+- 从命令里起的常驻进程（Lively、数据服务、守护脚本）会落进 Job，Job 关闭时被一起杀掉 → **壁纸突然消失**；
 - 常驻进程不退出 → Job 永远不空 → **那条命令永远不返回**（会话卡住）；
 - 卡住的命令会让 DSH 自动更新的"任务排空"检查 10 秒超时（`desktop update: task inspection timed out`）。
 
-本项目的脚本已全部改为经 **WMI `Win32_Process.Create`** 启动常驻进程（实测可脱离 Job），
-`start.ps1` 还会自检并把自己重新拉出 Job。日常请用 `dsh-hud\recover-wallpaper.cmd` 恢复壁纸。
+所以本项目**不从 DSH 命令里启动常驻进程**：它们由开机启动项拉起，并用 `conhost.exe --headless`
+托管（实测零窗口）。日常恢复壁纸用 `dsh-hud\recover-wallpaper.cmd`；
+维护后台用 `dsh-hud\stack.ps1`（清理重复实例、重启守护、跑一次自愈测试）。
 
 ## 快速开始
 
@@ -84,43 +86,67 @@ winget install --id rocksdanister.LivelyWallpaper
 
 详见 [INSTALL.md](INSTALL.md)。
 
+## 后台运行与自愈
+
+```
+登录 → %Startup%\dsh-hud-start.vbs（ASCII、无窗口）
+        → conhost.exe --headless powershell -File dsh-hud\daemon.ps1
+             → 单实例守护（文件锁）
+                  ├─ 7788 不在监听 → 隐藏启动 node server.mjs（掉线 3–10 秒内拉起）
+                  └─ 启动时调用 fix-wallpaper-screen.ps1 选屏
+```
+
+| 脚本 | 作用 |
+|---|---|
+| `dsh-hud/daemon.ps1` | 守护：node 掉线自动重启，日志写 `server.log` |
+| `dsh-hud/stack.ps1` | 维护：清理重复守护/node，重启一份干净的，并做自愈测试 |
+| `dsh-hud/recover-wallpaper.cmd` | 壁纸丢了双击恢复（重载 + 选屏 + 打开预览） |
+| `dsh-hud/start.ps1` | 一次性设置：选屏 + 解锁监听 + 确保守护在跑（不常驻） |
+
+> 不需要管理员权限、不需要计划任务；也不要从 DSH 命令里直接运行 `daemon.ps1`（它会被当成命令子进程）。
+
 ## 目录
 
 | 路径 | 说明 |
 |---|---|
-| `dsh-hud/server.mjs` | 数据服务：会话增量解码、SSE、媒体/外部 AI/用量代理 |
+| `dsh-hud/server.mjs` | 数据服务：会话增量解码、SSE、媒体/外部 AI/用量/多 Agent 探针 |
 | `dsh-hud/bridge.js` | 注入 HALOFLUX 的桥：联动、面板、中文化、壁纸模式 |
-| `dsh-hud/fix-wallpaper-screen.ps1` | 自动选择壁纸屏幕（spacedesk/iPad 优先，否则主屏） |
-| `dsh-hud/media.ps1` | 系统媒体会话读写（上下曲/播放暂停） |
+| `dsh-hud/agents.mjs` | 多 Agent 探针：Codex / WorkBuddy / Claude Code（只读本机会话） |
+| `dsh-hud/workbuddy-probe.ps1` | WorkBuddy OCR 备用探针（主路径走事件流，平时不运行） |
 | `dsh-hud/external.ps1` | ChatGPT 桌面版状态（UI Automation） |
+| `dsh-hud/media.ps1` | 系统媒体会话读写（上下曲/播放暂停） |
+| `dsh-hud/fix-wallpaper-screen.ps1` | 自动选择壁纸屏幕（spacedesk/iPad 优先，否则主屏） |
+| `dsh-hud/daemon.ps1` | 无窗口守护：node 掉线自动重启 |
+| `dsh-hud/stack.ps1` | 后台维护：清重复实例 + 重启 + 自愈测试 |
 | `dsh-hud/wall-proj/` | Lively / Wallpaper Engine 壁纸工程 |
-| `dsh-hud/install.ps1` | 一键安装（自启 + 启动 + 自动选屏） |
-| `dsh-hud/capture-gif.mjs` | 演示 GIF 录制（CDP 截帧） |
+| `dsh-hud/install.ps1` | 一键安装（写开机自启 + 启动守护 + 自动选屏） |
 | `dsh-hud/verify-after-reboot.ps1` | 重启后自检 |
 | `haloflux/` | HALOFLUX 原始视觉（未改动，服务端运行时注入 bridge） |
+| `CHANGELOG.md` | 每个版本修了什么 |
 
 ## 架构
 
 ```
-~/.dsh/sessions/<workspace>/session-*.jsonl.zstd
-        │ 每 500ms 增量解码（多帧 zstd）
-        ▼
-dsh-hud/server.mjs  (127.0.0.1:7788)
-        │ SSE /stream · JSON /state /usage /media /external
-        ▼
-haloflux/lab.html + 运行时注入 bridge.js
-        │ setParam() / onBeat() 驱动内部参数
-        ▼
-Lively Wallpaper（WebView2）→ 桌面壁纸
+~/.dsh/sessions/<workspace>/session-*.jsonl.zstd      ~/.codex · ~/.workbuddy · ~/.claude
+        │ 每 500ms 增量解码（多帧 zstd）                 │ 只读探针（agents.mjs）
+        └───────────────────────┬────────────────────────┘
+                                ▼
+                  dsh-hud/server.mjs  (127.0.0.1:7788)
+                                │ SSE /stream · JSON /state /usage /media /external
+                                ▼
+                  haloflux/lab.html + 运行时注入 bridge.js
+                                │ setParam() / onBeat() 驱动内部参数
+                                ▼
+                  Lively Wallpaper（WebView2）→ iPad 桌面壁纸
 ```
 
 ## 性能（本机实测，3840×2160 / i9-14900KF）
 
 | 场景 | CPU | 内存 |
 |---|---|---|
-| 数据服务 | ≈0.3% 单核 | 60–110 MB |
-| 壁纸 · 待命 | ≈4% 单核 | ≈1.0–1.2 GB |
-| 壁纸 · 工作中 | ≈30–41% 单核 | ≈1.2–1.3 GB |
+| 数据服务 | ≈0.3% 单核 | 70–110 MB |
+| 壁纸 · 待命 | ≈2–4% 单核 | ≈0.8–1.1 GB |
+| 壁纸 · 工作中 | ≈30–41% 单核 | ≈1.1–1.3 GB |
 
 > 内存大头是 Lively/WebView2 基线（换任何壁纸都差不多）。
 > 可在 `bridge.js` 调 `devicePixelRatio`、帧率、`LOAD` 进一步降载。

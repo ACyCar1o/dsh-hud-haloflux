@@ -54,13 +54,13 @@ winget install --id rocksdanister.LivelyWallpaper
 
 1. 检查 Node 与 `haloflux/lab.html`
 2. 在 `%APPDATA%\...\Startup\dsh-hud-start.vbs` 写入开机自启（路径取当前解压位置，可移植）
-3. 后台启动 `dsh-hud\start.ps1`
+3. 无窗口启动守护 `dsh-hud\daemon.ps1`（由 `conhost --headless` 托管）
 4. 打印 Lively 配置步骤
 
 
 ## 四、自动选屏（无需手动 setwp）
 
-`start.ps1` 启动服务后会调用 `fix-wallpaper-screen.ps1`：
+守护 `daemon.ps1` 启动时会调用 `fix-wallpaper-screen.ps1`（`start.ps1` 也会调用一次）：
 
 - 从 `WallpaperLayout.json` 读取每块屏在 Lively 里的真实编号（`LivelyScreen.Index`）
 - 目标屏 **spacedesk 虚拟屏（iPad）优先，否则主屏**
@@ -102,8 +102,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File dsh-hud\verify-after-reboot.
 
 | 现象 | 原因 | 处理 |
 |---|---|---|
-| 壁纸黑屏/中途出现"等待 dsh-hud 服务" | 服务没起来 | 运行 `dsh-hud\start.ps1` 看报错；端口被占会直接退出 |
-| 退出 DSH 后壁纸消失 | 服务被当作 DSH 子进程启动 | 用开机自启或 `install.ps1` 启动，不要从 DSH 会话里手动起 |
+| 壁纸黑屏/出现"等待 dsh-hud 服务" | 数据服务没起来 | 双击 `dsh-hud\recover-wallpaper.cmd`；排查 `dsh-hud\server.log` |
+| 退出 DSH 后壁纸消失 | 曾从 DSH 命令里启动过常驻进程 | 用开机自启重启，或运行 `dsh-hud\stack.ps1`；之后只通过开机自启运行 |
 | 壁纸跑到别的显示器 | Lively 屏幕编号变了 | 按上面「多显示器」重新 `setwp` |
 | 画面卡顿 | 后台资源紧张 | 改 `bridge.js`：`devicePixelRatio` 0.65→0.55、帧预算 33→50、`LOAD` 0.45→0.3 |
 | 中文显示成方块 | 字体缺失 | 装 MiSans 或修改 `bridge.js` 里的字体栈 |
@@ -117,3 +117,19 @@ powershell -NoProfile -ExecutionPolicy Bypass -File dsh-hud\verify-after-reboot.
 - `~/.dsh/storages/cost-meter/ledger.json`（用量账本）
 - 系统媒体会话（Windows SMTC）
 - ChatGPT 窗口的 UI Automation 树
+
+## 九、后台结构与自愈
+
+```
+登录 → %Startup%\dsh-hud-start.vbs（ASCII、无窗口）
+        → conhost.exe --headless powershell -File dsh-hud\daemon.ps1
+             → 单实例守护：7788 掉线 → 隐藏启动 node server.mjs（3–10 秒）
+```
+
+| 场景 | 操作 |
+|---|---|
+| 壁纸没了 / 显示"等待服务" | 双击 `dsh-hud\recover-wallpaper.cmd` |
+| 想让后台彻底重来一次 | `powershell -File dsh-hud\stack.ps1`（清理重复实例 + 自愈测试） |
+| 检查后台是否单实例 | `powershell -File dsh-hud\stack.ps1` 输出 `daemon=1 node=1` |
+
+> 全程无窗口；**不要**从 DSH 命令里运行 `daemon.ps1`（会被 DSH 当作命令子进程）。

@@ -5,6 +5,14 @@ $ErrorActionPreference = 'SilentlyContinue'
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $daemon = Join-Path $here 'daemon.ps1'
 $self = $PID
+# 收集自己的祖先链，绝不误杀调用方（DSH 的命令运行器）
+$ancestors = @()
+$cur = Get-CimInstance Win32_Process -Filter "ProcessId=$self" -ErrorAction SilentlyContinue
+for ($i = 0; $i -lt 8; $i++) {
+  if (-not $cur -or -not $cur.ParentProcessId) { break }
+  $ancestors += [int]$cur.ParentProcessId
+  $cur = Get-CimInstance Win32_Process -Filter "ProcessId=$($cur.ParentProcessId)" -ErrorAction SilentlyContinue
+}
 
 Add-Type @"
 using System;
@@ -43,7 +51,12 @@ function Get-TerminalWindows {
 
 Write-Host '=== 停掉 daemon / node ==='
 Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" |
-  Where-Object { $_.ProcessId -ne $self -and $_.CommandLine -like '*daemon.ps1*' } |
+  Where-Object {
+    $_.ProcessId -ne $self -and
+    ($ancestors -notcontains $_.ProcessId) -and
+    ($_.CommandLine -like '*daemon.ps1*') -and
+    ($_.CommandLine -match '\-File')
+  } |
   ForEach-Object { Write-Host ("  kill daemon pid=" + $_.ProcessId); Stop-Process -Id $_.ProcessId -Force }
 Get-CimInstance Win32_Process -Filter "Name='node.exe'" |
   Where-Object { $_.CommandLine -like '*dsh-hud*server.mjs*' } |
@@ -62,7 +75,7 @@ Write-Host ("  start -> " + $r.ReturnValue)
 Start-Sleep -Seconds 12
 
 Write-Host '=== 结果 ==='
-$ds = @(Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object { $_.CommandLine -like '*daemon.ps1*' })
+$ds = @(Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object { $_.CommandLine -match '-File\s+"?[^"]*daemon\.ps1' })
 $nodes = @(Get-CimInstance Win32_Process -Filter "Name='node.exe'" | Where-Object { $_.CommandLine -like '*dsh-hud*server.mjs*' })
 Write-Host ("daemon={0} node={1}" -f $ds.Count, $nodes.Count)
 $l = Get-NetTCPConnection -LocalPort 7788 -State Listen -ErrorAction SilentlyContinue

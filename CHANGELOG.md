@@ -1,12 +1,28 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.24.1**（2026-11-13）
+当前版本：**v1.25.0**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.25.0 — 仓库与文档全面同步（2026-11-13）
+
+**同步**
+- 运行时最新的 `daemon.ps1`（文件锁单实例 + 隐藏拉起 node）、`stack.ps1`（维护/自愈测试）、
+  `watchdog.ps1` 已同步进仓库。
+- 删除已废弃的 `launch-node.vbs` / `supervise-node.vbs` / `watchdog.vbs` / `run-node.cmd`
+  （VBS 方案已由 PowerShell 守护替代）。
+
+**文档**
+- README：更新特性清单（多 AI 面板、系统状态、路径脱敏、空闲休眠、静默后台）；
+  新增「后台运行与自愈」章节与启动链图；目录表补 `agents.mjs` / `workbuddy-probe.ps1` /
+  `daemon.ps1` / `stack.ps1`；架构图加入 Codex/WorkBuddy/Claude 数据源；性能数据更新。
+- INSTALL：安装步骤改为"写自启 + 无窗口守护"，补「后台结构与自愈」章节；
+  常见问题改为 `recover-wallpaper.cmd` / `stack.ps1` 的排查路径。
+- `.gitignore`：忽略日志、`daemon.lock`、探针缓存、备份文件。
 
 ## v1.24.1 — 移除已废弃的计划任务脚本（2026-11-13）
 

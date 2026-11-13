@@ -23,7 +23,7 @@ while ($true) {
   $listen = Get-NetTCPConnection -LocalPort 7788 -State Listen -ErrorAction SilentlyContinue
   if (-not $listen) {
     Log 'port 7788 down -> start run-node.cmd'
-    Start-Detached2 -File 'cmd.exe' -Arguments ('/c ""' + (Join-Path $here 'run-node.cmd') + '""') | Out-Null
+    Start-Detached2 -File 'wscript.exe' -Arguments ('"' + (Join-Path $here 'launch-node.vbs') + '"') | Out-Null
     Start-Sleep -Seconds 10
     $again = Get-NetTCPConnection -LocalPort 7788 -State Listen -ErrorAction SilentlyContinue
     if (-not $again) {

@@ -5,3 +5,8 @@ dsh-hud/.media.json
 node_modules/
 .DS_Store
 Thumbs.db
+dsh-hud/*.log
+dsh-hud/daemon.lock
+dsh-hud/.workbuddy.json
+dsh-hud/_archive-vbs/
+*.bak-*

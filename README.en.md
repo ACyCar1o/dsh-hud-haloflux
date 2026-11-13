@@ -50,7 +50,7 @@ Rule: one size and weight per tier; verbs and values always bold+white; secondar
 
 All text (chart labels, counters, event-rate value) is rendered as **DOM**; canvas only draws the bars/heat graphics, so fonts can never drift between the panels and the charts.
 
-> Current version **v1.10.0** · see [CHANGELOG.md](CHANGELOG.md) for what each release fixes
+> Current version **v1.25.0** · see [CHANGELOG.md](CHANGELOG.md) for what each release fixes
 
 ## Quick start
 
