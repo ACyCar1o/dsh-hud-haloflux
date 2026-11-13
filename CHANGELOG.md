@@ -1,10 +1,16 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.26.0**（2026-11-13）
+当前版本：**v1.26.1**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
+
+---
+
+## v1.26.1 — 补齐截图工具（2026-11-13）
+
+- 把 `docs-shots.mjs` / `docs-player-shot.mjs` 提交进仓库（v1.26.0 只提交了图片）。
 
 ---
 
