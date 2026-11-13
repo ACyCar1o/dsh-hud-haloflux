@@ -113,17 +113,12 @@ Lively Wallpaper (WebView2) → desktop wallpaper
 
 | Scenario | CPU | RAM |
 |---|---|---|
-| Data service | ≈0.3% of one core | 60–110 MB |
-| Wallpaper · idle | ≈4% of one core | ≈1.0–1.2 GB |
-| Wallpaper · working | ≈30–41% of one core | ≈1.2–1.3 GB |
+| Data service | ≈0.3% of one core | 70–110 MB |
+| Wallpaper · idle | ≈2–4% of one core | ≈0.8–1.1 GB |
+| Wallpaper · working | ≈30–41% of one core | ≈1.1–1.3 GB |
 
 > Most of the RAM is the Lively/WebView2 baseline (any web wallpaper costs roughly the same).
 > Tune `devicePixelRatio`, frame budget and `LOAD` in `bridge.js` to lower it further.
-
-## License
-
-- Visuals: HALOFLUX by Ryder191 — PolyForm Noncommercial (**no commercial use**)
-- Integration scripts: MIT (see `LICENSE-MIT`); redistribution must stay non-commercial and keep attribution
 
 ## Author & credits
 
@@ -138,8 +133,6 @@ Lively Wallpaper (WebView2) → desktop wallpaper
 | `haloflux/` visual engine | HALOFLUX **PolyForm Noncommercial 1.0.0** | ❌ **strictly forbidden** | keep copyright notice, author and repo link |
 | `dsh-hud/` scripts | **MIT** (`LICENSE-MIT`) | allowed (visual part still restricted) | keep copyright/license notice |
 | background music | **CC0** by the original author | allowed | none |
-
-
 
 **Commercial use includes** (as stated by the original author): use inside or on behalf of a company,
 integration into commercial products/services, client or paid work, selling the software or its output
