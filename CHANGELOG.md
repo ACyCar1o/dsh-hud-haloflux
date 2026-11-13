@@ -1,12 +1,21 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.30.3**（2026-11-13）
+当前版本：**v1.30.4**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 版本号以仓库根目录 [`VERSION`](VERSION) 为准。
 > 升级方式：`git pull` 后重启后台（`dsh-hud\stack.ps1`），或直接覆盖解压 `DSH-HUD-portable.zip`。
 
 ---
+
+## v1.30.4 — 截图脚本自动化（2026-11-13）
+
+- `dsh-hud/docs-shots.mjs` 重写：
+  - 截图期间自动向 `http://127.0.0.1:7788/hook` 发送 `PreToolUse` 事件，**自动制造标题卡活动**，
+    保证 overview / panels / ring / GIF 里始终有卡片，不必手动去点 Codex。
+  - 一次运行直接产出 `overview-3.png`、`panels-3.png`、`ring-3.png`（CDP clip 裁切，不再手工裁剪）与 GIF 帧目录。
+  - 支持 `CDP_PORT` / `HUD_URL` 环境变量覆盖端口与服务地址；失败时自动停止定时器。
+- 用新脚本重拍了全部截图与 GIF（含多平台标题卡、模型名与连线）。
 
 ## v1.30.3 — 文档专业化与截图/GIF 更新（2026-11-13）
 
