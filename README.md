@@ -11,12 +11,12 @@
 > ⚠️ HALOFLUX 采用 **PolyForm Noncommercial** 许可：**仅限个人非商业使用**，详见 [NOTICE.md](NOTICE.md)。
 > 署名默认不在画面上显示（`bridge.js` 的 `SHOW_CREDIT = true` 可重新打开）；完整版权信息见 `NOTICE.md` / `LICENSE`。
 
-![整体画面](docs/screenshots/overview.png)
+![整体画面](docs/screenshots/overview-2.png)
 
 *真实运行画面：光环随 DSH 会话事件加速、光束爆发；底部「现在任务」带 `CPU · GPU · 内存` 状态行，
 右下「其他 AI」同时显示 Codex / WorkBuddy / Claude Code / ChatGPT 的身份色与状态。*
 
-![工具运行时的联动](docs/screenshots/demo.gif)
+![工具运行时的联动](docs/screenshots/demo-2.gif)
 
 *连续运行时的动图：光束持续爆发、环带加速、面板数字滚动；空闲后自动降为慢速待命。*
 
@@ -33,16 +33,16 @@
 - **空闲休眠**：60 秒无数据自动停渲染；Lively 暂停时同样停
 - **静默后台**：开机零窗口（`conhost --headless` + 单实例守护），node 掉线 3–10 秒自愈
 
-![面板](docs/screenshots/panels.png)
+![面板](docs/screenshots/panels-2.png)
 
 *底部两行面板：现在任务（含机器状态）/ 工具调用 / 事件速率 / 工具分布 +
 进度 / 用量 · 费用 / 会话工作台 / 今日之最 / 其他 AI。*
 
-![圆环数据带](docs/screenshots/ring.png)
+![圆环数据带](docs/screenshots/ring-2.png)
 
 *光环特写：环上数据卡来自真实 token 与工具事件，路径已脱敏。*
 
-![本地播放器](docs/screenshots/player.png)
+![本地播放器](docs/screenshots/player-2.png)
 
 *本地播放器：读取 Windows 媒体会话（QQ 音乐 / Spotify 等），可上一首 / 播放暂停 / 下一首。*
 
@@ -66,7 +66,7 @@
 
 所有文字（含图表标签、计数、事件速率数值）都用 **DOM 渲染**，canvas 只画柱状/热力等图形，从根上保证字体与面板完全一致。
 
-> 当前版本 **v1.25.0** · 每个版本修了什么见 [CHANGELOG.md](CHANGELOG.md)
+> 当前版本见 [`VERSION`](VERSION) · 每个版本修了什么见 [CHANGELOG.md](CHANGELOG.md)
 
 
 ## ⚠️ 与 DSH 的进程管理冲突（重要）

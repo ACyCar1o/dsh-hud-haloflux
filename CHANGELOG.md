@@ -1,12 +1,20 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.26.3**（2026-11-13）
+当前版本：**v1.26.4**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.26.4 — 修掉 README 版本行过期 + 截图破缓存（2026-11-13）
+
+**修复**
+- README / README.en 顶部版本行一直停在 `v1.25.0`（发版时漏更新）：改为直接指向 `VERSION` 文件，
+  以后不会再出现"版本号过期"。
+- GitHub 图片 CDN（camo）会按 URL 缓存，替换同名图片后网页仍显示旧图；把 5 张截图改为
+  `overview-2.png` / `panels-2.png` / `ring-2.png` / `player-2.png` / `demo-2.gif`，强制刷新。
 
 ## v1.26.3 — 清理误提交文件（2026-11-13）
 

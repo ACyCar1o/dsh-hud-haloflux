@@ -12,12 +12,12 @@ same frame, then the whole page is mounted as a **Lively Wallpaper** desktop wal
 > ⚠️ HALOFLUX is licensed under **PolyForm Noncommercial** — **personal, non-commercial use only**.
 > Details in [NOTICE.md](NOTICE.md). The on-screen credit is hidden by default; set `SHOW_CREDIT = true` in `bridge.js` to show it again.
 
-![Overview](docs/screenshots/overview.png)
+![Overview](docs/screenshots/overview-2.png)
 
 *Live view: the ring accelerates with real DSH session events; the task panel shows a `CPU · GPU · RAM` line,
 and the bottom-right "Other AI" panel lists Codex / WorkBuddy / Claude Code / ChatGPT with identity colors.*
 
-![Live while tools run](docs/screenshots/demo.gif)
+![Live while tools run](docs/screenshots/demo-2.gif)
 
 ## Features
 
@@ -29,16 +29,16 @@ and the bottom-right "Other AI" panel lists Codex / WorkBuddy / Claude Code / Ch
 - **Chinese UI** — MiSans for Chinese, JetBrains Mono for Latin/digits
 - **Wallpaper-ready** — Lively / Wallpaper Engine project with auto-reconnect when the service restarts
 
-![Panels](docs/screenshots/panels.png)
+![Panels](docs/screenshots/panels-2.png)
 
 *Bottom rows: current task (with machine status) / tool calls / event rate / tool mix +
 progress / usage & cost / session desk / today's best / other AI.*
 
-![Ring data band](docs/screenshots/ring.png)
+![Ring data band](docs/screenshots/ring-2.png)
 
 *Ring close-up: card text comes from real token and tool events; paths are masked.*
 
-![Local player](docs/screenshots/player.png)
+![Local player](docs/screenshots/player-2.png)
 
 *Local player: reads the Windows media session (QQ Music / Spotify, ...), with prev / play-pause / next.*
 
@@ -62,7 +62,7 @@ Rule: one size and weight per tier; verbs and values always bold+white; secondar
 
 All text (chart labels, counters, event-rate value) is rendered as **DOM**; canvas only draws the bars/heat graphics, so fonts can never drift between the panels and the charts.
 
-> Current version **v1.25.0** · see [CHANGELOG.md](CHANGELOG.md) for what each release fixes
+> Current version: see [`VERSION`](VERSION) · see [CHANGELOG.md](CHANGELOG.md) for what each release fixes
 
 ## Quick start
 
