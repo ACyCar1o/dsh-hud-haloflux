@@ -58,6 +58,17 @@ winget install --id rocksdanister.LivelyWallpaper
 4. 打印 Lively 配置步骤
 
 
+## 三·五、Codex Hooks（可选）
+
+如果本机 Codex 支持 Hooks（`codex features list` 里 `hooks` 为 stable / true）：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File dsh-hud\install-codex-hooks.ps1
+```
+
+然后在 Codex 桌面版 **设置 → Hooks** 里信任 dsh-hud 的条目。
+回滚：加 `-Uninstall` 参数。hooks.json 会先自动备份。
+
 ## 四、自动选屏（无需手动 setwp）
 
 守护 `daemon.ps1` 启动时会调用 `fix-wallpaper-screen.ps1`（`start.ps1` 也会调用一次）：

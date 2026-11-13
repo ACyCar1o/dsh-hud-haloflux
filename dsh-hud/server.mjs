@@ -264,6 +264,10 @@ let externalCache = { at: 0, data: { apps: [] } };
 let externalBusy = false;
 let externalPrevSnip = '';
 let externalBusyUntil = 0;
+// Codex Hook 事件（codex-hook.mjs 转发）
+let lastHook = null;
+let hookBusyUntil = 0;
+const hookLog = [];
 
 function refreshExternal() {
   if (externalBusy) return;
@@ -368,6 +372,28 @@ const server = createServer(async (req, res) => {
       pageDbgAt: dbg.at,
     });
   }
+  if (p === '/hook') {
+    const finish = (rawBody) => {
+      let d = null;
+      try { d = JSON.parse(rawBody || '{}'); } catch (e) {}
+      if (!d || typeof d !== 'object') d = {};
+      const ev = String(d.event || url.searchParams.get('event') || 'unknown').slice(0, 40);
+      const tool = String(d.tool || url.searchParams.get('tool') || '').slice(0, 120);
+      const now = Date.now();
+      lastHook = { event: ev, tool, at: now };
+      hookBusyUntil = now + (ev === 'PreToolUse' ? 5000 : (ev === 'Stop' || ev === 'Interrupt' ? 1500 : 3000));
+      hookLog.unshift(lastHook);
+      if (hookLog.length > 20) hookLog.length = 20;
+      console.log('[hook]', ev, tool);
+      return sendJson(res, { ok: true });
+    };
+    if (req.method === 'GET') return finish('');
+    let body = '';
+    req.on('data', (c) => { body += c; if (body.length > 8192) body = body.slice(0, 8192); });
+    req.on('end', () => finish(body));
+    return;
+  }
+
   if (p === '/debug/state') {
     try {
       const q2 = url.searchParams;
@@ -402,6 +428,7 @@ const server = createServer(async (req, res) => {
   }
   if (p === '/state') {
     const st2 = aggregate();
+    st2.hook = lastHook; st2.hookLog = hookLog; st2.hookBusyUntil = hookBusyUntil;
     try { st2.agents = collectAgents(); } catch (e) { st2.agents = []; }
     const b = Buffer.from(JSON.stringify(st2));
     res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'content-length': b.length });
@@ -460,6 +487,7 @@ function tick() {
     payload.agents = collectAgents();
     // 任意外部 agent 活跃 → 光环也加速（不只看窗口探针）
     if ((payload.agents || []).some(a => a && a.active)) externalBusyUntil = Math.max(externalBusyUntil, Date.now() + 6000);
+    if (hookBusyUntil > Date.now()) externalBusyUntil = Math.max(externalBusyUntil, hookBusyUntil);
     const wb = ((externalCache.data && externalCache.data.apps) || []).find(a => a && a.name === 'WorkBuddy');
     const row = (payload.agents || []).find(a => a.id === 'workbuddy');
     if (row && wb) {

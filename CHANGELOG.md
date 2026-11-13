@@ -1,12 +1,28 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.27.0**（2026-11-13）
+当前版本：**v1.28.0**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 版本号以仓库根目录 [`VERSION`](VERSION) 为准。
 > 升级方式：`git pull` 后重启后台（`dsh-hud\stack.ps1`），或直接覆盖解压 `DSH-HUD-portable.zip`。
 
 ---
+
+## v1.28.0 — Codex Hooks 接入（2026-11-13）
+
+**新增**
+- `dsh-hud/codex-hook.mjs`：Codex Hook 转发器，读 stdin 事件 → `POST /hook`，1 秒内退出。
+- `server.mjs`：新增 `POST /hook`，把事件写进 `/state` 的 `hook` / `hookLog` / `hookBusyUntil`。
+- `bridge.js`：收到 `PreToolUse` 立即打光束；`Stop / Interrupt / UserPromptSubmit` 双脉冲；
+  事件后 3–5 秒内保持活跃地板，不再依赖 500ms 轮询。
+- `install-codex-hooks.ps1`：把 8 个事件注册进 `~/.codex/hooks.json`（自动备份、可 `-Uninstall`）。
+
+**支持事件**
+`UserPromptSubmit · PreModelRequest · PostModelRequest · PreToolUse · PostToolUse · PermissionRequest · Stop · Interrupt`
+
+**验证**
+本机 Codex CLI `0.167.0-alpha.4.1`，`hooks` 特性为 stable/true；`/hook` 模拟事件已能更新
+`/state`，壁纸页已加载新桥。
 
 ## v1.27.0 — 文档、权益与发布记录整理（2026-11-13）
 

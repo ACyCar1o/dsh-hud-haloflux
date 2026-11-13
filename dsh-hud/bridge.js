@@ -105,7 +105,9 @@ const fmt = (n) => (n ?? 0).toLocaleString();
   const H = { samples: [], sess: new Map(), tools: [], axis: 0, lastEvents: 0 };
   const WINDOW = 180000;   // 3 min of history on the x axis
 
-  function ingest(st) {
+  let lastHookAt = 0;
+
+function ingest(st) {
     if (!st) return;
     const at = st.at || Date.now();
     H.samples.push({ t: at, v: st.rate || 0 });
@@ -480,6 +482,17 @@ const fmt = (n) => (n ?? 0).toLocaleString();
 
   function renderPanels(st) {
     LAST_STATE = st;
+  // Codex Hook：事件到了立即打光束/脉冲，不等 500ms 轮询
+  try {
+    const hk = st.hook;
+    if (hk && hk.at && hk.at !== lastHookAt) {
+      lastHookAt = hk.at;
+      if (hk.event === 'PreToolUse') { try { onBeat(); } catch (e) {} }
+      else if (hk.event === 'Stop' || hk.event === 'Interrupt' || hk.event === 'UserPromptSubmit') {
+        for (let i = 0; i < 2; i++) setTimeout(() => { try { onBeat(); } catch (e) {} }, i * 130);
+      }
+    }
+  } catch (e) {}
     if (!PANELS_READY) buildPanels();
     const tot = st.totals || {}, sess = st.sessions || [], top = sess[0] || {};
 
@@ -615,7 +628,9 @@ const fmt = (n) => (n ?? 0).toLocaleString();
     // instantaneous load: events in the last 4s (?? events ??full) or a running tool
     const short = clamp(st.rateShort || 0, 0, 999);
     const running = PROBE ? 0 : clamp(tot.activeTools || 0, 0, 9);
-    const ext = Date.now() < extBusyUntil ? 0.85 : 0;   // external AI working → keep the ring alive
+    const hkNow = LAST_STATE && LAST_STATE.hook;
+    const hookFloor = (hkNow && hkNow.at && (Date.now() - hkNow.at) < (hkNow.event === 'PreToolUse' ? 5000 : 3000)) ? 0.85 : 0;
+    const ext = Math.max(Date.now() < extBusyUntil ? 0.85 : 0, hookFloor);
     const t = clamp(Math.max(short / 2, running, ext), 0, 1);
     const errs = clamp(tot.errors || 0, 0, 40);
     AC_TARGET = t;

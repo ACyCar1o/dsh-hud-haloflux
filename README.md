@@ -98,6 +98,22 @@ winget install --id rocksdanister.LivelyWallpaper
 
 详见 [INSTALL.md](INSTALL.md)。
 
+## Codex Hooks（可选，反应更快更准）
+
+默认靠轮询 `~/.codex/sessions` 判断 Codex 活动。如果装了 Codex 桌面版（支持 Hooks），
+可以再加一层**事件推送**：工具开始/结束、提交、停止都会即时通知壁纸，不用等轮询。
+
+```powershell
+# 安装（用户级，自动备份 hooks.json；回滚用 -Uninstall）
+powershell -NoProfile -ExecutionPolicy Bypass -File dsh-hud\install-codex-hooks.ps1
+```
+
+安装后在 **Codex 桌面版 → 设置 → Hooks** 里把 dsh-hud 的条目点一次「信任」即可。
+
+- 覆盖事件：`UserPromptSubmit / PreModelRequest / PostModelRequest / PreToolUse / PostToolUse / PermissionRequest / Stop / Interrupt`
+- 转发链：Codex Hook → `dsh-hud\codex-hook.mjs`（<1 秒退出）→ `POST http://127.0.0.1:7788/hook` → 壁纸立即打光束
+- 不读 prompt / 代码 / 工具输入输出，只转事件名与工具名
+
 ## 后台运行与自愈
 
 ```
