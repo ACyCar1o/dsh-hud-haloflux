@@ -174,7 +174,7 @@ winget install --id rocksdanister.LivelyWallpaper
 ## 作者与致谢
 
 - **项目作者**：ACyCar1o · [B 站主页](https://space.bilibili.com/8124574) · [GitHub](https://github.com/ACyCar1o)
-- **视觉原作**：HALOFLUX by **Ryder191**（RYDER CODE / Ms MAIKEBAIs CAT）· [仓库](https://github.com/Ryder191/haloflux)
+- **视觉原作**：HALOFLUX by Ryder191（RYDER CODE / Ms MAIKEBAIs CAT） · [仓库](https://github.com/Ryder191/haloflux)
 - 感谢在 HALOFLUX 之上做 DSH 移植与 HUD 探索的社区项目（见文末「相关项目」）
 
 ## 许可与权益（务必阅读）
@@ -186,5 +186,16 @@ winget install --id rocksdanister.LivelyWallpaper
 | **背景音乐** `haloflux/audio/` | 原作者以 **CC0** 发布 | ✅ | 无 |
 | **你的数据** | 只留本机 | — | 不读取登录凭据，不上传任何内容 |
 
-- 完整版权与转载要求见 **[NOTICE.md](NOTICE.md)** 与 **[LICENSE](LICENSE)**。
+**「商业用途」具体包括**（原作明文列举）：在公司内部或代表公司使用、集成到商业产品/服务、接单或有偿项目、
+出售软件或它的产出（**付费壁纸、模板、素材、视频**）、**商业广告与推广**。原作不提供任何商业授权。
+
+**转发到壁纸平台**（Steam 创意工坊 / Wallpaper Engine / Lively 等）时：简介里必须直接写
+`Original work: HALOFLUX by Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT)` 和
+`Source: https://github.com/Ryder191/haloflux`，不得冒充原创、不得以任何形式盈利，并附带 `LICENSE`。
+
+**发到抖音 / B 站 / 小红书 / YouTube / X 等平台**：必须在**文案、标题或简介**里直接注明
+`来源：HALOFLUX，作者 Ryder191 - https://github.com/Ryder191/haloflux`（不能只写在评论区）；
+平台不允许放链接时写 `GitHub：Ryder191/haloflux`。未注明来源的分享不在许可范围内。
+
+- 完整条款见 **[NOTICE.md](NOTICE.md)** 与 **[LICENSE](LICENSE)**（`LICENSE` 与上游逐字节一致）。
 - 画布上的署名默认**隐藏**（`bridge.js` 里 `SHOW_CREDIT = true` 可恢复显示），署名信息保留在 README / NOTICE 中。

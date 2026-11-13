@@ -136,7 +136,7 @@ Lively Wallpaper (WebView2) → desktop wallpaper
 ## Author & credits
 
 - **Author**: ACyCar1o · [Bilibili](https://space.bilibili.com/8124574) · [GitHub](https://github.com/ACyCar1o)
-- **Original visual**: HALOFLUX by **Ryder191** · https://github.com/Ryder191/haloflux
+- **Original visual**: HALOFLUX by **Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT)** · https://github.com/Ryder191/haloflux
 
 ## License
 
@@ -145,6 +145,20 @@ Lively Wallpaper (WebView2) → desktop wallpaper
 | `haloflux/` visual engine | HALOFLUX **PolyForm Noncommercial 1.0.0** | ❌ **strictly forbidden** | keep copyright notice, author and repo link |
 | `dsh-hud/` scripts | **MIT** (`LICENSE-MIT`) | allowed (visual part still restricted) | keep copyright/license notice |
 | background music | **CC0** by the original author | allowed | none |
+
+
+
+**Commercial use includes** (as stated by the original author): use inside or on behalf of a company,
+integration into commercial products/services, client or paid work, selling the software or its output
+(paid wallpapers, templates, assets, videos), and commercial advertising/promotion. No commercial license is offered.
+
+**Republishing on wallpaper platforms** must keep in the item description:
+`Original work: HALOFLUX by Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT)` and
+`Source: https://github.com/Ryder191/haloflux`, must not pretend to be original, must not make any profit,
+and must ship the `LICENSE`.
+
+**Posting videos/screenshots** (Bilibili, Douyin, YouTube, X, ...) requires the source in the caption/title/description:
+`Source: HALOFLUX by Ryder191 - https://github.com/Ryder191/haloflux` (if links are not allowed: `GitHub: Ryder191/haloflux`).
 
 See **[NOTICE.md](NOTICE.md)** and **[LICENSE](LICENSE)** for the full terms.
 The on-canvas credit line is hidden by default (`SHOW_CREDIT = true` in `bridge.js` re-enables it); attribution lives in README/NOTICE.

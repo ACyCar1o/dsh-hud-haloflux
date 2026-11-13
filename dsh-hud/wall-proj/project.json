@@ -7,5 +7,5 @@
     "Technology"
   ],
   "contentrating": "Everyone",
-  "description": "Live HALOFLUX visualization driven by DeepSeek Harness session activity. Requires the local dsh-hud server on 127.0.0.1:7788. Original work: HALOFLUX by Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT) Source: https://github.com/Ryder191/haloflux . DSH integration: ACyCar1o - https://space.bilibili.com/8124574 . Noncommercial use only."
+  "description": "Live HALOFLUX visualization driven by DeepSeek Harness session activity. Requires the local dsh-hud server on 127.0.0.1:7788.\nOriginal work: HALOFLUX by Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT)\nSource: https://github.com/Ryder191/haloflux\nDSH integration: ACyCar1o - https://space.bilibili.com/8124574\nNoncommercial use only. Any commercial use is strictly prohibited."
 }

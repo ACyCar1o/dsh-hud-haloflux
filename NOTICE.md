@@ -1,32 +1,87 @@
 # 版权与使用说明（NOTICE）
 
-## 本项目（DSH × HALOFLUX 联动壁纸）
+> 本文件不是许可证正文；完整条款以 [LICENSE](LICENSE)（HALOFLUX, PolyForm Noncommercial 1.0.0）与
+> [LICENSE-MIT](LICENSE-MIT)（本项目脚本）为准。
+
+## 一、本项目
 
 - **作者**：ACyCar1o · [B 站主页](https://space.bilibili.com/8124574) · [GitHub](https://github.com/ACyCar1o)
 - **仓库**：https://github.com/ACyCar1o/dsh-hud-haloflux
-- 代码（`dsh-hud/`）：**MIT**；视觉（`haloflux/`）：**PolyForm Noncommercial 1.0.0**
-- 分发给他人时请**完整保留本文件、`LICENSE` 与 `LICENSE-MIT`**，并注明上面两处来源。
+- **代码**（`dsh-hud/`）：MIT（见 `LICENSE-MIT`）
+- **视觉**（`haloflux/`）：HALOFLUX，PolyForm Noncommercial 1.0.0（见 `LICENSE`）
+- 分发给他人时请**完整保留** `LICENSE`、`LICENSE-MIT`、本文件与 README 中的署名。
 
-## HALOFLUX（视觉部分）
+## 二、HALOFLUX（视觉原作）
 
-本目录中的 `haloflux/` 来自 **HALOFLUX** by **Ryder191（RYDER CODE / Ms MAIKEBAIs CAT）**
-<https://github.com/Ryder191/haloflux>，采用 **PolyForm Noncommercial License 1.0.0**。
+原作：HALOFLUX by Ryder191（RYDER CODE / Ms MAIKEBAIs CAT） · https://github.com/Ryder191/haloflux
 
-- ✅ 个人学习、兴趣项目、个人娱乐、研究教学：可自由使用、修改、分享
-- ❌ **严格禁止任何商业用途**：公司内部使用、客户/接单项目、商业产品集成、
-  出售软件或其产出（付费壁纸/模板/素材/视频）、商业广告，均不允许
-- 转载或二次创作必须保留版权声明，并注明 **「HALOFLUX by Ryder191」** 及仓库链接
-- 画布上的署名默认隐藏（`bridge.js` 的 `SHOW_CREDIT = true` 可恢复显示），署名信息保留在本文件与 README；
-  转发到壁纸平台时，请把「Original work: HALOFLUX by Ryder191 / Source: https://github.com/Ryder191/haloflux」写进简介
+Required Notice（原作要求，必须保留）：
 
-## 二次开发脚本（dsh-hud/）
+```
+Required Notice: Copyright (c) 2026 Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT) - https://github.com/Ryder191/haloflux
+Required Notice: Noncommercial use only. Any commercial use is strictly prohibited. No commercial licenses are offered.
+```
 
-`server.mjs`、`bridge.js`、`media.ps1`、`external.ps1` 等为本次在 HALOFLUX 之上的
-个人二次开发产物，可自由修改自用；若要分发，请保持非商业用途并注明来源。
+### ✅ 允许（非商业）
 
-## 数据与隐私
+个人学习、兴趣项目、个人娱乐、研究与教学：可以使用、修改、分享。
 
-- 只读取本机数据：`~/.dsh/sessions`（会话日志）、`~/.dsh/storages/cost-meter`（用量账本）、
-  系统媒体会话（播放器）、ChatGPT 桌面版界面（UI Automation）
+### ❌ 禁止（任何商业用途）
+
+包括但不限于：
+
+- 在**公司内部**使用，或**代表公司**使用（含公司项目、汇报、自媒体账号变现内容）
+- 集成进任何商业产品或服务
+- 接单、有偿项目、客户交付
+- 出售或转售本软件、它的产出或衍生作品（**包括付费壁纸、模板、素材、视频**）
+- **商业广告与推广**（含贴片广告、带货、赞助、付费推广）
+- 原作**不提供**任何商业授权
+
+### 转载 / 二次创作要求
+
+- 必须保留版权声明与上方 Required Notice 两行
+- 必须注明 **「HALOFLUX by Ryder191（RYDER CODE / Ms MAIKEBAIs CAT）」** 及链接 https://github.com/Ryder191/haloflux
+- 修改版必须注明「**基于 HALOFLUX 修改**」
+
+### 转发到壁纸平台（Steam 创意工坊、Wallpaper Engine、Lively 等）
+
+必须同时满足 4 条，否则不在许可范围内：
+
+1. 物品简介里**直接写明**（不能只放在外部页面）：
+   ```
+   Original work: HALOFLUX by Ryder191 (RYDER CODE / Ms MAIKEBAIs CAT)
+   Source: https://github.com/Ryder191/haloflux
+   ```
+2. 不得冒充为自己的作品；修改版须注明「modified from HALOFLUX」
+3. **不得以任何形式盈利**：付费物品/付费门槛、打赏/赞助/会员链接、广告、
+   打包进付费合集、用来推广付费产品，都不允许
+4. 保留源文件中的版权声明，并随壁纸附带 `LICENSE` 文件
+
+### 分享视频 / 截图 / 帖子（抖音、B 站、小红书、TikTok、YouTube、X 等）
+
+- 必须在**作品本身的文案、标题或简介**里直接注明来源（**不能只放在评论区或外链**）：
+  ```
+  来源：HALOFLUX，作者 Ryder191 - https://github.com/Ryder191/haloflux
+  ```
+- 平台不允许放链接时，用纯文字写：`GitHub：Ryder191/haloflux`
+- 不得冒充为自己的作品；禁止商用条款同样适用
+- 鼓励但不强制 @ 作者：B 站 @麦克白夫人的猫，抖音 @Grand】Ryder
+- **未注明来源的分享不在许可范围内**，原作者有权举报并要求下架
+
+## 三、背景音乐
+
+`haloflux/audio/sw421k.mp3` 为 **「Synthwave 421k」**，出自 *Pixelsphere* 原声，
+作者 **cynicmusic**，以 **CC0** 发布于 [OpenGameArt](https://opengameart.org/users/cynicmusic)，
+**不受** PolyForm 许可约束。
+
+## 四、历史版本
+
+- 2026-10-26 **之前**发布的 HALOFLUX 版本曾以 MIT 授权。
+- 自 2026-10-26 起，仅按 PolyForm Noncommercial 1.0.0 + 本 NOTICE 所述条款授权。
+
+## 五、数据与隐私
+
+- 只读取本机数据：`~/.dsh/sessions`、`~/.dsh/storages/cost-meter`、系统媒体会话、
+  ChatGPT 桌面版界面（UI Automation）、`~/.codex` / `~/.workbuddy` / `~/.claude` 会话记录
 - 服务只监听 `127.0.0.1`，不向任何服务器上传数据
-- 所有内容仅留在本机
+- 不读取任何登录凭据、cookie 或账号密码

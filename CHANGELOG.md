@@ -1,12 +1,31 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.26.5**（2026-11-13）
+当前版本：**v1.26.6**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.26.6 — 按原作 LICENSE 原文校正权益说明（2026-11-13）
+
+**重要修正（原来不合规）**
+- 仓库里的 `LICENSE` 是**旧版/裁剪版**（7988 字节），缺少上游后来新增的两大章节：
+  「转发到壁纸平台」与「分享视频/截图/帖子」，也不含完整 Required Notice。
+- 现在 `LICENSE` 与 `haloflux/LICENSE` 都已替换为 **上游原文（10278 字符，逐字节一致）**。
+
+**NOTICE 重写**
+- 补全「商业用途」明列项：公司内部/代表公司、集成商业产品、接单有偿、出售产出（付费壁纸/模板/素材/视频）、
+  商业广告与推广；原作不提供商业授权。
+- 补全壁纸平台转发的 4 条硬性要求（简介两行署名、不得冒充、不得盈利、附带 LICENSE）。
+- 补全社交平台分享要求（B 站/抖音/小红书/YouTube/X）：**文案/标题/简介**直接注明来源，
+  不能只放评论区；无链接时写 `GitHub：Ryder191/haloflux`；未注明不在许可范围。
+- 补背景音乐 CC0（cynicmusic / OpenGameArt）与「2026-10-26 前版本曾为 MIT」的说明。
+
+**元数据**
+- `wall-proj/project.json` 描述写入 Required Notice 两行（Wallpaper Engine 平台要求）。
+- `wall-proj/LivelyInfo.json` 的描述也带上原作署名。
 
 ## v1.26.5 — 权益与署名补全（2026-11-13）
 
