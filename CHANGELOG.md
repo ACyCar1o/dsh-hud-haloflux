@@ -1,12 +1,20 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.25.0**（2026-11-13）
+当前版本：**v1.25.1**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.25.1 — 清理残留引用（2026-11-13）
+
+**修复**
+- `start.ps1` 里还在引用已删除的 `watchdog.ps1` / `supervise-node.vbs` / `watchdog.vbs`：
+  改为确保 `daemon.ps1` 在跑（同样走 `conhost --headless`，无窗口）。
+- 删除已被 `stack.ps1` 取代的 `restart-stack.ps1`，以及 VBS 时代的 `watchdog.ps1`。
+- 仓库内已无任何 VBS 引用。
 
 ## v1.25.0 — 仓库与文档全面同步（2026-11-13）
 

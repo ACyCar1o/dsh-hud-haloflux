@@ -75,14 +75,6 @@ function Log($msg) {
 
 Write-Host "DSH HUD starting on http://127.0.0.1:$Port/" -ForegroundColor Cyan
 
-# 独立看门狗（WMI 启动，Job 外；它负责在端口掉时补 node/补守护）
-$wd = Join-Path $PSScriptRoot 'watchdog.ps1'
-$wdRun = Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*dsh-hud\watchdog.ps1*' }
-if (-not $wdRun -and (Test-Path $wd)) {
-  Start-Detached -File 'powershell.exe' -Arguments ('-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "' + $wd + '"') | Out-Null
-  Log 'watchdog started'
-}
-
 # 顺手把壁纸落到正确的屏幕（iPad/spacedesk 优先，否则主屏），不再写死显示器编号
 $fix = Join-Path $PSScriptRoot 'fix-wallpaper-screen.ps1'
 if (Test-Path $fix) {
@@ -97,16 +89,11 @@ if (-not $running -and (Test-Path $unlock)) {
   Log 'unlock watcher started'
 }
 
-# 一次性设置完成后退出；node 的守护交给 supervise-node.vbs（无窗口）
-$ensure = @(
-  @{ File = 'wscript.exe'; Args = ('"' + (Join-Path $PSScriptRoot 'supervise-node.vbs') + '"') },
-  @{ File = 'wscript.exe'; Args = ('"' + (Join-Path $PSScriptRoot 'watchdog.vbs') + '"') }
-)
-foreach ($e in $ensure) {
-  $running = Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like ('*' + [System.IO.Path]::GetFileName($e.Args.Trim('"')) + '*') }
-  if (-not $running) {
-    Start-Detached -File $e.File -Arguments $e.Args | Out-Null
-    Log ('launched ' + [System.IO.Path]::GetFileName($e.Args.Trim('"')))
-  }
+# 确保守护在跑（conhost --headless，无窗口）；node 由 daemon.ps1 负责看护
+$daemonPath = Join-Path $PSScriptRoot 'daemon.ps1'
+$daemonRun = Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object { $_.CommandLine -like '*daemon.ps1*' }
+if (-not $daemonRun -and (Test-Path $daemonPath)) {
+  Start-Detached -File 'conhost.exe' -Arguments ('--headless powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "' + $daemonPath + '"') | Out-Null
+  Log 'daemon launched'
 }
 exit 0
