@@ -5,15 +5,20 @@
 把 [HALOFLUX](https://github.com/Ryder191/haloflux)（单文件 Canvas 科幻可视化）接到本机 **DeepSeek Harness** 的真实会话数据上：
 轮盘转速、光束爆发、面板数字都由真实事件驱动，空闲时待命慢速、干活时爆发。
 
-同时把**本机播放器**（QQ 音乐 / Spotify…）和 **ChatGPT 桌面版**状态接进同一画面，
-最终作为 **Lively Wallpaper** 的桌面壁纸常驻。
+同时把**本机播放器**（QQ 音乐 / Spotify…）以及 **Codex / WorkBuddy / Claude Code / ChatGPT**
+的状态接进同一画面，最终作为 **Lively Wallpaper** 的桌面壁纸常驻。
 
 > ⚠️ HALOFLUX 采用 **PolyForm Noncommercial** 许可：**仅限个人非商业使用**，详见 [NOTICE.md](NOTICE.md)。
 > 署名默认不在画面上显示（`bridge.js` 的 `SHOW_CREDIT = true` 可重新打开）；完整版权信息见 `NOTICE.md` / `LICENSE`。
 
+![整体画面](docs/screenshots/overview.png)
+
+*真实运行画面：光环随 DSH 会话事件加速、光束爆发；底部「现在任务」带 `CPU · GPU · 内存` 状态行，
+右下「其他 AI」同时显示 Codex / WorkBuddy / Claude Code / ChatGPT 的身份色与状态。*
+
 ![工具运行时的联动](docs/screenshots/demo.gif)
 
-*工具连续运行时：光束持续爆发、环带加速、面板数字滚动；空闲 4 秒后自动降为慢速待命。*
+*连续运行时的动图：光束持续爆发、环带加速、面板数字滚动；空闲后自动降为慢速待命。*
 
 ## 特性
 
@@ -30,9 +35,16 @@
 
 ![面板](docs/screenshots/panels.png)
 
+*底部两行面板：现在任务（含机器状态）/ 工具调用 / 事件速率 / 工具分布 +
+进度 / 用量 · 费用 / 会话工作台 / 今日之最 / 其他 AI。*
+
 ![圆环数据带](docs/screenshots/ring.png)
 
+*光环特写：环上数据卡来自真实 token 与工具事件，路径已脱敏。*
+
 ![本地播放器](docs/screenshots/player.png)
+
+*本地播放器：读取 Windows 媒体会话（QQ 音乐 / Spotify 等），可上一首 / 播放暂停 / 下一首。*
 
 
 ## 字体规范

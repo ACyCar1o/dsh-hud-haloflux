@@ -1,12 +1,20 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.26.1**（2026-11-13）
+当前版本：**v1.26.2**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.26.2 — README 图片引用与说明文字对齐（2026-11-13）
+
+**文档**
+- 新增 `overview.png` 作为首图（此前图片没被引用）；`demo.gif` 下移为动图示例。
+- 所有截图补上说明文字，明确标注「其他 AI」面板与 `CPU · GPU · 内存` 状态行。
+- 开头介绍补上 Codex / WorkBuddy / Claude Code / ChatGPT 数据源。
+- `README.en.md` 同步同样的图片与说明。
 
 ## v1.26.1 — 补齐截图工具（2026-11-13）
 

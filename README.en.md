@@ -12,6 +12,11 @@ same frame, then the whole page is mounted as a **Lively Wallpaper** desktop wal
 > ⚠️ HALOFLUX is licensed under **PolyForm Noncommercial** — **personal, non-commercial use only**.
 > Details in [NOTICE.md](NOTICE.md). The on-screen credit is hidden by default; set `SHOW_CREDIT = true` in `bridge.js` to show it again.
 
+![Overview](docs/screenshots/overview.png)
+
+*Live view: the ring accelerates with real DSH session events; the task panel shows a `CPU · GPU · RAM` line,
+and the bottom-right "Other AI" panel lists Codex / WorkBuddy / Claude Code / ChatGPT with identity colors.*
+
 ![Live while tools run](docs/screenshots/demo.gif)
 
 ## Features
@@ -26,9 +31,16 @@ same frame, then the whole page is mounted as a **Lively Wallpaper** desktop wal
 
 ![Panels](docs/screenshots/panels.png)
 
+*Bottom rows: current task (with machine status) / tool calls / event rate / tool mix +
+progress / usage & cost / session desk / today's best / other AI.*
+
 ![Ring data band](docs/screenshots/ring.png)
 
+*Ring close-up: card text comes from real token and tool events; paths are masked.*
+
 ![Local player](docs/screenshots/player.png)
+
+*Local player: reads the Windows media session (QQ Music / Spotify, ...), with prev / play-pause / next.*
 
 
 ## Typography
