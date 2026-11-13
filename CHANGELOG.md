@@ -1,12 +1,26 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.28.1**（2026-11-13）
+当前版本：**v1.29.0**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 版本号以仓库根目录 [`VERSION`](VERSION) 为准。
 > 升级方式：`git pull` 后重启后台（`dsh-hud\stack.ps1`），或直接覆盖解压 `DSH-HUD-portable.zip`。
 
 ---
+
+## v1.29.0 — 多平台标题卡堆叠（2026-11-13）
+
+**新增**
+- 右上角新增「多卡堆叠」：每个活跃来源一张浮动标题卡
+  （DSH 会话 / Codex / WorkBuddy / Claude Code / ChatGPT / Codex Hook 事件）。
+- **谁最近操作谁浮最前**（全亮原尺寸）；其余按活跃度逐层缩小、上移、压暗，形成纵深，
+  最多同时显示 3 张。
+- 卡片身份色与「其他 AI」面板一致；标题过长自动省略；路径经过脱敏。
+- 替换原来画布上的单行 callout（已隐藏），信息更集中但不挡光环。
+
+**工程**
+- 卡片用 DOM 节点复用 + CSS transform 过渡，重排时平滑滑动，不再整块重绘。
+- 新增页面尺寸上报（`/stats` 的 `pageW/pageH/pageDpr`），便于排查缩放与裁切问题。
 
 ## v1.28.1 — 修复 Codex hooks.json 的 BOM 解析错误（2026-11-13）
 

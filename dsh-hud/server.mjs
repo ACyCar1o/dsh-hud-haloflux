@@ -368,6 +368,7 @@ const server = createServer(async (req, res) => {
       toolLog: toolLog.length,
       clients: clients.size,
       pageHidden: dbg.hidden,
+      pageW: dbg.w, pageH: dbg.h2, pageDpr: dbg.dpr,
       pageErr: dbg.err,
       pageDbgAt: dbg.at,
     });
@@ -399,6 +400,7 @@ const server = createServer(async (req, res) => {
       const q2 = url.searchParams;
       if (q2.has('h')) dbg.hidden = q2.get('h') === '1';
       if (q2.has('err')) dbg.err = String(q2.get('err')).slice(0, 300);
+      if (q2.has('w')) { dbg.w = Number(q2.get('w')); dbg.h2 = Number(q2.get('h2')); dbg.dpr = Number(q2.get('dpr')); }
       dbg.at = Date.now();
     } catch (e) {}
     return sendJson(res, { ok: true });

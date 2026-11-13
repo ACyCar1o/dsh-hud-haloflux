@@ -106,6 +106,7 @@ const fmt = (n) => (n ?? 0).toLocaleString();
   const WINDOW = 180000;   // 3 min of history on the x axis
 
   let lastHookAt = 0;
+let HF_CARD_NODES = null;
 
 function ingest(st) {
     if (!st) return;
@@ -427,6 +428,12 @@ function ingest(st) {
       '.hf-use b{color:#fff;font-weight:700}',
       '#hf-main .feed,#hf-mini .feed{justify-content:flex-start !important}',
       '.ov.status .sm{display:none !important}',
+      '#chk{display:none!important}',
+      '#hf-cards{position:fixed;top:17%;left:57%;width:29vw;max-width:320px;height:0;z-index:55;pointer-events:none}',
+      '.hf-card{position:absolute;left:0;top:0;width:100%;padding:8px 10px 9px;background:rgba(9,11,15,.86);border:1px solid rgba(255,255,255,.10);border-left:2px solid #fff;border-radius:3px;transform-origin:0 0;box-shadow:0 6px 26px rgba(0,0,0,.38);transition:transform .42s cubic-bezier(.22,.61,.36,1),opacity .42s ease}',
+      '.hf-card .k{font-size:8px;letter-spacing:1.6px;color:#6b6f78;font-weight:700;line-height:1.2}',
+      '.hf-card .t{font-size:11.5px;font-weight:800;color:#f4f5f7;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+      '.hf-card .s{font-size:9px;color:#9a9ea7;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
       '#hfAgents div{display:flex;align-items:center;gap:5px;font-size:9.5px;line-height:1.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#8d939c}',
       '#hfAgents i{width:6px;height:6px;border-radius:50%;display:inline-block;flex:none;opacity:.4}',
       '#hfAgents div.on i{opacity:1}',
@@ -568,7 +575,7 @@ function ingest(st) {
     if ($('mMix')) {
       const cnt2 = {};
       for (const t2 of (H.tools || [])) { const k2 = humanVerb(t2.name); cnt2[k2] = (cnt2[k2] || 0) + 1; }
-      const tops = Object.entries(cnt2).sort((a2, b2) => b2[1] - a2[1]).slice(0, 4);
+      const tops = Object.entries(cnt2).sort((a2, b2) => b2[1] - a2[1]).slice(0, 3);
       const mx2 = Math.max(1, ...tops.map(e => e[1]));
       $('mMix').innerHTML = tops.map(e =>
         '<div class="arow"><b>' + esc(e[0]) + '</b><i><span style="width:' + Math.max(2, Math.round(e[1] / mx2 * 100)) + '%"></span></i><em>x' + e[1] + '</em></div>'
@@ -594,6 +601,72 @@ function ingest(st) {
       }
       $('hfAgents').innerHTML = rows.join('') || '<div>暂无</div>';
     }
+
+    // 多平台标题卡堆叠：谁最近操作谁浮最前，其余缩小/下移/压暗
+    try {
+      let stack = $('hf-cards');
+      if (!stack) {
+        stack = document.createElement('div');
+        stack.id = 'hf-cards';
+        document.body.appendChild(stack);
+      }
+      const now = Date.now();
+      const items = [];
+      for (const s of (st.sessions || []).slice(0, 3)) {
+        items.push({
+          k: String(s.ws || 'DSH').toUpperCase(),
+          t: s.title || '',
+          s: s.status === 'tool' ? '执行中' : (s.status === 'thinking' ? '思考中' : '空闲'),
+          c: '#E8EAEE', at: s.lastTime || 0
+        });
+      }
+      const hk = st.hook;
+      for (const a of (st.agents || [])) {
+        if (!a.active) continue;
+        let at = a.at || 0;
+        if (a.id === 'codex' && hk && hk.at && (now - hk.at) < 15000) at = Math.max(at, hk.at);
+        items.push({ k: a.name, t: a.detail || '', s: a.state || '', c: a.color || '#8d939c', at });
+      }
+      if (hk && hk.at && (now - hk.at) < 15000 && !items.some(x => x.k === 'Codex')) {
+        items.push({ k: 'CODEX', t: hk.tool || '工具调用', s: '执行中', c: '#10A37F', at: hk.at });
+      }
+      const ext = window.__EXT;
+      if (ext && ext.busy && ext.apps && ext.apps[0]) {
+        const g = ext.apps[0];
+        items.push({
+          k: 'CHATGPT', t: g.snippet || '', s: g.state === '执行中' ? '执行中' : '思考中',
+          c: '#98E0CF', at: ext.at || now - 1000
+        });
+      }
+      const byKey = new Map();
+      for (const it of items) { const cur = byKey.get(it.k); if (!cur || it.at > cur.at) byKey.set(it.k, it); }
+      const list = [...byKey.values()].sort((a2, b2) => b2.at - a2.at).slice(0, 4);
+
+      HF_CARD_NODES = HF_CARD_NODES || new Map();
+      const alive = new Set();
+      list.forEach((it, i) => {
+        alive.add(it.k);
+        let el = HF_CARD_NODES.get(it.k);
+        if (!el) {
+          el = document.createElement('div');
+          el.className = 'hf-card';
+          el.innerHTML = '<div class="k"></div><div class="t"></div><div class="s"></div>';
+          stack.appendChild(el);
+          HF_CARD_NODES.set(it.k, el);
+        }
+        const kEl = el.firstChild, tEl = kEl.nextSibling, sEl = tEl.nextSibling;
+        kEl.textContent = it.k;
+        tEl.textContent = short(maskText(it.t || '—'), 30);
+        sEl.textContent = it.s || '';
+        el.style.borderLeftColor = it.c;
+        el.style.transform = 'translateY(' + (-24 * i) + 'px) scale(' + (1 - 0.07 * i).toFixed(3) + ')';
+        el.style.opacity = String(Math.max(0.4, 1 - 0.3 * i));
+        el.style.zIndex = String(30 - i);
+      });
+      for (const [k, el] of [...HF_CARD_NODES]) {
+        if (!alive.has(k)) { el.remove(); HF_CARD_NODES.delete(k); }
+      }
+    } catch (e) {}
 
     // bottom status + callout
     const big = $('stBig');
@@ -715,7 +788,7 @@ function ingest(st) {
   /* 诊断：把页面 hidden 状态与 JS 错误报给服务端（/stats 里可见） */
   try {
     setInterval(() => {
-      fetch('/debug/state?h=' + (document.hidden ? 1 : 0), { cache: 'no-store' }).catch(() => {});
+      fetch('/debug/state?h=' + (document.hidden ? 1 : 0) + '&w=' + window.innerWidth + '&h2=' + window.innerHeight + '&dpr=' + (window.devicePixelRatio || 1), { cache: 'no-store' }).catch(() => {});
     }, 5000);
     window.addEventListener('error', (e) => {
       try { fetch('/debug/state?err=' + encodeURIComponent((e.message || 'err') + ' @ ' + (e.filename || '') + ':' + (e.lineno || 0)), { cache: 'no-store' }).catch(() => {}); } catch (e2) {}
