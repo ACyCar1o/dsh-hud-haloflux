@@ -13,7 +13,10 @@
 
 ## 二、HALOFLUX（视觉原作）
 
-原作：HALOFLUX by Ryder191（RYDER CODE / Ms MAIKEBAIs CAT） · https://github.com/Ryder191/haloflux
+原作：HALOFLUX by Ryder191（RYDER CODE / Ms MAIKEBAIs CAT，中文网名「麦克白夫人的猫」）
+· GitHub：https://github.com/Ryder191/haloflux
+· B 站主页：https://space.bilibili.com/485939159
+· 原作演示视频（B 站）：https://www.bilibili.com/video/BV1dhn163E2V
 
 Required Notice（原作要求，必须保留）：
 

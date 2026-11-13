@@ -1,12 +1,19 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.26.7**（2026-11-13）
+当前版本：**v1.26.8**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.26.8 — NOTICE 补上原作 B 站/视频链接（2026-11-13）
+
+- 修正 v1.26.7 里 NOTICE 未替换成功的一行：原作信息块现在包含
+  中文网名「麦克白夫人的猫」、B 站主页 <https://space.bilibili.com/485939159>、
+  原作演示视频 <https://www.bilibili.com/video/BV1dhn163E2V>。
+- 项目作者仍为 竹子Away（ACyCar1o）· <https://space.bilibili.com/8124574>。
 
 ## v1.26.7 — 作者与原作身份信息补全（2026-11-13）
 
