@@ -12,6 +12,12 @@ function Log([string]$m) {
   try { Add-Content -Path $log -Value ('[{0}] {1}' -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $m) -Encoding UTF8 } catch {}
 }
 
+# single instance: another daemon.ps1 process already running -> exit
+$others = @(Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object {
+  $_.ProcessId -ne $PID -and $_.CommandLine -match '-File\s+"?[^"]*daemon\.ps1'
+})
+if ($others.Count -gt 0) { exit 0 }
+
 # single instance: exclusive file lock
 try {
   $script:lockStream = [System.IO.File]::Open($lock, 'OpenOrCreate', 'ReadWrite', 'None')
@@ -40,7 +46,18 @@ if (Test-Path $fix) {
   } catch {}
 }
 
+$livelyExe = 'C:\Program Files\Lively Wallpaper\Lively.exe'
+$livelyTick = 0
+
 while ($true) {
+  # 每 ~60 秒确认 Lively 还在；被关掉或崩溃就拉起来（GUI 程序，无控制台窗口）
+  $livelyTick++
+  if (($livelyTick % 15) -eq 0 -and (Test-Path $livelyExe)) {
+    if (-not (Get-Process Lively -ErrorAction SilentlyContinue)) {
+      Log 'Lively not running -> start it'
+      try { Start-Process -FilePath $livelyExe | Out-Null } catch { Log ('lively start failed: ' + $_.Exception.Message) }
+    }
+  }
   if (-not (PortBusy)) {
     Log 'starting server.mjs (daemon)'
     $root = Split-Path -Parent $here
