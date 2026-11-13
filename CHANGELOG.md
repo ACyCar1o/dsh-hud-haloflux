@@ -1,12 +1,21 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.24.0**（2026-11-13）
+当前版本：**v1.24.1**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.24.1 — 移除已废弃的计划任务脚本（2026-11-13）
+
+**清理**
+- 删除 `setup-hud-task.cmd` / `setup-hud-task.ps1`（桌面与仓库均移除）。
+  它们是为旧的 VBS 守护方案写的，且文件用 LF 换行 + 无 BOM：
+  cmd 只认 CRLF，所以双击会"闪退"；PowerShell 5.1 也会把中文注释读成乱码。
+- 当前启动链已不需要管理员/计划任务：登录 → 单个 ASCII `dsh-hud-start.vbs`
+  → `conhost --headless powershell -File daemon.ps1`（零窗口、单实例、掉线自愈）。
 
 ## v1.24.0 — 彻底去掉 VBS / 无窗口后台（2026-11-13）
 
