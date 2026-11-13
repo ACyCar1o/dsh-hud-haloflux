@@ -1,12 +1,21 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.26.11**（2026-11-13）
+当前版本：**v1.26.12**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.26.12 — 「相关项目」改成准确的依赖/参考说明（2026-11-13）
+
+- 之前只列名字，容易让人以为都用上了。现在分成两组：
+  - **实际用到的（唯一依赖）**：Ryder191/haloflux（`haloflux/` 即其原始文件）
+  - **看过并借鉴过思路（未使用代码）**：Ke-wood / Michael-ZAG / b1ub1u / agent-halo
+- 明确标注：除 HALOFLUX 外未复制任何代码；其中 b1ub1u 的「reload 泄漏 WebView 进程」实测结论
+  影响了本项目的守护策略。
+- 中英文 README 同步。
 
 ## v1.26.11 — README.en 重复 License 段清理（2026-11-13）
 

@@ -151,8 +151,16 @@ The on-canvas credit line is hidden by default (`SHOW_CREDIT = true` in `bridge.
 
 ## Related projects
 
-- [Ryder191/haloflux](https://github.com/Ryder191/haloflux) — the original visual engine
-- [Ke-wood/dsh-haloflux](https://github.com/Ke-wood/dsh-haloflux) — first DSH Web GUI port of HALOFLUX
-- [Michael-ZAG/dsh-haloflux](https://github.com/Michael-ZAG/dsh-haloflux) — rebuilt HUD (phase ring, context arc, 117 params)
-- [b1ub1u/dsh-hud-haloflux-live2](https://github.com/b1ub1u/dsh-hud-haloflux-live2) — multi-agent screen, stacked cards, recovery script
-- [caihao373-star/agent-halo](https://github.com/caihao373-star/agent-halo) — multi-agent monitor (plan progress ring)
+**Actually used (the only dependency)**
+
+- [Ryder191/haloflux](https://github.com/Ryder191/haloflux) — the visual engine (`haloflux/` in this repo is its original files)
+
+**Ideas borrowed (no code taken)**
+
+- [Ke-wood/dsh-haloflux](https://github.com/Ke-wood/dsh-haloflux) — first DSH Web GUI port; proved session-driven visuals work
+- [Michael-ZAG/dsh-haloflux](https://github.com/Michael-ZAG/dsh-haloflux) — HUD layout / phase ring / context arc explorations
+- [b1ub1u/dsh-hud-haloflux-live2](https://github.com/b1ub1u/dsh-hud-haloflux-live2) — multi-platform screen; its finding that
+  `setwp --file reload` leaks a 2–3.5GB WebView process shaped our restart strategy
+- [caihao373-star/agent-halo](https://github.com/caihao373-star/agent-halo) — multi-agent monitor & plan-progress ring, inspiration for the "Other AI" panel
+
+> Except HALOFLUX, **no code was copied** from these projects; they are references only and their own licenses apply.

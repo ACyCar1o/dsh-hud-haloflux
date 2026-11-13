@@ -195,8 +195,16 @@ winget install --id rocksdanister.LivelyWallpaper
 
 ## 相关项目
 
-- [Ryder191/haloflux](https://github.com/Ryder191/haloflux) — 视觉原作（HALOFLUX）
-- [Ke-wood/dsh-haloflux](https://github.com/Ke-wood/dsh-haloflux) — 最早把 HALOFLUX 接进 DSH Web GUI 的移植版
-- [Michael-ZAG/dsh-haloflux](https://github.com/Michael-ZAG/dsh-haloflux) — 在该移植上重做 HUD（相位环 / 上下文弧 / 117 参数）
-- [b1ub1u/dsh-hud-haloflux-live2](https://github.com/b1ub1u/dsh-hud-haloflux-live2) — 多平台 AI 同屏、多卡堆叠、恢复脚本
-- [caihao373-star/agent-halo](https://github.com/caihao373-star/agent-halo) — 多智能体监控（规划进度环）
+**本项目实际用到的（唯一依赖）**
+
+- [Ryder191/haloflux](https://github.com/Ryder191/haloflux) — 视觉引擎。本仓库的 `haloflux/` 就是它的原始文件，运行时注入 `bridge.js`
+
+**看过并借鉴过思路的（没有使用它们的代码）**
+
+- [Ke-wood/dsh-haloflux](https://github.com/Ke-wood/dsh-haloflux) — 最早把 HALOFLUX 接进 DSH Web GUI，验证了"用会话数据驱动光环"这个方向可行
+- [Michael-ZAG/dsh-haloflux](https://github.com/Michael-ZAG/dsh-haloflux) — HUD 面板布局 / 相位环 / 上下文弧等探索，给了面板设计的参考
+- [b1ub1u/dsh-hud-haloflux-live2](https://github.com/b1ub1u/dsh-hud-haloflux-live2) — 多平台 AI 同屏；它记录的
+  "`setwp --file reload` 会泄漏一个 2–3.5GB WebView 进程"的实测结论，直接影响了本项目的守护策略（改为干净重启 + 限频）
+- [caihao373-star/agent-halo](https://github.com/caihao373-star/agent-halo) — 多智能体监控与"规划进度环"，是「其他 AI」面板的思路来源
+
+> 除 HALOFLUX 外，其余项目**均未复制代码**，只作为方向与经验参考；它们的许可以各自仓库为准。
