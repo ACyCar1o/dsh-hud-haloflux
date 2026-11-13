@@ -163,7 +163,28 @@ winget install --id rocksdanister.LivelyWallpaper
 > 内存大头是 Lively/WebView2 基线（换任何壁纸都差不多）。
 > 可在 `bridge.js` 调 `devicePixelRatio`、帧率、`LOAD` 进一步降载。
 
-## 许可
+## 相关项目
 
-- 视觉：HALOFLUX by Ryder191，PolyForm Noncommercial（**禁止商业用途**）
-- 二次开发脚本：MIT（见 `LICENSE-MIT`），分发请保留非商业性质与署名
+- [Ryder191/haloflux](https://github.com/Ryder191/haloflux) — 视觉原作（本项目使用的引擎）
+- [Ke-wood/dsh-haloflux](https://github.com/Ke-wood/dsh-haloflux) — 最早把 HALOFLUX 接进 DSH Web GUI 的移植版
+- [Michael-ZAG/dsh-haloflux](https://github.com/Michael-ZAG/dsh-haloflux) — 在该移植上重做 HUD（相位环 / 上下文弧 / 117 参数）
+- [b1ub1u/dsh-hud-haloflux-live2](https://github.com/b1ub1u/dsh-hud-haloflux-live2) — 多平台 AI 同屏、多卡堆叠、恢复脚本
+- [caihao373-star/agent-halo](https://github.com/caihao373-star/agent-halo) — 多智能体监控（规划进度环）
+
+## 作者与致谢
+
+- **项目作者**：ACyCar1o · [B 站主页](https://space.bilibili.com/8124574) · [GitHub](https://github.com/ACyCar1o)
+- **视觉原作**：HALOFLUX by **Ryder191**（RYDER CODE / Ms MAIKEBAIs CAT）· [仓库](https://github.com/Ryder191/haloflux)
+- 感谢在 HALOFLUX 之上做 DSH 移植与 HUD 探索的社区项目（见文末「相关项目」）
+
+## 许可与权益（务必阅读）
+
+| 部分 | 许可 | 能不能商用 | 要求 |
+|---|---|---|---|
+| **视觉引擎** `haloflux/` | HALOFLUX **PolyForm Noncommercial 1.0.0** | ❌ **严禁任何商业用途** | 必须保留版权声明、注明作者与仓库链接 |
+| **二次开发脚本** `dsh-hud/` | **MIT**（见 `LICENSE-MIT`） | ✅ 可用（但视觉部分仍受上一条约束） | 保留版权与许可声明 |
+| **背景音乐** `haloflux/audio/` | 原作者以 **CC0** 发布 | ✅ | 无 |
+| **你的数据** | 只留本机 | — | 不读取登录凭据，不上传任何内容 |
+
+- 完整版权与转载要求见 **[NOTICE.md](NOTICE.md)** 与 **[LICENSE](LICENSE)**。
+- 画布上的署名默认**隐藏**（`bridge.js` 里 `SHOW_CREDIT = true` 可恢复显示），署名信息保留在 README / NOTICE 中。

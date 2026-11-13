@@ -4,9 +4,9 @@
   "Thumbnail": "",
   "Preview": "",
   "Desc": "Live HALOFLUX visualization driven by DeepSeek Harness session activity. Needs dsh-hud on 127.0.0.1:7788.",
-  "Author": "dsh-hud",
-  "License": "",
-  "Contact": "",
+  "Author": "ACyCar1o",
+  "License": "Visual: PolyForm Noncommercial 1.0.0 (HALOFLUX by Ryder191) / Scripts: MIT",
+  "Contact": "https://space.bilibili.com/8124574",
   "Type": 1,
   "Arguments": "--system-information --pause-event true",
   "FileName": "index.html"

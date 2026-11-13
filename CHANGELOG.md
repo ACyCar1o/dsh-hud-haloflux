@@ -1,12 +1,24 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.26.4**（2026-11-13）
+当前版本：**v1.26.5**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 升级方式：`git pull` 后重启服务（或重新解压 `DSH-HUD-portable.zip` 覆盖）；
 > 壁纸页会自动重连，不需要手动改 Lively。
 
 ---
+
+## v1.26.5 — 权益与署名补全（2026-11-13）
+
+**补全**
+- README（中/英）新增「作者与致谢」与「许可与权益」表格：明确视觉 / 脚本 / 音乐 / 数据四类权益与商用限制。
+- 作者信息：ACyCar1o · B 站主页 <https://space.bilibili.com/8124574> · GitHub。
+- `NOTICE.md` 增加本项目作者与仓库，并修正「画布署名行请勿移除」的过时说明
+  （署名默认隐藏，`SHOW_CREDIT=true` 可恢复）。
+- `wall-proj/LivelyInfo.json`：`Author` 由占位的 `dsh-hud` 改为 `ACyCar1o`，补 `Contact`(B 站) 与 `License`。
+- `wall-proj/project.json`：描述里补 HALOFLUX 原作署名与仓库链接、本项目作者（Wallpaper Engine 转载要求）。
+- 新增「相关项目」章节（Ryder191 / Ke-wood / Michael-ZAG / b1ub1u / agent-halo）。
+- 重写 `dsh-hud/README.md`：改为当前架构（daemon / stack / agents），不再保留过期说明。
 
 ## v1.26.4 — 修掉 README 版本行过期 + 截图破缓存（2026-11-13）
 
