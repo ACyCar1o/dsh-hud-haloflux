@@ -1,12 +1,19 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.28.0**（2026-11-13）
+当前版本：**v1.28.1**（2026-11-13）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 版本号以仓库根目录 [`VERSION`](VERSION) 为准。
 > 升级方式：`git pull` 后重启后台（`dsh-hud\stack.ps1`），或直接覆盖解压 `DSH-HUD-portable.zip`。
 
 ---
+
+## v1.28.1 — 修复 Codex hooks.json 的 BOM 解析错误（2026-11-13）
+
+- PowerShell 5.1 的 `Set-Content -Encoding UTF8` 会写入 BOM，Codex（Rust）解析 hooks.json 时
+  报 `expected value at line 1 column 1`。
+- 安装脚本改为 **UTF-8 无 BOM** 写入；已修正本机现有 `hooks.json`，并用严格解析器验证通过。
+- 事件结构：`hooks -> <Event> -> [ { hooks: [ { type: command, command, async, timeout } ] } ]`。
 
 ## v1.28.0 — Codex Hooks 接入（2026-11-13）
 

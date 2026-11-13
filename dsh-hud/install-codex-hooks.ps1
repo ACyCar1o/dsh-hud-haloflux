@@ -61,7 +61,8 @@ if ($Uninstall) {
     if ($kept.Count -eq 0) { $doc.hooks.PSObject.Properties.Remove($ev) }
     else { $doc.hooks.$ev = $kept }
   }
-  ($doc | ConvertTo-Json -Depth 20) | Set-Content -Path $hooksPath -Encoding UTF8
+  $jsonText = $doc | ConvertTo-Json -Depth 20
+[System.IO.File]::WriteAllText($hooksPath, $jsonText, (New-Object System.Text.UTF8Encoding($false)))
   Write-Host '已移除 dsh-hud 的 Codex Hooks。'
   Write-Host '（Codex 里可能需要重新加载一次会话）'
   exit 0
@@ -88,7 +89,8 @@ foreach ($ev in $events) {
   $added++
 }
 
-($doc | ConvertTo-Json -Depth 20) | Set-Content -Path $hooksPath -Encoding UTF8
+$jsonText = $doc | ConvertTo-Json -Depth 20
+[System.IO.File]::WriteAllText($hooksPath, $jsonText, (New-Object System.Text.UTF8Encoding($false)))
 Write-Host "已写入 $hooksPath（新增 $added 个事件组）"
 Write-Host ''
 Write-Host '下一步（只需一次）：'
