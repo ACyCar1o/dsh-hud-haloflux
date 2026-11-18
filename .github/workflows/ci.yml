@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Node syntax check (.mjs)
+        shell: pwsh
+        run: |
+          $bad = 0
+          Get-ChildItem dsh-hud -Filter *.mjs -File | ForEach-Object {
+            node --check $_.FullName
+            if ($LASTEXITCODE -ne 0) { Write-Host "::error file=$($_.FullName)::node --check failed"; $bad = 1 }
+            else { Write-Host "ok  $($_.Name)" }
+          }
+          if ($bad -ne 0) { exit 1 }
+
+      - name: PowerShell parse check (.ps1)
+        shell: pwsh
+        run: |
+          $bad = 0
+          Get-ChildItem dsh-hud -Filter *.ps1 -File | ForEach-Object {
+            $errs = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$null, [ref]$errs) | Out-Null
+            if ($errs.Count -gt 0) {
+              Write-Host "::error file=$($_.FullName),line=$($errs[0].Extent.StartLineNumber)::$($errs[0].Message)"
+              $bad = 1
+            } else { Write-Host "ok  $($_.Name)" }
+          }
+          if ($bad -ne 0) { exit 1 }
+
+      - name: .ps1 files must be UTF-8 with BOM
+        shell: pwsh
+        run: |
+          $bad = 0
+          Get-ChildItem dsh-hud -Filter *.ps1 -File | ForEach-Object {
+            $b = [System.IO.File]::ReadAllBytes($_.FullName)
+            $hasBom = $b.Length -ge 3 -and $b[0] -eq 0xEF -and $b[1] -eq 0xBB -and $b[2] -eq 0xBF
+            if (-not $hasBom) { Write-Host "::error file=$($_.FullName)::missing UTF-8 BOM"; $bad = 1 }
+          }
+          if ($bad -ne 0) { exit 1 }
+
+      - name: JSON validity
+        shell: pwsh
+        run: |
+          $bad = 0
+          Get-ChildItem dsh-hud -Recurse -Filter *.json -File |
+            Where-Object { $_.FullName -notmatch '\\node_modules\\' } |
+            ForEach-Object {
+              try { Get-Content $_.FullName -Raw -Encoding UTF8 | ConvertFrom-Json | Out-Null }
+              catch {
+                Write-Host "::error file=$($_.FullName)::invalid JSON: $_"
+                $bad = 1
+              }
+            }
+          if ($bad -ne 0) { exit 1 }
+
+      - name: Wallpaper project metadata
+        shell: pwsh
+        run: |
+          $bad = 0
+          foreach ($name in 'dsh-hud/wall-proj/LivelyInfo.json', 'dsh-hud/wall-proj/project.json') {
+            if (-not (Test-Path $name)) { Write-Host "::error file=$name::missing"; $bad = 1; continue }
+            $j = Get-Content $name -Raw -Encoding UTF8 | ConvertFrom-Json
+            if (-not $j.Title -and -not $j.name) { Write-Host "::error file=$name::missing title"; $bad = 1 }
+          }
+          if ($bad -ne 0) { exit 1 }

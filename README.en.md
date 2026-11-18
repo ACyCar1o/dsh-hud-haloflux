@@ -2,6 +2,11 @@
 
 [中文](README.md) | **English**
 
+![Version](https://img.shields.io/github/v/tag/ACyCar1o/dsh-hud-haloflux?label=version&color=blue)
+![Node](https://img.shields.io/badge/node-%E2%89%A522-339933)
+![License](https://img.shields.io/badge/license-PolyForm%20NC%20%2B%20MIT-lightgrey)
+![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078D4)
+
 Wires [HALOFLUX](https://github.com/Ryder191/haloflux) — a single-file Canvas sci-fi visualizer —
 to **DeepSeek Harness**'s real local session data. The ring's rotation speed, beam bursts and every
 number on screen are driven by actual events: idle when you are away, bursting when tools run.

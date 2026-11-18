@@ -1,0 +1,22 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# PowerShell 5.1 会把无 BOM 的 UTF-8 当 ANSI 读 → 中文乱码 / 解析失败
+[*.ps1]
+charset = utf-8-bom
+end_of_line = crlf
+
+# cmd 批处理必须是 CRLF，否则 cmd 解析会出错
+[*.cmd]
+end_of_line = crlf
+
+[*.{md,json,yml,yaml,mjs,js}]
+end_of_line = lf
+
+[*.{json,yml,yaml}]
+indent_size = 2

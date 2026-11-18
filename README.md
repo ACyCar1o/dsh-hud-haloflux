@@ -2,6 +2,11 @@
 
 **中文** | [English](README.en.md)
 
+![Version](https://img.shields.io/github/v/tag/ACyCar1o/dsh-hud-haloflux?label=version&color=blue)
+![Node](https://img.shields.io/badge/node-%E2%89%A522-339933)
+![License](https://img.shields.io/badge/license-PolyForm%20NC%20%2B%20MIT-lightgrey)
+![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078D4)
+
 把 [HALOFLUX](https://github.com/Ryder191/haloflux)（单文件 Canvas 科幻可视化）接到本机 **DeepSeek Harness** 的真实会话数据上：
 轮盘转速、光束爆发、面板数字都由真实事件驱动，空闲时待命慢速、干活时爆发。
 

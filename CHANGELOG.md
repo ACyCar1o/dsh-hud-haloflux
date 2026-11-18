@@ -1,12 +1,25 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.30.5**（2026-11-18）
+当前版本：**v1.30.6**（2026-11-18）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 版本号以仓库根目录 [`VERSION`](VERSION) 为准。
 > 升级方式：`git pull` 后重启后台（`dsh-hud\stack.ps1`），或直接覆盖解压 `DSH-HUD-portable.zip`。
 
 ---
+
+## v1.30.6 — 工程化：CI / EditorConfig / GitHub 模板（2026-11-18）
+
+**新增**
+- `.github/workflows/ci.yml`：在 `windows-latest` 上跑四类检查 —— 所有 `.mjs` 的 `node --check`、
+  所有 `.ps1` 的 PowerShell Parser、`.ps1` 的 UTF-8 BOM 校验、JSON 合法性 + 壁纸工程元数据。
+  本次 `install.ps1` 残留代码这类问题以后会被 CI 直接拦下。
+- `.editorconfig`：`*.ps1` 固定 `utf-8-bom` + CRLF（PowerShell 5.1 中文不乱码），`*.cmd` 固定 CRLF。
+- `.github/ISSUE_TEMPLATE/`（bug 反馈表单 + 配置）、`.github/pull_request_template.md`、`SECURITY.md`。
+- README（中/英）顶部加 Version / Node / License / Platform 徽章。
+
+**调整**
+- 关闭空的 GitHub Wiki（内容统一放 README / INSTALL / CHANGELOG）。
 
 ## v1.30.5 — INSTALL 文档重写与校正（2026-11-18）
 

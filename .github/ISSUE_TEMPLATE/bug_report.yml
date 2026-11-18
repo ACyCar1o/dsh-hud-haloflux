@@ -1,0 +1,65 @@
+name: Bug report
+description: 安装 / 运行 / 画面问题反馈
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈。请尽量把下面几项填完整，大多数问题看一眼环境信息就能定位。
+
+        提交前可以先跑一次自检，把输出贴上来：
+        ```powershell
+        powershell -NoProfile -ExecutionPolicy Bypass -File dsh-hud\verify-after-reboot.ps1
+        ```
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 发生了什么
+      description: 现象、报错原文、截图都行
+      placeholder: 例如：壁纸黑屏，页面显示「等待 dsh-hud 服务」
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 解压到 D:\Apps\dsh-hud
+        2. 运行 install.ps1
+        3. 重启后壁纸消失
+  - type: input
+    id: os
+    attributes:
+      label: 系统版本
+      placeholder: Windows 11 24H2 26100 / Windows 10 22H2 19045
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node.js 版本（node -v）
+      placeholder: v22.14.0
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 项目版本
+      description: 仓库根目录 `VERSION` 里的值，或下载的 Release 标签
+      placeholder: 1.30.5
+  - type: dropdown
+    id: display
+    attributes:
+      label: 壁纸所在屏幕
+      options:
+        - 主屏（物理显示器）
+        - iPad / spacedesk 虚拟屏
+        - 其他虚拟屏 / 远程桌面
+        - 多屏同时
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志
+      description: 可把 `dsh-hud\server.log` 的最后 50 行、或自检输出贴在这里
+      render: text
