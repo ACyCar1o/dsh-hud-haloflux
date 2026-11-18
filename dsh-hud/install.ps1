@@ -55,9 +55,6 @@ Set-Content -Path $vbsPath -Value $vbs -Encoding ASCII
 Write-Host "已写入开机自启：$vbsPath"
 
 Start-Detached -File 'wscript.exe' -Arguments ('"' + $vbsPath + '"') | Out-Null
-# `
-  -ArgumentList '-NoProfile', '-WindowStyle', 'Hidden', '-ExecutionPolicy', 'Bypass', '-File', "`"$here\start.ps1`"" `
-  -WindowStyle Hidden
 Start-Sleep -Seconds 4
 
 try {
