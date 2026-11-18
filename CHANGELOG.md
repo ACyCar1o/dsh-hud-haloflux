@@ -1,12 +1,29 @@
 # 更新日志（CHANGELOG）
 
-当前版本：**v1.30.4**（2026-11-13）
+当前版本：**v1.30.5**（2026-11-18）
 仓库：<https://github.com/ACyCar1o/dsh-hud-haloflux>
 
 > 版本号以仓库根目录 [`VERSION`](VERSION) 为准。
 > 升级方式：`git pull` 后重启后台（`dsh-hud\stack.ps1`），或直接覆盖解压 `DSH-HUD-portable.zip`。
 
 ---
+
+## v1.30.5 — INSTALL 文档重写与校正（2026-11-18）
+
+**INSTALL.md（整体重写）**
+- 结构改为 4 步安装流程：装 Node → 解压 → 一键安装 → 接壁纸；补充成功输出样例、7 项自检样例。
+- 修正事实错误：
+  - 卸载命令不再使用不存在的 `stack.ps1 -Stop`，改为「删自启 → 停守护 → 停 node → 删目录」的可执行步骤（含防误杀）。
+  - 后台启动链统一为 `vbs → start.ps1 → conhost --headless → daemon.ps1 → node`。
+  - 卡顿调参改为当前真实值：`devicePixelRatio 0.95`、`LOAD 0.45`、`quality ≤ 0.6`、帧节奏 `20 + 40·(1-AC)^1.6`。
+  - Node 要求改为 22 LTS 或更新（Node 20 缺 `node:sqlite`，部分卡片标题会降级）。
+  - `install.ps1` 实际只做 4 件事，明确「不自动装 Lively、不自动选屏」。
+- 补全隐私清单：新增 `~/.codex`、`~/.workbuddy`、`~/.claude` 与 Lively 布局数据；明确不读凭据。
+- 新增「许可」章节（HALOFLUX 非商业 / 脚本 MIT / Lively GPL-3.0）。
+- 其他：Lively 工程导入改为推荐方式、`type` 改 `Get-Content`、排障合并为「3 个高频问题 + 全量表」、补充 Lively 壁纸条目删除说明。
+
+**README**
+- 修正 `install.ps1` 的过时描述（它不做自动选屏）。
 
 ## v1.30.4 — 截图脚本自动化（2026-11-13）
 

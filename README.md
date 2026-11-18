@@ -148,7 +148,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File dsh-hud\install-codex-hooks.
 | `dsh-hud/daemon.ps1` | 无窗口守护：node 掉线自动重启 |
 | `dsh-hud/stack.ps1` | 后台维护：清重复实例 + 重启 + 自愈测试 |
 | `dsh-hud/wall-proj/` | Lively / Wallpaper Engine 壁纸工程 |
-| `dsh-hud/install.ps1` | 一键安装（写开机自启 + 启动守护 + 自动选屏） |
+| `dsh-hud/install.ps1` | 一键安装（写开机自启 + 启动守护；选屏由守护进程在启动时处理） |
 | `dsh-hud/verify-after-reboot.ps1` | 重启后自检 |
 | `haloflux/` | HALOFLUX 原始视觉（未改动，服务端运行时注入 bridge） |
 | `CHANGELOG.md` | 每个版本修了什么 |
